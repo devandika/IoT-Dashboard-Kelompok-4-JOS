@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IoT Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box {
+            width: 400px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .login-box .logo {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="logo">
+        <i class="fas fa-network-wired text-primary"></i> IoT Dashboard
+    </div>
+    <form id="login-form">
+        <div id="error-msg" class="alert alert-danger d-none" role="alert"></div>
+        
+        <div class="mb-3">
+            <label for="server-ip" class="form-label">IP Server (Opsional)</label>
+            <input type="text" class="form-control" id="server-ip" placeholder="Contoh: 192.168.43.196">
+            <div class="form-text">Biarkan kosong jika mengakses dari server yang sama.</div>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+                <input type="password" class="form-control" id="password" required>
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                    <i class="fas fa-eye" id="toggleIcon"></i>
+                </button>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>
+        <div class="text-center">
+            <a href="register.html" class="text-decoration-none">Belum punya akun? Daftar di sini.</a>
+        </div>
+    </form>
+</div>
+
+<!-- Axios & Auth Logic -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const serverIp = document.getElementById('server-ip').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('error-msg');
+
+        if (serverIp) {
+            localStorage.setItem('serverIP', serverIp);
+            axios.defaults.baseURL = `http://${serverIp}:8080`;
+        } else {
+            localStorage.removeItem('serverIP');
+            axios.defaults.baseURL = '';
+        }
+
+        try {
+            const res = await axios.post('/api/auth/login', { username, password });
+            if (res.data.success) {
+                // Simpan token dan data user
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('user', JSON.stringify(res.data.user));
+                window.location.href = 'index.html';
+            }
+        } catch (error) {
+            errorMsg.classList.remove('d-none');
+            errorMsg.innerText = error.response ? error.response.data.message : 'Terjadi kesalahan server.';
+        }
+    });
+
+    document.getElementById('togglePassword').addEventListener('click', function (e) {
+        const passwordInput = document.getElementById('password');
+        const icon = document.getElementById('toggleIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+    // Load saved IP if exists
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedIp = localStorage.getItem('serverIP');
+        if (savedIp) {
+            document.getElementById('server-ip').value = savedIp;
+        }
+    });
+</script>
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - IoT Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box {
+            width: 400px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .login-box .logo {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="logo">
+        <i class="fas fa-user-plus text-primary"></i> Buat Akun Baru
+    </div>
+    <form id="register-form">
+        <div id="error-msg" class="alert alert-danger d-none" role="alert"></div>
+        <div id="success-msg" class="alert alert-success d-none" role="alert">Pendaftaran berhasil! Mengarahkan ke dashboard...</div>
+        
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" required>
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Konfirmasi Password</label>
+            <input type="password" class="form-control" id="confirm_password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mb-3">Daftar Sekarang</button>
+        <div class="text-center">
+            <a href="login.html" class="text-decoration-none">Sudah punya akun? Login di sini.</a>
+        </div>
+    </form>
+</div>
+
+<!-- Axios & Auth Logic -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const errorMsg = document.getElementById('error-msg');
+        const successMsg = document.getElementById('success-msg');
+
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+
+        if (password !== confirmPassword) {
+            errorMsg.classList.remove('d-none');
+            errorMsg.innerText = 'Konfirmasi password tidak cocok.';
+            return;
+        }
+
+        try {
+            const res = await axios.post('/api/auth/register', { username, password });
+            if (res.data.success) {
+                // Simpan token dan data user (Auto-login)
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('user', JSON.stringify(res.data.user));
+                
+                successMsg.classList.remove('d-none');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }
+        } catch (error) {
+            errorMsg.classList.remove('d-none');
+            errorMsg.innerText = error.response ? error.response.data.message : 'Terjadi kesalahan server.';
+        }
+    });
+</script>
+</body>
+</html>

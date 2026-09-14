@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histori Data - IoT Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+<body>
+
+<div id="wrapper">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <div class="sidebar-heading">IoT Admin</div>
+        <div class="list-group list-group-flush">
+            <a href="index.html" class="list-group-item list-group-item-action">
+                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+            </a>
+            <a href="sensor-history.html" class="list-group-item list-group-item-action">
+                <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+            </a>
+            <a href="actuator-history.html" class="list-group-item list-group-item-action active">
+                <i class="fas fa-cogs me-2"></i> Data Aktuator
+            </a>
+            <a href="devices.html" class="list-group-item list-group-item-action">
+                <i class="fas fa-microchip me-2"></i> Perangkat (Dummy)
+            </a>
+            <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
+                <i class="fas fa-users me-2"></i> Pengguna
+            </a>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <!-- Top Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light top-navbar py-3 px-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                <h4 class="m-0 fw-bold">Histori Data Aktuator</h4>
+            </div>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0 text-secondary">Tabel Histori</h5>
+                <span class="badge bg-primary fs-6" id="last-update">Update: --:--:--</span>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between p-3">
+                    <span class="fw-bold">Data Log Terakhir</span>
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 fw-bold">Tampilkan:</label>
+                        <select id="limitFilter" class="form-select form-select-sm w-auto" onchange="ambilHistori()">
+                            <option value="5">5</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="height: calc(100vh - 280px); overflow-y: auto;">
+                        <table class="table table-striped table-hover m-0 text-center align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Serial Number</th>
+                                    <th>Name</th>
+                                    <th>Nilai</th>
+                                    <th>Topic</th>
+                                    <th>Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-histori">
+                                <tr><td colspan="6">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+    const token = checkAuth();
+
+    document.getElementById("menu-toggle").addEventListener("click", function(e) {
+        e.preventDefault();
+        document.getElementById("wrapper").classList.toggle("toggled");
+        const sidebar = document.getElementById("sidebar-wrapper");
+        if(sidebar.style.marginLeft === "-250px") sidebar.style.marginLeft = "0";
+        else sidebar.style.marginLeft = "-250px";
+    });
+
+    async function ambilHistori() {
+        const limit = document.getElementById('limitFilter').value;
+        try {
+            const res = await axios.get(`/api/history/actuator?limit=${limit}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = res.data.data;
+            
+            document.getElementById('last-update').innerText = "Update: " + new Date().toLocaleTimeString('id-ID');
+
+            const tbody = document.getElementById('tabel-histori');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">Tidak ada histori Aktuator.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const timeStr = new Date(item.waktu).toLocaleString('id-ID');
+                const parsedStatus = (item.status_led == 1 || item.status_led == 'ON') ? 'on' : 'off';
+                
+                // Baris LED
+                const row = `<tr>
+                    <td class="fw-bold">${item.id}</td>
+                    <td>10101010</td>
+                    <td class="text-secondary fw-bold">led</td>
+                    <td class="${parsedStatus === 'on' ? 'text-success' : 'text-danger'} fw-bold">${parsedStatus}</td>
+                    <td>kelasiot/10101010/led</td>
+                    <td>${timeStr}</td>
+                </tr>`;
+                
+                tbody.innerHTML += row;
+            });
+        } catch (error) { 
+            console.error('Gagal mengambil histori', error); 
+        }
+    }
+
+    ambilHistori();
+
+    // === MQTT LOGIC UNTUK REFRESH SAAT ADA PERUBAHAN AKTUATOR ===
+    const MQTT_HOST = 'broker.emqx.io';
+    const MQTT_PORT = 8083;
+    const clientID = "WebClient_Actuator_" + parseInt(Math.random() * 1000, 10);
+    let mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "/mqtt", clientID);
+
+    mqttClient.onMessageArrived = (msg) => {
+        if (msg.destinationName === 'tugasiot/kontrol_led') {
+            // Beri sedikit jeda agar backend dan DB selesai menyimpan data baru
+            setTimeout(() => {
+                ambilHistori();
+            }, 800);
+        }
+    };
+
+    mqttClient.connect({
+        onSuccess: () => {
+            mqttClient.subscribe('tugasiot/kontrol_led');
+        }
+    });
+</script>
+</body>
+</html>
