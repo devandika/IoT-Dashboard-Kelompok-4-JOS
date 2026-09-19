@@ -1122,3 +1122,36 @@
 {"_e":"devserver:start","_t":1789804315289,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
 {"_e":"metro:config","_t":1789804315834,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
 {"_e":"expo:dev-tools-plugin:load","_t":1789804316269,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789804325794,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1789804335914,"id":"1","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789804335915,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804335920,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804336038,"id":"1","progress":0.003628973726230222,"total":83,"current":5}
+{"_e":"metro:bundling:progress","_t":1789804336138,"id":"1","progress":0.030196183821553348,"total":305,"current":53}
+{"_e":"metro:bundling:progress","_t":1789804336238,"id":"1","progress":0.06412541981317896,"total":387,"current":98}
+{"_e":"metro:bundling:progress","_t":1789804336338,"id":"1","progress":0.15498725761772855,"total":475,"current":187}
+{"_e":"metro:bundling:progress","_t":1789804336438,"id":"1","progress":0.2148562005155163,"total":658,"current":305}
+{"_e":"metro:bundling:progress","_t":1789804336538,"id":"1","progress":0.290978554231588,"total":799,"current":431}
+{"_e":"metro:bundling:progress","_t":1789804336638,"id":"1","progress":0.3953249369846078,"total":967,"current":608}
+{"_e":"metro:bundling:progress","_t":1789804336738,"id":"1","progress":0.45614840604530976,"total":1032,"current":697}
+{"_e":"metro:bundling:progress","_t":1789804336838,"id":"1","progress":0.6263756590057764,"total":1098,"current":869}
+{"_e":"metro:bundling:progress","_t":1789804336938,"id":"1","progress":0.7344903189518582,"total":1203,"current":1031}
+{"_e":"metro:bundling:progress","_t":1789804337040,"id":"1","progress":0.738466368796039,"total":1365,"current":1173}
+{"_e":"metro:bundling:progress","_t":1789804337146,"id":"1","progress":0.7487744029795144,"total":1433,"current":1240}
+{"_e":"metro:bundling:progress","_t":1789804337246,"id":"1","progress":0.8809741288357613,"total":1531,"current":1437}
+{"_e":"metro:bundling:progress","_t":1789804337361,"id":"1","progress":0.9435381660013941,"total":1641,"current":1594}
+{"_e":"metro:bundling:done","_t":1789804337545,"id":"1","total":1641,"ms":1630.8683}
+{"_e":"metro:bundling:started","_t":1789804690416,"id":"2","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789804690416,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804690418,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804700301,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804700402,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804700514,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804700614,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804700728,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804701658,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804701759,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789804701926,"id":"2","total":1,"ms":11510.0044}
+{"_e":"metro:client_log","_t":1789804706996,"level":"warn","data":["Require cycle: App.js -> src/screens/DashboardScreen.js -> App.js\n\nRequire cycles are allowed, but can result in uninitialized values. Consider refactoring to remove the need for a cycle."]}
+{"_e":"metro:client_log","_t":1789804717724,"level":"error","data":["[TypeError: Cannot read property '$$typeof' of undefined]"]}
+{"_e":"metro:client_log","_t":1789804851137,"level":"warn","data":["DateTimePicker: `onChange` is deprecated. Use `onValueChange`, `onDismiss`, and `onNeutralButtonPress` instead."]}

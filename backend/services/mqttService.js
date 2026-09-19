@@ -38,9 +38,18 @@ function initMqtt() {
     });
 }
 
-function publishLedControl(status) {
+function publishLedControl(status, sn) {
+    let topic = 'tugasiot/kontrol_led'; // Default
+    if (sn === 'SN-ARD-002') {
+        topic = 'tugasiot/kontrol_led_2';
+    } else if (sn === 'SN-ESP82-003') {
+        topic = 'tugasiot/kontrol_led_3';
+    } else if (sn === 'SN-RPI-004') {
+        topic = 'tugasiot/kontrol_led_4';
+    }
+
     if (client && client.connected) {
-        client.publish('tugasiot/kontrol_led', status);
+        client.publish(topic, status);
         return true;
     }
     return false;

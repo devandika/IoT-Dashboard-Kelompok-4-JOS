@@ -1,10 +1,10 @@
 const mqttService = require('../services/mqttService');
 
 const controlLed = (req, res) => {
-    const { status } = req.body; 
+    const { status, sn } = req.body; 
     
     if (status === 'ON' || status === 'OFF') {
-        const success = mqttService.publishLedControl(status);
+        const success = mqttService.publishLedControl(status, sn);
         if (success) {
             res.json({ success: true, message: `Perintah LED ${status} terkirim!` });
         } else {

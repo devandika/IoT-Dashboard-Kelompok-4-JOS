@@ -219,7 +219,7 @@ export default function DashboardScreen({ navigation }) {
   const kontrolLED = (statusPerintah) => {
     setLedStatus(statusPerintah);
     if (serverIp && token) {
-        axios.post(`http://${serverIp}:8080/api/led`, { status: statusPerintah }, { headers: { 'Authorization': `Bearer ${token}` }})
+        axios.post(`http://${serverIp}:8080/api/led`, { status: statusPerintah, sn: selectedDeviceSN }, { headers: { 'Authorization': `Bearer ${token}` }})
             .catch(err => console.error("Gagal mengirim perintah via API:", err));
     }
   };
