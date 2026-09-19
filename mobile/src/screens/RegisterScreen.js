@@ -9,6 +9,8 @@ export default function RegisterScreen({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         const loadSavedIp = async () => {
@@ -83,10 +85,13 @@ export default function RegisterScreen({ navigation }) {
                     <TextInput 
                         style={styles.input} 
                         placeholder="Password" 
-                        secureTextEntry 
+                        secureTextEntry={!showPassword} 
                         value={password} 
                         onChangeText={setPassword} 
                     />
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                        <MaterialCommunityIcons name={showPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
+                    </TouchableOpacity>
                 </View>
                 
                 <View style={styles.inputContainer}>
@@ -94,10 +99,13 @@ export default function RegisterScreen({ navigation }) {
                     <TextInput 
                         style={styles.input} 
                         placeholder="Konfirmasi Password" 
-                        secureTextEntry 
+                        secureTextEntry={!showConfirmPassword} 
                         value={confirmPassword} 
                         onChangeText={setConfirmPassword} 
                     />
+                    <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                        <MaterialCommunityIcons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
+                    </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity style={styles.registerBtn} onPress={handleRegister}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -36,75 +36,91 @@ export default function LoginScreen({ navigation }) {
                 navigation.replace('Main');
             }
         } catch (error) {
-            console.error("Login Error:", error.message, error.stack);
-            const msg = error.response ? error.response.data.message : 'Koneksi ke server gagal.';
+            console.error("Login Error:", error.message);
+            let msg = 'Koneksi ke server gagal atau IP salah.';
+            if (error.response && error.response.data && error.response.data.message) {
+                msg = error.response.data.message;
+            } else if (error.response && error.response.status === 401) {
+                msg = 'Username atau kata sandi salah.';
+            } else if (error.response && error.response.status === 500) {
+                msg = 'Terjadi kesalahan di server (Database/Backend).';
+            }
             Alert.alert('Login Gagal', msg);
         }
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.card}>
-                <View style={styles.iconContainer}>
-                    <MaterialCommunityIcons name="lan" size={60} color="#2563eb" />
-                </View>
-                <Text style={styles.title}>IoT Dashboard</Text>
-                <Text style={styles.subtitle}>Masukkan kredensial Anda untuk masuk ke sistem.</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1, backgroundColor: '#f3f4f6' }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 25}
+        >
+            <ScrollView
+                contentContainerStyle={styles.container}
+                keyboardShouldPersistTaps="always"
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.card}>
+                    <View style={styles.iconContainer}>
+                        <MaterialCommunityIcons name="lan" size={60} color="#2563eb" />
+                    </View>
+                    <Text style={styles.title}>IoT Dashboard</Text>
+                    <Text style={styles.subtitle}>Masukkan kredensial Anda untuk masuk ke sistem.</Text>
 
-                <View style={styles.inputContainer}>
-                    <MaterialCommunityIcons name="server-network" size={20} color="#6b7280" style={styles.inputIcon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="IP Server (cth: 192.168.1.5)"
-                        value={serverIp}
-                        onChangeText={setServerIp}
-                        autoCapitalize="none"
-                    />
-                </View>
+                    <View style={styles.inputContainer}>
+                        <MaterialCommunityIcons name="server-network" size={20} color="#6b7280" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="IP Server (cth: 192.168.1.5)"
+                            value={serverIp}
+                            onChangeText={setServerIp}
+                            autoCapitalize="none"
+                        />
+                    </View>
 
-                <View style={styles.inputContainer}>
-                    <MaterialCommunityIcons name="account" size={20} color="#6b7280" style={styles.inputIcon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Username"
-                        value={username}
-                        onChangeText={setUsername}
-                        autoCapitalize="none"
-                    />
-                </View>
+                    <View style={styles.inputContainer}>
+                        <MaterialCommunityIcons name="account" size={20} color="#6b7280" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Username"
+                            value={username}
+                            onChangeText={setUsername}
+                            autoCapitalize="none"
+                        />
+                    </View>
 
-                <View style={styles.inputContainer}>
-                    <MaterialCommunityIcons name="lock" size={20} color="#6b7280" style={styles.inputIcon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        secureTextEntry={!showPassword}
-                        value={password}
-                        onChangeText={setPassword}
-                    />
-                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                        <MaterialCommunityIcons name={showPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
+                    <View style={styles.inputContainer}>
+                        <MaterialCommunityIcons name="lock" size={20} color="#6b7280" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Password"
+                            secureTextEntry={!showPassword}
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                            <MaterialCommunityIcons name={showPassword ? "eye-off" : "eye"} size={20} color="#6b7280" />
+                        </TouchableOpacity>
+                    </View>
+
+                    <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+                        <Text style={styles.loginBtnText}>Sign In</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.linkBtn} onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.linkBtnText}>Belum punya akun? Daftar di sini.</Text>
                     </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-                    <Text style={styles.loginBtnText}>Sign In</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.linkBtn} onPress={() => navigation.navigate('Register')}>
-                    <Text style={styles.linkBtnText}>Belum punya akun? Daftar di sini.</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f3f4f6',
         padding: 20
     },
     card: {

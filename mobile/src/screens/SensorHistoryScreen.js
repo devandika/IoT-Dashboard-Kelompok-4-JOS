@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemeContext, getThemeStyles } from '../theme';
@@ -70,11 +70,17 @@ export default function SensorHistoryScreen() {
         </View>
       </View>
       
-      <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: 10 }}>
+      <View style={{ flex: 1, flexDirection: 'column', paddingHorizontal: 10 }}>
         
         {/* Table Suhu */}
-        <View style={[themeStyles.tableWrapper, { flex: 1, marginRight: 5 }]}>
-          <View style={[themeStyles.tableHeader, { backgroundColor: isDark ? '#431407' : '#fff7ed' }]}>
+        <View style={[themeStyles.tableWrapper, { flex: 1, marginBottom: 15, padding: 0, overflow: 'hidden' }]}>
+          {/* Card Header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: isDark ? '#1e293b' : '#ffffff', borderBottomWidth: 1, borderBottomColor: isDark ? '#334155' : '#e2e8f0' }}>
+             <MaterialCommunityIcons name="thermometer" size={20} color="#f59e0b" style={{ marginRight: 8 }} />
+             <Text style={{ fontWeight: 'bold', fontSize: 14, color: isDark ? '#f8fafc' : '#334155' }}>Histori Suhu</Text>
+          </View>
+          
+          <View style={[themeStyles.tableHeader, { backgroundColor: isDark ? '#431407' : '#fff7ed', borderRadius: 0 }]}>
             <Text style={[styles.thText, { flex: 0.4, color: '#ea580c' }]}>ID</Text>
             <Text style={[styles.thText, { flex: 0.8, color: '#ea580c' }]}>SN</Text>
             <Text style={[styles.thText, { flex: 0.8, color: '#ea580c' }]}>Suhu</Text>
@@ -86,18 +92,24 @@ export default function SensorHistoryScreen() {
             renderItem={({ item, index }) => (
               <View style={[themeStyles.tableRow, index % 2 === 0 ? themeStyles.rowEven : themeStyles.rowOdd]}>
                 <Text style={[themeStyles.tdText, { flex: 0.4, fontWeight: 'bold' }]}>{item.id}</Text>
-                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 9, color: isDark ? '#94a3b8' : '#6b7280' }]}>SN-ESP32-001</Text>
+                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 10, color: isDark ? '#94a3b8' : '#6b7280' }]}>SN-ESP32-001</Text>
                 <Text style={[themeStyles.tdText, { flex: 0.8, color: isDark ? '#fdba74' : '#ea580c', fontWeight: 'bold' }]}>{item.suhu}°C</Text>
-                <Text style={[themeStyles.tdText, { flex: 1, fontSize: 10 }]}>{formatWaktu(item.waktu)}</Text>
+                <Text style={[themeStyles.tdText, { flex: 1, fontSize: 11 }]}>{formatWaktu(item.waktu)}</Text>
               </View>
             )}
-            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 30, color: isDark ? '#64748b' : '#9ca3af' }}>Kosong</Text>}
+            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 15, marginBottom: 15, color: isDark ? '#64748b' : '#9ca3af' }}>Kosong</Text>}
           />
         </View>
 
         {/* Table Kelembaban */}
-        <View style={[themeStyles.tableWrapper, { flex: 1, marginLeft: 5 }]}>
-          <View style={[themeStyles.tableHeader, { backgroundColor: isDark ? '#082f49' : '#f0f9ff' }]}>
+        <View style={[themeStyles.tableWrapper, { flex: 1, marginBottom: 10, padding: 0, overflow: 'hidden' }]}>
+          {/* Card Header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: isDark ? '#1e293b' : '#ffffff', borderBottomWidth: 1, borderBottomColor: isDark ? '#334155' : '#e2e8f0' }}>
+             <MaterialCommunityIcons name="water-percent" size={22} color="#0ea5e9" style={{ marginRight: 8 }} />
+             <Text style={{ fontWeight: 'bold', fontSize: 14, color: isDark ? '#f8fafc' : '#334155' }}>Histori Kelembaban</Text>
+          </View>
+
+          <View style={[themeStyles.tableHeader, { backgroundColor: isDark ? '#082f49' : '#f0f9ff', borderRadius: 0 }]}>
             <Text style={[styles.thText, { flex: 0.4, color: '#0ea5e9' }]}>ID</Text>
             <Text style={[styles.thText, { flex: 0.8, color: '#0ea5e9' }]}>SN</Text>
             <Text style={[styles.thText, { flex: 0.8, color: '#0ea5e9' }]}>Lembab</Text>
@@ -109,12 +121,12 @@ export default function SensorHistoryScreen() {
             renderItem={({ item, index }) => (
               <View style={[themeStyles.tableRow, index % 2 === 0 ? themeStyles.rowEven : themeStyles.rowOdd]}>
                 <Text style={[themeStyles.tdText, { flex: 0.4, fontWeight: 'bold' }]}>{item.id}</Text>
-                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 9, color: isDark ? '#94a3b8' : '#6b7280' }]}>SN-ESP32-001</Text>
+                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 10, color: isDark ? '#94a3b8' : '#6b7280' }]}>SN-ESP32-001</Text>
                 <Text style={[themeStyles.tdText, { flex: 0.8, color: isDark ? '#7dd3fc' : '#0284c7', fontWeight: 'bold' }]}>{item.kelembaban}%</Text>
-                <Text style={[themeStyles.tdText, { flex: 1, fontSize: 10 }]}>{formatWaktu(item.waktu)}</Text>
+                <Text style={[themeStyles.tdText, { flex: 1, fontSize: 11 }]}>{formatWaktu(item.waktu)}</Text>
               </View>
             )}
-            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 30, color: isDark ? '#64748b' : '#9ca3af' }}>Kosong</Text>}
+            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 15, marginBottom: 15, color: isDark ? '#64748b' : '#9ca3af' }}>Kosong</Text>}
           />
         </View>
 

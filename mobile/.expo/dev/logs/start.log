@@ -799,3 +799,229 @@
 {"_e":"devserver:start","_t":1789389691254,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
 {"_e":"metro:config","_t":1789389691735,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
 {"_e":"expo:dev-tools-plugin:load","_t":1789389692126,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789389699431,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1789389722817,"id":"2","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789389722818,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789389722916,"id":"2","total":1,"ms":98.7472}
+{"_e":"metro:bundling:started","_t":1789390952667,"id":"4","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789390952667,"id":"4","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789390953907,"id":"4","total":1,"ms":1239.5639}
+{"_e":"metro:bundling:started","_t":1789390976140,"id":"5","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789390976140,"id":"5","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789390976143,"id":"5","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789390976243,"id":"5","progress":0.02932069806717958,"total":146,"current":25}
+{"_e":"metro:bundling:progress","_t":1789390976343,"id":"5","progress":0.2248451585884635,"total":213,"current":101}
+{"_e":"metro:bundling:progress","_t":1789390976445,"id":"5","progress":0.37111903818205844,"total":348,"current":212}
+{"_e":"metro:bundling:progress","_t":1789390976545,"id":"5","progress":0.5289256198347108,"total":385,"current":280}
+{"_e":"metro:bundling:progress","_t":1789390976667,"id":"5","progress":0.8562529432239308,"total":442,"current":409}
+{"_e":"metro:bundling:progress","_t":1789390976768,"id":"5","progress":0.8862187873176884,"total":546,"current":514}
+{"_e":"metro:bundling:progress","_t":1789390976867,"id":"5","progress":0.9798324506939373,"total":592,"current":586}
+{"_e":"metro:bundling:done","_t":1789390976965,"id":"5","total":592,"ms":825.4176}
+{"_e":"metro:client_log","_t":1789390978100,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789390978101,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789390978101,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789390978101,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789390978101,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:bundling:started","_t":1789391132088,"id":"7","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789391132089,"id":"7","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789391132210,"id":"7","total":1,"ms":121.5254}
+{"_e":"metro:bundling:started","_t":1789391307573,"id":"8","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789391307573,"id":"8","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789391307658,"id":"8","total":1,"ms":85.2338}
+{"_e":"metro:client_log","_t":1789391370597,"level":"error","data":["Login Error:","Request failed with status code 500","\n\n\u001b[1mCall Stack\u001b[22m\n\u001b[2m\u001b[90m  AxiosError#constructor (node_modules\\axios\\dist\\esm\\axios.js:1893:10)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  settle (node_modules\\axios\\dist\\esm\\axios.js:2976:28)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  onloadend (node_modules\\axios\\dist\\esm\\axios.js:3734:15)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  invoke (node_modules\\react-native\\src\\private\\webapis\\dom\\events\\EventTarget.js:424:29)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  dispatch (node_modules\\react-native\\src\\private\\webapis\\dom\\events\\EventTarget.js:310:11)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  INTERNAL_DISPATCH_METHOD_KEY (node_modules\\react-native\\src\\private\\webapis\\dom\\events\\EventTarget.js:246:13)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  dispatchTrustedEvent (node_modules\\react-native\\src\\private\\webapis\\dom\\events\\internals\\EventTargetInternals.js:63:51)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  setReadyState (node_modules\\react-native\\Libraries\\Network\\XMLHttpRequest.js:702:27)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  __didCompleteResponse (node_modules\\react-native\\Libraries\\Network\\XMLHttpRequest.js:438:25)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  apply (<native>)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  RCTNetworking.addListener$argument_1 (node_modules\\react-native\\Libraries\\Network\\XMLHttpRequest.js:602:35)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  apply (<native>)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  emit (node_modules\\react-native\\Libraries\\vendor\\emitter\\EventEmitter.js:137:36)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  apply (<native>)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  RCTDeviceEventEmitterImpl#emit (node_modules\\react-native\\Libraries\\EventEmitter\\RCTDeviceEventEmitter.js:34:17)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  Axios#request (node_modules\\axios\\dist\\esm\\axios.js:5249:60)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  throw (<native>)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  anonymous (address at (InternalBytecode.js:1:9013)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  step (address at (InternalBytecode.js:1:6731)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  anonymous (address at (InternalBytecode.js:1:7923)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  tryCallOne (address at (InternalBytecode.js:1:1296)\u001b[39m\u001b[22m\n\u001b[2m\u001b[90m  anonymous (address at (InternalBytecode.js:1:4984)\u001b[39m\u001b[22m"]}
+{"_e":"metro:bundling:started","_t":1789391420153,"id":"c","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789391420154,"id":"c","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789391420281,"id":"c","total":1,"ms":127.7325}
+{"_e":"metro:bundling:started","_t":1789391907723,"id":"d","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789391907723,"id":"d","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789391907808,"id":"d","total":1,"ms":84.7595}
+{"_e":"metro:bundling:started","_t":1789394514740,"id":"f","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789394514741,"id":"f","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789394517193,"id":"f","total":1,"ms":2452.7637}
+{"_e":"metro:bundling:started","_t":1789395663452,"id":"g","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789395663452,"id":"g","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789395664860,"id":"g","total":1,"ms":1407.7726}
+{"_e":"metro:bundling:started","_t":1789395905978,"id":"h","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789395905978,"id":"h","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395905983,"id":"h","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789395906041,"id":"h","total":1,"ms":63.2226}
+{"_e":"metro:client_log","_t":1789395906138,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789395906183,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789395906227,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789395906227,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789395906228,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:bundling:started","_t":1789395924876,"id":"j","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789395924876,"id":"j","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789395924960,"id":"j","total":1,"ms":84.5537}
+{"_e":"metro:bundling:started","_t":1789395998861,"id":"k","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789395998861,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395998865,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395998965,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395999023,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395999125,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395999225,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395999325,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395999426,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789395999547,"id":"k","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789395999623,"id":"k","total":1,"ms":761.5012}
+{"_e":"metro:client_log","_t":1789395999932,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789395999980,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789396000025,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789396000026,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789396000026,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:bundling:started","_t":1789396457576,"id":"m","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789396457576,"id":"m","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789396457667,"id":"m","total":1,"ms":90.5428}
+{"_e":"metro:bundling:started","_t":1789396586733,"id":"n","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789396586733,"id":"n","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789396586756,"id":"n","total":1,"ms":22.8371}
+{"_e":"metro:client_log","_t":1789396587085,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789396587131,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789396587179,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789396587179,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789396587179,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:bundling:started","_t":1789396829155,"id":"p","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789396829155,"id":"p","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789396829211,"id":"p","total":1,"ms":56.4358}
+{"_e":"metro:bundling:started","_t":1789397012623,"id":"q","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397012624,"id":"q","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789397013376,"id":"q","total":1,"ms":752.4944}
+{"_e":"metro:bundling:started","_t":1789397063589,"id":"r","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789397063589,"id":"r","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397063590,"id":"r","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397063690,"id":"r","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789397063808,"id":"r","total":1,"ms":218.4853}
+{"_e":"metro:client_log","_t":1789397064148,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789397064218,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789397064218,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789397064218,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789397064263,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:bundling:started","_t":1789397200323,"id":"t","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397200323,"id":"t","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789397200405,"id":"t","total":1,"ms":82.6673}
+{"_e":"metro:bundling:started","_t":1789397217090,"id":"u","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397217090,"id":"u","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789397217144,"id":"u","total":1,"ms":54.0659}
+{"_e":"root:init","_t":1789397251089,"format":"v0-jsonl","version":"57.0.24"}
+{"_e":"env:mode","_t":1789397251114,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789397251139,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1789397257076,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789397267542,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789397271824,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789397283666,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1789397294577,"id":"1","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397294578,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397294585,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397294686,"id":"1","progress":0.005381553644101908,"total":259,"current":19}
+{"_e":"metro:bundling:progress","_t":1789397294786,"id":"1","progress":0.07707732434376385,"total":371,"current":103}
+{"_e":"metro:bundling:progress","_t":1789397294886,"id":"1","progress":0.1705757155132527,"total":615,"current":254}
+{"_e":"metro:bundling:progress","_t":1789397294986,"id":"1","progress":0.27722336489107646,"total":773,"current":407}
+{"_e":"metro:bundling:progress","_t":1789397295086,"id":"1","progress":0.3526155808268679,"total":970,"current":576}
+{"_e":"metro:bundling:progress","_t":1789397295186,"id":"1","progress":0.5951020408163266,"total":1050,"current":810}
+{"_e":"metro:bundling:progress","_t":1789397295286,"id":"1","progress":0.6899599818922589,"total":1175,"current":976}
+{"_e":"metro:bundling:progress","_t":1789397295388,"id":"1","progress":0.7397260126930457,"total":1365,"current":1174}
+{"_e":"metro:bundling:progress","_t":1789397295488,"id":"1","progress":0.8772826193510441,"total":1515,"current":1419}
+{"_e":"metro:bundling:progress","_t":1789397295588,"id":"1","progress":0.9940101961611277,"total":1667,"current":1662}
+{"_e":"metro:bundling:done","_t":1789397295809,"id":"1","total":1667,"ms":1231.1975}
+{"_e":"metro:bundling:started","_t":1789397466005,"id":"2","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397466005,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397466006,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397466107,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397471991,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789397472085,"id":"2","total":1,"ms":6079.5921}
+{"_e":"root:init","_t":1789397538204,"format":"v0-jsonl","version":"57.0.24"}
+{"_e":"env:mode","_t":1789397538205,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789397538207,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1789397538398,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789397538683,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789397538901,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789397544025,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1789397556332,"id":"1","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397556333,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397556335,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397556435,"id":"1","progress":0.025212289992695393,"total":296,"current":47}
+{"_e":"metro:bundling:progress","_t":1789397556535,"id":"1","progress":0.1541049108667441,"total":484,"current":190}
+{"_e":"metro:bundling:progress","_t":1789397556635,"id":"1","progress":0.25834881739624327,"total":785,"current":399}
+{"_e":"metro:bundling:progress","_t":1789397556735,"id":"1","progress":0.4296524256725744,"total":1013,"current":664}
+{"_e":"metro:bundling:progress","_t":1789397556835,"id":"1","progress":0.6963321620772454,"total":1178,"current":983}
+{"_e":"metro:bundling:progress","_t":1789397556943,"id":"1","progress":0.7296762596233839,"total":1413,"current":1207}
+{"_e":"metro:bundling:progress","_t":1789397557043,"id":"1","progress":0.8994681525394055,"total":1628,"current":1544}
+{"_e":"metro:bundling:done","_t":1789397557180,"id":"1","total":1628,"ms":847.3549}
+{"_e":"metro:client_log","_t":1789397574865,"level":"error","data":["Login Error:","Request failed with status code 401"]}
+{"_e":"metro:bundling:started","_t":1789397600029,"id":"3","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789397600029,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397600030,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789397600130,"id":"3","progress":0.42548368582035884,"total":371,"current":242}
+{"_e":"metro:bundling:progress","_t":1789397600230,"id":"3","progress":0.9294937541091387,"total":585,"current":564}
+{"_e":"metro:bundling:done","_t":1789397600276,"id":"3","total":585,"ms":246.8718}
+{"_e":"metro:client_log","_t":1789397600547,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789397600591,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789397600591,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789397600638,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789397600638,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:client_log","_t":1789397737354,"level":"error","data":["Login Error:","Network Error"]}
+{"_e":"metro:bundling:started","_t":1789397822033,"id":"5","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789397822033,"id":"5","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789397822093,"id":"5","total":1,"ms":59.9124}
+{"_e":"metro:bundling:started","_t":1789398034266,"id":"6","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789398034266,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789398034268,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789398034872,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789398034928,"id":"6","total":1,"ms":661.9098}
+{"_e":"metro:bundling:started","_t":1789398592590,"id":"7","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789398592591,"id":"7","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789398592626,"id":"7","total":1,"ms":35.1065}
+{"_e":"metro:client_log","_t":1789398592907,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789398592952,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789398592997,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789398592997,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789398593040,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"metro:client_log","_t":1789398665746,"level":"error","data":["Login Error:","Request failed with status code 401"]}
+{"_e":"metro:bundling:started","_t":1789398825795,"id":"9","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789398825795,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789398825796,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789398825886,"id":"9","total":1,"ms":91.0215}
+{"_e":"root:init","_t":1789437023358,"format":"v0-jsonl","version":"57.0.24"}
+{"_e":"env:mode","_t":1789437023360,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789437023364,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1789437023726,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789437024355,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789437024891,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789437031784,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1789437042470,"id":"1","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789437042471,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789437042478,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789437042578,"id":"1","progress":0.0014375238651422927,"total":211,"current":8}
+{"_e":"metro:bundling:progress","_t":1789437042678,"id":"1","progress":0.01522179119581717,"total":308,"current":38}
+{"_e":"metro:bundling:progress","_t":1789437042778,"id":"1","progress":0.07473733243620932,"total":417,"current":114}
+{"_e":"metro:bundling:progress","_t":1789437042881,"id":"1","progress":0.1732276521202378,"total":543,"current":226}
+{"_e":"metro:bundling:progress","_t":1789437042981,"id":"1","progress":0.21332436209305936,"total":695,"current":321}
+{"_e":"metro:bundling:progress","_t":1789437043082,"id":"1","progress":0.2981293989235575,"total":815,"current":445}
+{"_e":"metro:bundling:progress","_t":1789437043182,"id":"1","progress":0.397054933149691,"total":976,"current":615}
+{"_e":"metro:bundling:progress","_t":1789437043282,"id":"1","progress":0.4922933412133715,"total":1039,"current":729}
+{"_e":"metro:bundling:progress","_t":1789437043382,"id":"1","progress":0.6854646538430322,"total":1110,"current":919}
+{"_e":"metro:bundling:progress","_t":1789437043514,"id":"1","progress":0.6885468537799909,"total":1175,"current":975}
+{"_e":"metro:bundling:progress","_t":1789437043614,"id":"1","progress":0.7573314664298887,"total":1210,"current":1053}
+{"_e":"metro:bundling:progress","_t":1789437043716,"id":"1","progress":0.7573314664298887,"total":1365,"current":1172}
+{"_e":"metro:bundling:progress","_t":1789437043817,"id":"1","progress":0.7573314664298887,"total":1417,"current":1207}
+{"_e":"metro:bundling:progress","_t":1789437043917,"id":"1","progress":0.7972808860780697,"total":1466,"current":1309}
+{"_e":"metro:bundling:progress","_t":1789437044017,"id":"1","progress":0.8756050524052673,"total":1525,"current":1427}
+{"_e":"metro:bundling:progress","_t":1789437044120,"id":"1","progress":0.9293007053140707,"total":1639,"current":1580}
+{"_e":"metro:bundling:done","_t":1789437044309,"id":"1","total":1639,"ms":1838.4869}
+{"_e":"metro:bundling:started","_t":1789437059132,"id":"2","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789437059132,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789437059254,"id":"2","total":1,"ms":121.4687}
+{"_e":"metro:bundling:started","_t":1789437094432,"id":"3","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789437094432,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789437094437,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789437094536,"id":"3","progress":0.13593000714212836,"total":198,"current":73}
+{"_e":"metro:bundling:progress","_t":1789437094637,"id":"3","progress":0.3724846265630003,"total":349,"current":213}
+{"_e":"metro:bundling:progress","_t":1789437094737,"id":"3","progress":0.7964144164609249,"total":409,"current":365}
+{"_e":"metro:bundling:progress","_t":1789437094837,"id":"3","progress":0.9505232281937404,"total":479,"current":467}
+{"_e":"metro:bundling:progress","_t":1789437094937,"id":"3","progress":0.9505232281937404,"total":576,"current":552}
+{"_e":"metro:bundling:done","_t":1789437095051,"id":"3","total":576,"ms":618.8505}
+{"_e":"metro:client_log","_t":1789437096260,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789437096261,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789437096275,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789437096280,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789437096359,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}

@@ -21,7 +21,8 @@ def kirim_data_sensor():
     data_sensor = {
         "suhu": suhu_dummy,
         "kelembaban": hum_dummy,
-        "status_led": status_led
+        "status_led": status_led,
+        "sn": "SN-ESP32-001"
     }
     pesan_json = json.dumps(data_sensor)
     client.publish(topik_sensor, pesan_json)
@@ -29,8 +30,11 @@ def kirim_data_sensor():
     print(f"[{waktu_sekarang}] Mengirim data ke broker: {pesan_json}")
 
 def on_connect(client, userdata, flags, rc, *args):
-    print("[SUCCESS] Terhubung ke Broker MQTT!")
-    client.subscribe(topik_led)
+    if rc == 0:
+        print("[SUCCESS] Terhubung ke Broker MQTT!")
+        client.subscribe(topik_led)
+    else:
+        print(f"[FAILED] Gagal terhubung ke broker, kode: {rc}")
 
 def on_message(client, userdata, message):
     global status_led
@@ -47,13 +51,30 @@ def on_message(client, userdata, message):
         kirim_data_sensor() 
 
 try:
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 except AttributeError:
     client = mqtt.Client()
 
 client.on_connect = on_connect
 client.on_message = on_message
-client.connect(broker, port)
+
+# Menambahkan retry logic untuk mengatasi TimeoutError
+max_retries = 5
+for attempt in range(max_retries):
+    try:
+        print(f"[INFO] Mencoba terhubung ke {broker}:{port} (Percobaan {attempt + 1}/{max_retries})...")
+        client.connect(broker, port, keepalive=60)
+        break
+    except TimeoutError:
+        print("[WARN] Koneksi timeout, mencoba lagi dalam 5 detik...")
+        time.sleep(5)
+    except Exception as e:
+        print(f"[ERROR] Kesalahan saat menghubungkan: {e}")
+        time.sleep(5)
+else:
+    print("[ERROR] Gagal terhubung ke broker setelah beberapa percobaan. Keluar dari program.")
+    sys.exit(1)
+
 client.loop_start()
 
 print("[START] Simulator ESP32 Berjalan...")

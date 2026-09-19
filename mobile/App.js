@@ -6,8 +6,16 @@ import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import React, { useState, useEffect, useRef, createContext, useContext, useMemo } from 'react';
 import { 
-  View, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar, ScrollView, Dimensions, Switch, Modal, TextInput 
+  View, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar, ScrollView, Dimensions, Switch, Modal, TextInput, LogBox 
 } from 'react-native';
+
+LogBox.ignoreLogs([
+  'ProgressBarAndroid has been extracted',
+  'SafeAreaView has been deprecated',
+  'Clipboard has been extracted',
+  'InteractionManager has been deprecated',
+  'PushNotificationIOS has been extracted',
+]);
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, DefaultTheme, DarkTheme as NavDarkTheme } from '@react-navigation/native';
@@ -368,6 +376,49 @@ function CustomDrawerContent(props) {
   const { isDark } = useContext(ThemeContext);
   const user = props.user;
   
+  const [isPwdModalVisible, setPwdModalVisible] = useState(false);
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [isLoadingPwd, setIsLoadingPwd] = useState(false);
+
+  const handleChangePassword = async () => {
+    if (!currentPwd || !newPwd || !confirmPwd) {
+      import('react-native').then(RN => RN.Alert.alert('Error', 'Harap isi semua field password.'));
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      import('react-native').then(RN => RN.Alert.alert('Error', 'Konfirmasi password baru tidak cocok.'));
+      return;
+    }
+    setIsLoadingPwd(true);
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const ip = await AsyncStorage.getItem('serverIP');
+      const baseURL = ip ? `http://${ip}:8080` : `http://192.168.43.196:8080`;
+      
+      const res = await axios.post(`${baseURL}/api/auth/change-password`, 
+        { currentPassword: currentPwd, newPassword: newPwd },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      import('react-native').then(RN => RN.Alert.alert('Sukses', res.data.message));
+      setPwdModalVisible(false);
+      setCurrentPwd('');
+      setNewPwd('');
+      setConfirmPwd('');
+    } catch (err) {
+      let msg = 'Kata sandi salah atau terjadi kesalahan.';
+      if (err.response && err.response.data && err.response.data.message) {
+          msg = err.response.data.message;
+      } else if (err.response && err.response.status === 400) {
+          msg = 'Kata sandi salah.';
+      }
+      import('react-native').then(RN => RN.Alert.alert('Gagal', msg));
+    } finally {
+      setIsLoadingPwd(false);
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0 }}>
@@ -401,8 +452,16 @@ function CustomDrawerContent(props) {
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
 
-      {/* Logout di bawah */}
+      {/* Aksi Tambahan di bawah */}
       <View style={{ padding: 20, borderTopWidth: 1, borderTopColor: isDark ? '#334155' : '#e2e8f0' }}>
+        <TouchableOpacity 
+          onPress={() => setPwdModalVisible(true)} 
+          style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}
+        >
+          <MaterialCommunityIcons name="key" size={22} color={isDark ? "#60a5fa" : "#2563eb"} />
+          <Text style={{ marginLeft: 15, fontSize: 15, fontWeight: 'bold', color: isDark ? "#60a5fa" : "#2563eb" }}>Ubah Kata Sandi</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity 
           onPress={() => {
             import('react-native').then(RN => {
@@ -422,6 +481,40 @@ function CustomDrawerContent(props) {
           <Text style={{ marginLeft: 15, fontSize: 15, fontWeight: 'bold', color: '#ef4444' }}>Logout</Text>
         </TouchableOpacity>
       </View>
+
+      {/* MODAL UBAH PASSWORD */}
+      <Modal visible={isPwdModalVisible} transparent={true} animationType="fade" onRequestClose={() => setPwdModalVisible(false)}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <View style={{ width: '85%', backgroundColor: isDark ? '#1e293b' : '#fff', borderRadius: 16, padding: 20 }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: isDark ? '#fff' : '#000', marginBottom: 15 }}>Ubah Kata Sandi</Text>
+                
+                <TextInput 
+                    style={[styles.inputBox, { backgroundColor: isDark ? '#334155' : '#f1f5f9', color: isDark ? '#fff' : '#000' }]} 
+                    placeholder="Password Saat Ini" placeholderTextColor={isDark ? '#94a3b8' : '#6b7280'} 
+                    secureTextEntry value={currentPwd} onChangeText={setCurrentPwd} 
+                />
+                <TextInput 
+                    style={[styles.inputBox, { backgroundColor: isDark ? '#334155' : '#f1f5f9', color: isDark ? '#fff' : '#000', marginBottom: 10 }]} 
+                    placeholder="Password Baru" placeholderTextColor={isDark ? '#94a3b8' : '#6b7280'} 
+                    secureTextEntry value={newPwd} onChangeText={setNewPwd} 
+                />
+                <TextInput 
+                    style={[styles.inputBox, { backgroundColor: isDark ? '#334155' : '#f1f5f9', color: isDark ? '#fff' : '#000' }]} 
+                    placeholder="Konfirmasi Password Baru" placeholderTextColor={isDark ? '#94a3b8' : '#6b7280'} 
+                    secureTextEntry value={confirmPwd} onChangeText={setConfirmPwd} 
+                />
+
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
+                    <TouchableOpacity onPress={() => setPwdModalVisible(false)} style={{ padding: 10, marginRight: 10 }}>
+                        <Text style={{ color: isDark ? '#94a3b8' : '#6b7280', fontWeight: 'bold' }}>Batal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleChangePassword} disabled={isLoadingPwd} style={{ backgroundColor: '#2563eb', paddingHorizontal: 15, paddingVertical: 10, borderRadius: 8 }}>
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>{isLoadingPwd ? 'Menyimpan...' : 'Simpan'}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+      </Modal>
     </View>
   );
 }

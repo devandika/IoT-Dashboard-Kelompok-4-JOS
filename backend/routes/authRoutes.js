@@ -12,5 +12,6 @@ router.post('/users', verifyToken, verifyAdmin, authController.createUser);
 router.put('/users/:id', verifyToken, verifyAdmin, authController.updateUser);
 router.delete('/users/:id', verifyToken, verifyAdmin, authController.deleteUser);
 router.post('/ping', verifyToken, authController.pingUser);
+router.post('/change-password', verifyToken, authController.changePassword);
 
 module.exports = router;

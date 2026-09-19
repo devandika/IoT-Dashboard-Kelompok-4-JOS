@@ -45,7 +45,7 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <!-- Top Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-light top-navbar py-3 px-4">
+        <nav class="navbar navbar-expand-lg navbar-light top-navbar py-2 px-3">
             <div class="d-flex align-items-center">
                 <i class="fas fa-bars fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
                 <h4 class="m-0 fw-bold">Dashboard</h4>
@@ -66,101 +66,126 @@
         </nav>
 
         <!-- Main Content -->
-        <div class="container-fluid p-4">
+        <div class="container-fluid p-2 d-flex flex-column flex-grow-1" style="min-height: 0;">
             
             <!-- Info Bar -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold m-0 text-secondary">Realtime Monitoring</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold m-0 text-secondary" style="font-size: 1rem;">Realtime Monitoring</h5>
                 <span class="badge bg-primary fs-6"><i class="far fa-clock"></i> Update: <span id="last-update">--:--:--</span></span>
             </div>
 
             <!-- Stats Row -->
-            <div class="row g-4 mb-4">
+            <div class="row g-2 mb-2">
                 <!-- Suhu -->
                 <div class="col-md-4">
-                    <div class="card stat-card bg-warning text-white h-100">
+                    <div class="card stat-card bg-warning text-white h-100 d-flex flex-column justify-content-center">
                         <div class="inner">
                             <h3><span id="val-suhu">--</span>°C</h3>
-                            <p>Suhu Ruangan</p>
+                            <p class="m-0">Suhu Ruangan</p>
                         </div>
                         <div class="icon"><i class="fas fa-temperature-high"></i></div>
                     </div>
                 </div>
                 <!-- Kelembaban -->
                 <div class="col-md-4">
-                    <div class="card stat-card bg-info text-white h-100">
+                    <div class="card stat-card bg-info text-white h-100 d-flex flex-column justify-content-center">
                         <div class="inner">
                             <h3><span id="val-kelembaban">--</span>%</h3>
-                            <p>Kelembaban Ruangan</p>
+                            <p class="m-0">Kelembaban Ruangan</p>
                         </div>
                         <div class="icon"><i class="fas fa-tint"></i></div>
                     </div>
                 </div>
                 <!-- Kendali LED -->
                 <div class="col-md-4">
-                    <div class="card card-custom h-100 p-3">
-                        <h5 class="fw-bold mb-3"><i class="fas fa-gamepad text-primary me-2"></i>Kendali LED</h5>
-                        <div class="d-flex align-items-center h-100 bg-light rounded p-3 border">
-                            <div class="me-3 p-3 bg-white rounded-circle shadow-sm">
-                                <i id="led-icon" class="fas fa-lightbulb text-secondary fs-2"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="fw-bold m-0">Lampu Utama</h6>
-                                <small id="led-status-text" class="text-muted fw-bold">Padam / OFF</small>
-                            </div>
-                            <div class="form-check form-switch fs-3">
-                                <input class="form-check-input" type="checkbox" id="led-toggle" onchange="toggleLED()">
+                    <div class="card stat-card bg-success text-white h-100 d-flex flex-column justify-content-center">
+                        <div class="inner" style="z-index: 1;">
+                            <h3 class="fw-bold mb-2" style="font-size: 1.6rem;">Kendali LED</h3>
+                            <div class="d-flex align-items-center gap-2">
+                                <p class="m-0 fw-bold" id="led-status-text">Padam / OFF</p>
+                                <div class="form-check form-switch m-0" style="font-size: 1.5rem;">
+                                    <input class="form-check-input cursor-pointer" type="checkbox" id="led-toggle" onchange="toggleLED()">
+                                </div>
                             </div>
                         </div>
+                        <div class="icon"><i id="led-icon" class="fas fa-lightbulb text-white-50"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Filter & Average Row -->
-            <div class="d-flex align-items-center mb-3 gap-2">
+            <!-- Filter -->
+            <div class="d-flex align-items-center mb-2 gap-2">
                 <label for="chartFilterDate" class="fw-bold text-secondary">Filter:</label>
-                <input type="date" id="chartFilterDate" onchange="applyFilter()" class="form-control w-auto d-inline-block">
-                <button onclick="resetDateFilter()" class="btn btn-outline-secondary" title="Reset ke Realtime">
+                <input type="date" id="chartFilterDate" onchange="applyFilter()" class="form-control w-auto d-inline-block form-control-sm">
+                <button onclick="resetDateFilter()" class="btn btn-sm btn-outline-secondary" title="Reset ke Realtime">
                     <i class="fas fa-sync-alt"></i> Reset
                 </button>
             </div>
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <div class="card p-3 border shadow-sm h-100 d-flex flex-row justify-content-between align-items-center">
-                        <div>
-                            <p class="text-warning fw-bold m-0">Rata-rata Suhu</p>
-                            <small class="text-muted fw-bold" id="avgTempLabel">Realtime</small>
+            <!-- Content Row (Averages, Charts, Status) -->
+            <div class="row g-2 flex-grow-1 d-flex" style="min-height: 0;">
+                <div class="col-lg-8 d-flex flex-column" style="min-height: 0;">
+                    <!-- Average Row -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <div class="card p-2 border shadow-sm h-100 d-flex flex-row justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-warning fw-bold m-0" style="font-size: 0.9rem;">Rata-rata Suhu</p>
+                                    <small class="text-muted fw-bold" id="avgTempLabel" style="font-size: 0.75rem;">Realtime</small>
+                                </div>
+                                <h3 class="text-warning fw-bold m-0"><span id="avgTempText">-</span>°C</h3>
+                            </div>
                         </div>
-                        <h2 class="text-warning fw-bold m-0"><span id="avgTempText">-</span>°C</h2>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card p-3 border shadow-sm h-100 d-flex flex-row justify-content-between align-items-center">
-                        <div>
-                            <p class="text-info fw-bold m-0">Rata-rata Kelembaban</p>
-                            <small class="text-muted fw-bold" id="avgHumLabel">Realtime</small>
-                        </div>
-                        <h2 class="text-info fw-bold m-0"><span id="avgHumText">-</span>%</h2>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Row -->
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="card card-custom h-100">
-                        <div class="card-header"><i class="fas fa-chart-line text-warning me-2"></i> Tren Suhu</div>
-                        <div class="card-body">
-                            <canvas id="chartSuhu" height="250"></canvas>
+                        <div class="col-md-6">
+                            <div class="card p-2 border shadow-sm h-100 d-flex flex-row justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-info fw-bold m-0" style="font-size: 0.9rem;">Rata-rata Kelembaban</p>
+                                    <small class="text-muted fw-bold" id="avgHumLabel" style="font-size: 0.75rem;">Realtime</small>
+                                </div>
+                                <h3 class="text-info fw-bold m-0"><span id="avgHumText">-</span>%</h3>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Charts Row -->
+                    <div class="d-flex flex-column flex-grow-1 gap-2" style="min-height: 0;">
+                        <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                            <div class="card-header py-1" style="font-size: 0.85rem;"><i class="fas fa-chart-line text-warning me-2"></i> Tren Suhu</div>
+                            <div class="card-body p-1 flex-grow-1" style="position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+                                    <canvas id="chartSuhu"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                            <div class="card-header py-1" style="font-size: 0.85rem;"><i class="fas fa-chart-area text-info me-2"></i> Tren Kelembaban</div>
+                            <div class="card-body p-1 flex-grow-1" style="position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+                                    <canvas id="chartKelembaban"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card card-custom h-100">
-                        <div class="card-header"><i class="fas fa-chart-area text-info me-2"></i> Tren Kelembaban</div>
-                        <div class="card-body">
-                            <canvas id="chartKelembaban" height="250"></canvas>
+                <div class="col-lg-4 d-flex flex-column" style="min-height: 0;">
+                    <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div><i class="fas fa-server text-secondary me-2"></i> Status Perangkat</div>
+                            <span id="device-count-badge" class="badge bg-secondary">0 / 4 Online</span>
+                        </div>
+                        <div class="card-body p-0" style="overflow-y: auto; flex: 1;">
+                            <table class="table table-hover m-0 align-middle">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="ps-3">Perangkat</th>
+                                        <th>Ruangan</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="device-status-tbody">
+                                    <!-- Injected by JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -175,28 +200,90 @@
 <!-- App Logic -->
 <script src="js/app.js"></script>
 <script>
-    const token = checkAuth();
+    var token = checkAuth();
 
     // Menu Toggle
     document.getElementById("menu-toggle").addEventListener("click", function(e) {
         e.preventDefault();
         document.getElementById("wrapper").classList.toggle("toggled");
-        const sidebar = document.getElementById("sidebar-wrapper");
+        var sidebar = document.getElementById("sidebar-wrapper");
         if(sidebar.style.marginLeft === "-250px") sidebar.style.marginLeft = "0";
         else sidebar.style.marginLeft = "-250px";
     });
 
+    
+    // === DEVICE STATUS LOGIC ===
+    var selectedDeviceSN = 'SN-ESP32-001';
+    var deviceLastSeen = {};
+    var deviceTimeoutMs = 5000;
+
+    var dashboardDevices = [
+        { name: 'ESP32 Main Controller', sn: 'SN-ESP32-001', room: 'Ruang Tamu', status: 'Offline' },
+        { name: 'Arduino Sensor Node', sn: 'SN-ARD-002', room: 'Kamar Tidur', status: 'Offline' },
+        { name: 'ESP8266 Kitchen Node', sn: 'SN-ESP82-003', room: 'Dapur', status: 'Offline' },
+        { name: 'Raspberry Pi Gateway', sn: 'SN-RPI-004', room: 'Teras Depan', status: 'Offline' }
+    ];
+
+    function renderDeviceTable() {
+        var tbody = document.getElementById('device-status-tbody');
+        if (!tbody) return;
+        var html = '';
+        var onlineCount = 0;
+        dashboardDevices.forEach(dev => {
+            var isOnline = dev.status === 'Online';
+            if (isOnline) onlineCount++;
+            var isSelected = dev.sn === selectedDeviceSN;
+            var dot = isOnline
+                ? '<span class="badge rounded-pill bg-success"><i class="fas fa-circle me-1" style="font-size:7px"></i>Online</span>'
+                : '<span class="badge rounded-pill bg-danger"><i class="fas fa-circle me-1" style="font-size:7px"></i>Offline</span>';
+            html += '<tr onclick="selectDevice(\'' + dev.sn + '\')" style="cursor:pointer;" class="' + (isSelected ? 'table-primary fw-bold' : '') + '"><td class="ps-3"><div style="font-size:0.85rem">' + dev.name + '</div><small class="text-muted">' + dev.sn + '</small></td><td class="align-middle"><span style="font-size:0.85rem">' + dev.room + '</span></td><td class="text-center align-middle">' + dot + '</td></tr>';
+        });
+        tbody.innerHTML = html;
+        var badge = document.getElementById('device-count-badge');
+        if (badge) {
+            badge.textContent = onlineCount + ' / ' + dashboardDevices.length + ' Online';
+            badge.className = onlineCount > 0 ? 'badge bg-success' : 'badge bg-secondary';
+        }
+    }
+
+    window.selectDevice = function(sn) {
+        selectedDeviceSN = sn;
+        renderDeviceTable();
+        if (isFilterActive) {
+            applyFilter();
+        } else {
+            fetchInitialData();
+        }
+    };
+
+    renderDeviceTable();
+
+    setInterval(() => {
+        var now = Date.now();
+        var changed = false;
+        dashboardDevices.forEach(dev => {
+            var lastSeen = deviceLastSeen[dev.sn] || 0;
+            var isDevOnline = (now - lastSeen <= deviceTimeoutMs) && lastSeen > 0;
+            var newStatus = isDevOnline ? 'Online' : 'Offline';
+            if (dev.status !== newStatus) {
+                dev.status = newStatus;
+                changed = true;
+            }
+        });
+        if (changed) renderDeviceTable();
+    }, 1000);
+
     // === INISIALISASI CHART.JS ===
-    const initialLabels = Array(10).fill('');
-    const initialData = Array(10).fill(null);
-    let isFilterActive = false;
+    var initialLabels = Array(10).fill('');
+    var initialData = Array(10).fill(null);
+    var isFilterActive = false;
 
     // Set tanggal hari ini sebagai default di filter kalender
     window.addEventListener('DOMContentLoaded', () => {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('chartFilterDate').value = `${yyyy}-${mm}-${dd}`;
     });
 
@@ -236,8 +323,8 @@
         };
     }
 
-    const chartSuhu = new Chart(document.getElementById('chartSuhu').getContext('2d'), createChartConfig('#ffc107', 'rgba(255, 193, 7, 0.2)', 'Suhu', '°C'));
-    const chartKelembaban = new Chart(document.getElementById('chartKelembaban').getContext('2d'), createChartConfig('#0dcaf0', 'rgba(13, 202, 240, 0.2)', 'Kelembaban', '%'));
+    var chartSuhu = new Chart(document.getElementById('chartSuhu').getContext('2d'), createChartConfig('#ffc107', 'rgba(255, 193, 7, 0.2)', 'Suhu', '°C'));
+    var chartKelembaban = new Chart(document.getElementById('chartKelembaban').getContext('2d'), createChartConfig('#0dcaf0', 'rgba(13, 202, 240, 0.2)', 'Kelembaban', '%'));
 
     function updateChartData(chart, label, data) {
         chart.data.labels.push(label);
@@ -254,14 +341,14 @@
     }
 
     function fetchInitialData() {
-        axios.get('/api/history?limit=10', { headers: { 'Authorization': `Bearer ${token}` }})
+        axios.get(`/api/history?limit=10&sn=${selectedDeviceSN}`, { headers: { 'Authorization': `Bearer ${token}` }})
             .then(res => {
                 if (!res.data.data || res.data.data.length === 0) return;
-                const dataChronological = [...res.data.data].reverse();
+                var dataChronological = [...res.data.data].reverse();
                 
-                const labels = [];
-                const suhuData = [];
-                const kelembabanData = [];
+                var labels = [];
+                var suhuData = [];
+                var kelembabanData = [];
 
                 dataChronological.forEach(item => {
                     labels.push(new Date(item.waktu).toLocaleTimeString('id-ID'));
@@ -274,14 +361,14 @@
                 chartSuhu.data.labels = labels; chartSuhu.data.datasets[0].data = suhuData; chartSuhu.update();
                 chartKelembaban.data.labels = labels; chartKelembaban.data.datasets[0].data = kelembabanData; chartKelembaban.update();
 
-                const latest = res.data.data[0];
+                var latest = res.data.data[0];
                 document.getElementById('val-suhu').innerText = latest.suhu;
                 document.getElementById('val-kelembaban').innerText = latest.kelembaban;
                 document.getElementById('last-update').innerText = new Date(latest.waktu).toLocaleTimeString('id-ID');
                 updateLedUI(latest.status_led === 1 ? 'ON' : 'OFF');
                 
                 // Hitung rata-rata awal
-                let sumSuhu = 0, sumHum = 0;
+                var sumSuhu = 0, sumHum = 0;
                 res.data.data.forEach(d => { sumSuhu += d.suhu; sumHum += d.kelembaban; });
                 document.getElementById('avgTempText').innerText = (sumSuhu / res.data.data.length).toFixed(1);
                 document.getElementById('avgHumText').innerText = (sumHum / res.data.data.length).toFixed(1);
@@ -293,16 +380,16 @@
 
     // === FILTER LOGIC ===
     function applyFilter() {
-        const dateInput = document.getElementById('chartFilterDate').value;
+        var dateInput = document.getElementById('chartFilterDate').value;
         if (!dateInput) return;
         isFilterActive = true;
 
-        axios.get(`/api/history/filter?date=${dateInput}`, { headers: { 'Authorization': `Bearer ${token}` }})
+        axios.get(`/api/history/filter?date=${dateInput}&sn=${selectedDeviceSN}`, { headers: { 'Authorization': `Bearer ${token}` }})
             .then(res => {
-                const result = res.data;
-                const labels = result.data.map(d => d.time_label);
-                const temps = result.data.map(d => d.avg_suhu);
-                const hums = result.data.map(d => d.avg_hum);
+                var result = res.data;
+                var labels = result.data.map(d => d.time_label);
+                var temps = result.data.map(d => d.avg_suhu);
+                var hums = result.data.map(d => d.avg_hum);
 
                 renderChartsRaw(chartSuhu, labels, temps);
                 renderChartsRaw(chartKelembaban, labels, hums);
@@ -316,10 +403,10 @@
 
     function resetDateFilter() {
         isFilterActive = false;
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
         document.getElementById('chartFilterDate').value = `${yyyy}-${mm}-${dd}`;
         document.getElementById('avgTempLabel').innerText = 'Realtime';
         document.getElementById('avgHumLabel').innerText = 'Realtime';
@@ -329,10 +416,10 @@
     }
 
     // === MQTT LOGIC ===
-    const MQTT_HOST = 'broker.emqx.io';
-    const MQTT_PORT = 8083;
-    const clientID = "WebClient_" + parseInt(Math.random() * 1000, 10);
-    let mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "/mqtt", clientID);
+    var MQTT_HOST = 'broker.emqx.io';
+    var MQTT_PORT = 8083;
+    var clientID = "WebClient_" + parseInt(Math.random() * 1000, 10);
+    var mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "/mqtt", clientID);
 
     mqttClient.onConnectionLost = () => {
         document.getElementById('mqtt-status').innerText = 'Koneksi Terputus';
@@ -342,16 +429,30 @@
 
     mqttClient.onMessageArrived = (msg) => {
         if (msg.destinationName === 'tugasiot/sensor') {
-            const data = JSON.parse(msg.payloadString);
-            document.getElementById('val-suhu').innerText = data.suhu;
-            document.getElementById('val-kelembaban').innerText = data.kelembaban;
-            
-            const timeStr = new Date().toLocaleTimeString('id-ID');
-            document.getElementById('last-update').innerText = timeStr;
+            var data = JSON.parse(msg.payloadString);
+            var sn = data.sn || 'SN-ESP32-001';
+            deviceLastSeen[sn] = Date.now();
 
-            if (!isFilterActive) {
-                updateChartData(chartSuhu, timeStr, data.suhu);
-                updateChartData(chartKelembaban, timeStr, data.kelembaban);
+            var statusChanged = false;
+            dashboardDevices.forEach(dev => {
+                if (dev.sn === sn && dev.status !== 'Online') {
+                    dev.status = 'Online';
+                    statusChanged = true;
+                }
+            });
+            if (statusChanged) renderDeviceTable();
+
+            if (sn === selectedDeviceSN) {
+                document.getElementById('val-suhu').innerText = data.suhu;
+                document.getElementById('val-kelembaban').innerText = data.kelembaban;
+
+                var timeStr = new Date().toLocaleTimeString('id-ID');
+                document.getElementById('last-update').innerText = timeStr;
+
+                if (!isFilterActive) {
+                    updateChartData(chartSuhu, timeStr, data.suhu);
+                    updateChartData(chartKelembaban, timeStr, data.kelembaban);
+                }
             }
         } else if (msg.destinationName === 'tugasiot/kontrol_led') {
             updateLedUI(msg.payloadString);
@@ -372,7 +473,7 @@
     });
 
     // === REALTIME STATUS VIA HTTP PING ===
-    const pingStatus = async () => {
+    var pingStatus = async () => {
         try {
             await axios.post('/api/auth/ping', {}, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -389,8 +490,8 @@
 
     // === KENDALI LED ===
     function toggleLED() {
-        const isChecked = document.getElementById('led-toggle').checked;
-        const perintah = isChecked ? 'ON' : 'OFF';
+        var isChecked = document.getElementById('led-toggle').checked;
+        var perintah = isChecked ? 'ON' : 'OFF';
         updateLedUI(perintah);
 
         axios.post('/api/led', { status: perintah }, { headers: { 'Authorization': `Bearer ${token}` }})
@@ -398,20 +499,20 @@
     }
 
     function updateLedUI(status) {
-        const toggle = document.getElementById('led-toggle');
-        const icon = document.getElementById('led-icon');
-        const text = document.getElementById('led-status-text');
+        var toggle = document.getElementById('led-toggle');
+        var icon = document.getElementById('led-icon');
+        var text = document.getElementById('led-status-text');
 
         if (status === 'ON') {
             toggle.checked = true;
-            icon.className = "fas fa-lightbulb text-warning fs-2";
+            icon.className = "fas fa-lightbulb text-warning";
             text.innerText = "Menyala / ON";
-            text.className = "text-warning fw-bold";
+            text.className = "m-0 text-white fw-bold";
         } else {
             toggle.checked = false;
-            icon.className = "fas fa-lightbulb text-secondary fs-2";
+            icon.className = "fas fa-lightbulb text-white-50";
             text.innerText = "Padam / OFF";
-            text.className = "text-muted fw-bold";
+            text.className = "m-0 text-white fw-bold";
         }
     }
 </script>

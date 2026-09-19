@@ -37,8 +37,23 @@ export default function UsersScreen() {
   }, []);
 
   useEffect(() => {
-    if (token) fetchUsers();
-  }, [token]);
+    let interval;
+    if (token) {
+      fetchUsers();
+      // Polling setiap 2 detik untuk refresh status online
+      interval = setInterval(() => {
+        // Ping agar backend tahu user ini sedang aktif di layar Users
+        axios.post(`http://${serverIp}:8080/api/auth/ping`, {}, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => {});
+        // Refresh tabel
+        fetchUsers();
+      }, 2000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [token, serverIp]);
 
   const fetchUsers = async () => {
     try {
@@ -163,7 +178,7 @@ export default function UsersScreen() {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ padding: 10, paddingBottom: 20 }}
           renderItem={({ item }) => {
-            const isOnline = currentUser && currentUser.username === item.username;
+            const isOnline = item.is_online;
             const initial = item.username.substring(0,2).toUpperCase();
             const avatarColor = item.role === 'Admin' ? 'bg-danger' : 'bg-success';
 

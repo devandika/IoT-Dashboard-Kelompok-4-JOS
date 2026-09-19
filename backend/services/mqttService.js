@@ -18,12 +18,13 @@ function initMqtt() {
                 const suhu = data.suhu;
                 const kelembaban = data.kelembaban;
                 // Ambil status_led (fallback ke data.led atau 0 jika tidak terdefinisi)
-                const statusLed = data.status_led ?? data.led ?? 0; 
+                const statusLed = data.status_led ?? data.led ?? 0;
+                const sn = data.sn || "SN-ESP32-001"; 
 
                 console.log('📥 Menerima data dari MQTT:', {suhu, kelembaban, status_led: statusLed });
 
-                const sql = 'INSERT INTO histori_sensor (suhu, kelembaban, status_led) VALUES (?, ?, ?)';
-                db.query(sql, [suhu, kelembaban, statusLed], (err, result) => {
+                const sql = 'INSERT INTO histori_sensor (suhu, kelembaban, status_led, sn) VALUES (?, ?, ?, ?)';
+                db.query(sql, [suhu, kelembaban, statusLed, sn], (err, result) => {
                     if (err) {
                         console.error('❌ GAGAL SIMPAN KE DB:', err.message);
                     } else {

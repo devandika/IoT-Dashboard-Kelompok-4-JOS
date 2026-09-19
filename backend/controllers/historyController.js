@@ -2,9 +2,15 @@ const db = require('../config/db');
 
 const getHistory = (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
-    const sql = 'SELECT * FROM histori_sensor ORDER BY id DESC LIMIT ?';
+    const sn = req.query.sn;
+    let sql = 'SELECT * FROM histori_sensor ORDER BY id DESC LIMIT ?';
+    let queryParams = [limit];
+    if (sn) {
+        sql = 'SELECT * FROM histori_sensor WHERE sn = ? ORDER BY id DESC LIMIT ?';
+        queryParams = [sn, limit];
+    }
     
-    db.query(sql, [limit], (err, results) => {
+    db.query(sql, queryParams, (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Database error', error: err.message });
         res.json({ success: true, data: results });
     });
@@ -14,9 +20,15 @@ const getHistoryByDate = (req, res) => {
     const date = req.query.date; // format: YYYY-MM-DD
     if (!date) return res.status(400).json({ success: false, message: 'Tanggal tidak diberikan' });
 
-    const sql = `SELECT waktu, suhu, kelembaban FROM histori_sensor WHERE DATE(waktu) = ? ORDER BY waktu ASC`;
+    const sn = req.query.sn;
+    let sql = `SELECT waktu, suhu, kelembaban FROM histori_sensor WHERE DATE(waktu) = ? ORDER BY waktu ASC`;
+    let queryParams = [date];
+    if (sn) {
+        sql = `SELECT waktu, suhu, kelembaban FROM histori_sensor WHERE DATE(waktu) = ? AND sn = ? ORDER BY waktu ASC`;
+        queryParams = [date, sn];
+    }
 
-    db.query(sql, [date], (err, results) => {
+    db.query(sql, queryParams, (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Database error', error: err.message });
         
         // Generate 48 buckets (tiap 30 menit)
