@@ -476,7 +476,8 @@
                     var ledStatus = (data.status_led == 1 || data.status_led == 'ON') ? 'ON' : 'OFF';
                     updateLedUI(ledStatus);
                 }
-            };
+            }
+        };
 
             mqttClient.connect({
                 onSuccess: () => {
