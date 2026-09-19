@@ -37,13 +37,45 @@ export default function DashboardScreen() {
     const [token, setToken] = useState('');
     const [currentUser, setCurrentUser] = useState(null);
 
+    // Device status state
+    const [selectedDeviceSN, setSelectedDeviceSN] = useState('SN-ESP32-001');
+    const [dashboardDevices, setDashboardDevices] = useState([
+        { name: 'ESP32 Main Controller', sn: 'SN-ESP32-001', room: 'Ruang Tamu', status: 'Offline' },
+        { name: 'Arduino Sensor Node', sn: 'SN-ARD-002', room: 'Kamar Tidur', status: 'Offline' },
+        { name: 'ESP8266 Kitchen Node', sn: 'SN-ESP82-003', room: 'Dapur', status: 'Offline' },
+        { name: 'Raspberry Pi Gateway', sn: 'SN-RPI-004', room: 'Teras Depan', status: 'Offline' }
+    ]);
+
     const mqttClientRef = useRef(null);
     const heartbeatTimerRef = useRef(null);
     const isFilterRef = useRef(false); // Ref for mqtt closure access
+    const deviceLastSeen = useRef({});
+    const selectedDeviceSNRef = useRef('SN-ESP32-001');
 
     useEffect(() => {
         isFilterRef.current = isFilterActive;
     }, [isFilterActive]);
+
+    useEffect(() => {
+        const checkStatus = setInterval(() => {
+            const now = Date.now();
+            setDashboardDevices(prev => {
+                let changed = false;
+                const next = prev.map(dev => {
+                    const lastSeen = deviceLastSeen.current[dev.sn] || 0;
+                    const isOnline = (now - lastSeen <= 5000) && lastSeen > 0;
+                    const newStatus = isOnline ? 'Online' : 'Offline';
+                    if (dev.status !== newStatus) {
+                        changed = true;
+                        return { ...dev, status: newStatus };
+                    }
+                    return dev;
+                });
+                return changed ? next : prev;
+            });
+        }, 1000);
+        return () => clearInterval(checkStatus);
+    }, []);
 
     useEffect(() => {
         const loadCredentials = async () => {
@@ -67,17 +99,22 @@ export default function DashboardScreen() {
             if (topic === 'tugasiot/sensor') {
                 try {
                     const data = JSON.parse(payload);
-                    setSuhu(data.suhu);
-                    setKelembaban(data.kelembaban);
-                    
-                    const now = new Date();
-                    const timestamp = now.toLocaleTimeString('id-ID');
-                    setLastUpdate(`${timestamp}:${now.getSeconds().toString().padStart(2, '0')}`);
+                    const sn = data.sn || 'SN-ESP32-001';
+                    deviceLastSeen.current[sn] = Date.now();
 
-                    if (!isFilterRef.current) {
-                        setChartLabels(prev => [...prev.slice(1), timestamp]);
-                        setChartSuhu(prev => [...prev.slice(1), parseFloat(data.suhu) || 0]);
-                        setChartKelembaban(prev => [...prev.slice(1), parseFloat(data.kelembaban) || 0]);
+                    if (sn === selectedDeviceSNRef.current) {
+                        setSuhu(data.suhu);
+                        setKelembaban(data.kelembaban);
+                        
+                        const now = new Date();
+                        const timestamp = now.toLocaleTimeString('id-ID');
+                        setLastUpdate(`${timestamp}:${now.getSeconds().toString().padStart(2, '0')}`);
+
+                        if (!isFilterRef.current) {
+                            setChartLabels(prev => [...prev.slice(1), timestamp]);
+                            setChartSuhu(prev => [...prev.slice(1), parseFloat(data.suhu) || 0]);
+                            setChartKelembaban(prev => [...prev.slice(1), parseFloat(data.kelembaban) || 0]);
+                        }
                     }
                 } catch (e) { }
             } else if (topic === 'tugasiot/kontrol_led') {
@@ -125,7 +162,7 @@ export default function DashboardScreen() {
         try {
             const dateStr = selectedDate.toISOString().split('T')[0];
             const API_URL = `http://${serverIp}:8080`;
-            const res = await axios.get(`${API_URL}/api/history/filter?date=${dateStr}`, {
+            const res = await axios.get(`${API_URL}/api/history/filter?date=${dateStr}&sn=${selectedDeviceSNRef.current}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.data.success && res.data.data.length > 0) {
@@ -143,6 +180,19 @@ export default function DashboardScreen() {
             console.log(error);
         }
     };
+
+    useEffect(() => {
+        selectedDeviceSNRef.current = selectedDeviceSN;
+        if (isFilterActive) {
+            fetchFilteredData(filterDate);
+        } else {
+            setChartLabels(['00:00', '00:00', '00:00', '00:00', '00:00']);
+            setChartSuhu([0, 0, 0, 0, 0]);
+            setChartKelembaban([0, 0, 0, 0, 0]);
+            setSuhu('--');
+            setKelembaban('--');
+        }
+    }, [selectedDeviceSN]);
 
     const handleDateChange = (event, selectedDate) => {
         setShowPicker(false);
@@ -316,6 +366,51 @@ export default function DashboardScreen() {
                             thumbColor={ledStatus === 'ON' ? "#ffffff" : (isDark ? "#94a3b8" : "#f4f3f4")}
                             onValueChange={(val) => kontrolLED(val ? 'ON' : 'OFF')} value={ledStatus === 'ON'}
                         />
+                    </View>
+                </View>
+
+                {/* Status Perangkat (Device Table) */}
+                <View style={themeStyles.card}>
+                    <View style={[styles.cardHeaderRow, { justifyContent: 'space-between' }]}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <MaterialCommunityIcons name="server-network" size={24} color={isDark ? "#9ca3af" : "#6b7280"} />
+                            <Text style={themeStyles.cardHeader}>Status Perangkat</Text>
+                        </View>
+                        <View style={{ backgroundColor: dashboardDevices.filter(d => d.status === 'Online').length > 0 ? '#10b981' : '#6b7280', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                            <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>
+                                {dashboardDevices.filter(d => d.status === 'Online').length} / {dashboardDevices.length} Online
+                            </Text>
+                        </View>
+                    </View>
+
+                    <View style={{ borderWidth: 1, borderColor: isDark ? '#334155' : '#e5e7eb', borderRadius: 12, overflow: 'hidden' }}>
+                        {dashboardDevices.map((dev, idx) => {
+                            const isSelected = dev.sn === selectedDeviceSN;
+                            return (
+                                <TouchableOpacity 
+                                    key={dev.sn} 
+                                    onPress={() => setSelectedDeviceSN(dev.sn)}
+                                    style={{
+                                        flexDirection: 'row', 
+                                        padding: 12, 
+                                        backgroundColor: isSelected ? (isDark ? '#1e3a8a' : '#dbeafe') : (idx % 2 === 0 ? (isDark ? '#0f172a' : '#f9fafb') : (isDark ? '#1e293b' : '#ffffff')),
+                                        borderBottomWidth: idx < dashboardDevices.length - 1 ? 1 : 0,
+                                        borderBottomColor: isDark ? '#334155' : '#e5e7eb'
+                                    }}
+                                >
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ fontSize: 14, fontWeight: 'bold', color: isSelected ? '#2563eb' : (isDark ? '#f8fafc' : '#1f2937') }}>{dev.name}</Text>
+                                        <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#6b7280' }}>{dev.sn} • {dev.room}</Text>
+                                    </View>
+                                    <View style={{ justifyContent: 'center' }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: dev.status === 'Online' ? '#dcfce7' : '#fee2e2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
+                                            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dev.status === 'Online' ? '#10b981' : '#ef4444', marginRight: 4 }} />
+                                            <Text style={{ fontSize: 10, fontWeight: 'bold', color: dev.status === 'Online' ? '#166534' : '#991b1b' }}>{dev.status}</Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </View>
             </ScrollView>
