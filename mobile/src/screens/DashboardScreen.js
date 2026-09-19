@@ -195,12 +195,14 @@ export default function DashboardScreen({ navigation }) {
       }
   }, [selectedDeviceSN]);
 
-  const handleDateChange = (event, selectedDate) => {
+  const handleDateChange = (date) => {
+      // Compatibility if date is passed as event instead (some versions)
+      const selectedDate = (date && date.nativeEvent) ? date.nativeEvent.timestamp : date;
       setShowPicker(false);
       if (selectedDate) {
-          setFilterDate(selectedDate);
+          setFilterDate(new Date(selectedDate));
           setIsFilterActive(true);
-          fetchFilteredData(selectedDate);
+          fetchFilteredData(new Date(selectedDate));
       }
   };
 
@@ -308,7 +310,8 @@ export default function DashboardScreen({ navigation }) {
                     value={filterDate}
                     mode="date"
                     display="default"
-                    onChange={handleDateChange}
+                    onValueChange={(date) => handleDateChange(date)}
+                    onDismiss={() => setShowPicker(false)}
                 />
             )}
 
