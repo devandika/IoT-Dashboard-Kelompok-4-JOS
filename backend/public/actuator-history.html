@@ -170,7 +170,7 @@
         var mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "/mqtt", clientID);
 
         mqttClient.onMessageArrived = (msg) => {
-            if (msg.destinationName === 'tugasiot/kontrol_led') {
+            if (msg.destinationName.startsWith('tugasiot/kontrol_led')) {
                 // Beri sedikit jeda agar backend dan DB selesai menyimpan data baru
                 setTimeout(() => {
                     ambilHistori();
@@ -181,6 +181,9 @@
         mqttClient.connect({
             onSuccess: () => {
                 mqttClient.subscribe('tugasiot/kontrol_led');
+                mqttClient.subscribe('tugasiot/kontrol_led_2');
+                mqttClient.subscribe('tugasiot/kontrol_led_3');
+                mqttClient.subscribe('tugasiot/kontrol_led_4');
             }
         });
     </script>
