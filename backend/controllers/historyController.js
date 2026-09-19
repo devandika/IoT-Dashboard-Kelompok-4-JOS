@@ -88,28 +88,27 @@ const getActuatorHistory = (req, res) => {
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Database error', error: err.message });
         
-        const changes = [];
-        
-        // Selalu tampilkan status terbaru (baris paling atas) agar tabel tidak kosong
-        if (results.length > 0) {
-            changes.push(results[0]);
-        }
+        // Kita perlu mencari perubahan status_led (ON/OFF) PER PERANGKAT (SN)
+        // Kita balik datanya dari yang terlama ke terbaru untuk mendeteksi perubahan berurutan
+        const reversedResults = [...results].reverse();
+        const deviceChanges = [];
+        const lastSeenStatus = {};
 
-        for (let i = 0; i < results.length - 1; i++) {
-            const current = results[i];
-            const previous = results[i + 1]; 
+        for (let i = 0; i < reversedResults.length; i++) {
+            const row = reversedResults[i];
+            const sn = row.sn || 'Unknown';
             
-            // Jika status LED berubah dibanding rekaman sebelumnya, berarti ini adalah momen toggle
-            if (current.status_led !== previous.status_led) {
-                // Cegah duplikasi jika perubahan terjadi tepat di baris pertama
-                if (changes[changes.length - 1].id !== current.id) {
-                    changes.push(current);
-                }
-                if (changes.length >= limit) break;
+            // Jika status_led berubah dari sebelumnya untuk SN ini (atau ini data pertamanya)
+            if (lastSeenStatus[sn] === undefined || lastSeenStatus[sn] !== row.status_led) {
+                deviceChanges.push(row);
+                lastSeenStatus[sn] = row.status_led;
             }
         }
         
-        res.json({ success: true, data: changes });
+        // Balik lagi agar yang terbaru ada di atas, lalu batasi jumlahnya
+        const finalChanges = deviceChanges.reverse().slice(0, limit);
+        
+        res.json({ success: true, data: finalChanges });
     });
 };
 
