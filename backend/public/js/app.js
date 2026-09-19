@@ -70,14 +70,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Change Password Form
     const cpForm = document.getElementById('changePasswordForm');
     if (cpForm) {
+        // Reset error messages on input change
+        const clearErrors = () => {
+            const errDivs = ['err_cp_current', 'err_cp_new', 'err_cp_confirm'];
+            errDivs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('d-none');
+                    el.innerText = '';
+                }
+            });
+        };
+
+        const showError = (id, message) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerText = message;
+                el.classList.remove('d-none');
+            }
+        };
+
+        ['cp_current', 'cp_new', 'cp_confirm'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.addEventListener('input', clearErrors);
+        });
+
         cpForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            clearErrors();
             const current = document.getElementById('cp_current').value;
             const newPwd = document.getElementById('cp_new').value;
             const confirmPwd = document.getElementById('cp_confirm').value;
 
             if (newPwd !== confirmPwd) {
-                alert('Konfirmasi kata sandi baru tidak cocok!');
+                showError('err_cp_confirm', 'Konfirmasi kata sandi baru tidak cocok!');
                 return;
             }
 
@@ -105,7 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (err.message) {
                     msg = err.message;
                 }
-                alert(msg);
+
+                // Tentukan lokasi error berdasarkan pesan
+                if (msg.toLowerCase().includes('saat ini')) {
+                    showError('err_cp_current', msg);
+                } else if (msg.toLowerCase().includes('sama') || msg.toLowerCase().includes('karakter')) {
+                    showError('err_cp_new', msg);
+                } else {
+                    showError('err_cp_current', msg);
+                }
             }
         });
     }

@@ -227,14 +227,17 @@
                 <div class="modal-body p-4">
                     <form id="changePasswordForm">
                         <div class="mb-3">
+                            <div id="err_cp_current" class="text-danger small fw-bold d-none mb-1"></div>
                             <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
                             <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_current" required>
                         </div>
                         <div class="mb-3">
+                            <div id="err_cp_new" class="text-danger small fw-bold d-none mb-1"></div>
                             <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
                             <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_new" required>
                         </div>
                         <div class="mb-3">
+                            <div id="err_cp_confirm" class="text-danger small fw-bold d-none mb-1"></div>
                             <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
                             <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_confirm" required>
                         </div>
