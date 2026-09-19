@@ -143,10 +143,10 @@
                     // Baris LED
                     var row = `<tr>
                     <td class="fw-bold">${item.id}</td>
-                    <td>10101010</td>
+                    <td>${item.sn || 'Unknown'}</td>
                     <td class="text-secondary fw-bold">led</td>
                     <td class="${parsedStatus === 'on' ? 'text-success' : 'text-danger'} fw-bold">${parsedStatus}</td>
-                    <td>kelasiot/10101010/led</td>
+                    <td>kelasiot/${item.sn || 'Unknown'}/led</td>
                     <td>${timeStr}</td>
                 </tr>`;
 

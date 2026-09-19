@@ -92,7 +92,7 @@ export default function SensorHistoryScreen() {
             renderItem={({ item, index }) => (
               <View style={[themeStyles.tableRow, index % 2 === 0 ? themeStyles.rowEven : themeStyles.rowOdd]}>
                 <Text style={[themeStyles.tdText, { flex: 0.4, fontWeight: 'bold' }]}>{item.id}</Text>
-                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 10, color: isDark ? '#94a3b8' : '#6b7280' }]}>SN-ESP32-001</Text>
+                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 10, color: isDark ? '#94a3b8' : '#6b7280' }]}>{item.sn || 'Unknown'}</Text>
                 <Text style={[themeStyles.tdText, { flex: 0.8, color: isDark ? '#fdba74' : '#ea580c', fontWeight: 'bold' }]}>{item.suhu}°C</Text>
                 <Text style={[themeStyles.tdText, { flex: 1, fontSize: 11 }]}>{formatWaktu(item.waktu)}</Text>
               </View>
@@ -121,7 +121,7 @@ export default function SensorHistoryScreen() {
             renderItem={({ item, index }) => (
               <View style={[themeStyles.tableRow, index % 2 === 0 ? themeStyles.rowEven : themeStyles.rowOdd]}>
                 <Text style={[themeStyles.tdText, { flex: 0.4, fontWeight: 'bold' }]}>{item.id}</Text>
-                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 10, color: isDark ? '#94a3b8' : '#6b7280' }]}>SN-ESP32-001</Text>
+                <Text style={[themeStyles.tdText, { flex: 0.8, fontSize: 10, color: isDark ? '#94a3b8' : '#6b7280' }]}>{item.sn || 'Unknown'}</Text>
                 <Text style={[themeStyles.tdText, { flex: 0.8, color: isDark ? '#7dd3fc' : '#0284c7', fontWeight: 'bold' }]}>{item.kelembaban}%</Text>
                 <Text style={[themeStyles.tdText, { flex: 1, fontSize: 11 }]}>{formatWaktu(item.waktu)}</Text>
               </View>

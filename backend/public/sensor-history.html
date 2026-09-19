@@ -178,12 +178,12 @@
 
                 data.forEach(item => {
                     var timeStr = new Date(item.waktu).toLocaleString('id-ID');
-                    var dummySN = "SN-ESP32-001"; // Dummy Serial Number
+                    var actualSN = item.sn || "Unknown";
 
                     // Baris Suhu
                     var rowSuhu = `<tr>
                     <td class="fw-bold">${item.id}</td>
-                    <td class="text-secondary fw-bold"><small>${dummySN}</small></td>
+                    <td class="text-secondary fw-bold"><small>${actualSN}</small></td>
                     <td class="text-warning fw-bold fs-6">${item.suhu}°C</td>
                     <td class="text-muted"><small>${timeStr}</small></td>
                 </tr>`;
@@ -191,7 +191,7 @@
                     // Baris Kelembaban
                     var rowKelembaban = `<tr>
                     <td class="fw-bold">${item.id}</td>
-                    <td class="text-secondary fw-bold"><small>${dummySN}</small></td>
+                    <td class="text-secondary fw-bold"><small>${actualSN}</small></td>
                     <td class="text-info fw-bold fs-6">${item.kelembaban}%</td>
                     <td class="text-muted"><small>${timeStr}</small></td>
                 </tr>`;

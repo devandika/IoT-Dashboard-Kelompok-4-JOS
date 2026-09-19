@@ -91,7 +91,7 @@ export default function ActuatorHistoryScreen() {
                 <Text style={[themeStyles.tdText, { flex: 0.8, fontWeight: 'bold' }]}>{item.id}</Text>
                 <View style={{ flex: 1.5, alignItems: 'center' }}>
                   <Text style={[themeStyles.tdText, { fontWeight: 'bold' }]}>LED Utama</Text>
-                  <Text style={{ fontSize: 9, color: isDark ? '#94a3b8' : '#6b7280' }}>kelasiot/led</Text>
+                  <Text style={{ fontSize: 9, color: isDark ? '#94a3b8' : '#6b7280' }}>kelasiot/{item.sn || 'Unknown'}/led</Text>
                 </View>
                 <View style={[{ flex: 1, alignItems: 'center' }]}>
                   <View style={[styles.badgeWeb, { backgroundColor: isON ? (isDark ? '#064e3b' : '#dcfce7') : (isDark ? '#7f1d1d' : '#fee2e2') }]}>

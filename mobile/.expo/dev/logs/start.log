@@ -1025,3 +1025,100 @@
 {"_e":"metro:client_log","_t":1789437096275,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
 {"_e":"metro:client_log","_t":1789437096280,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
 {"_e":"metro:client_log","_t":1789437096359,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"root:init","_t":1789803445677,"format":"v0-jsonl","version":"57.0.24"}
+{"_e":"env:mode","_t":1789803445698,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789803445718,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1789803451060,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789803460869,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789803464943,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789803478832,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"root:init","_t":1789803811442,"format":"v0-jsonl","version":"57.0.24"}
+{"_e":"env:mode","_t":1789803811444,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789803811447,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1789803811815,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789803812360,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789803812818,"plugins":[]}
+{"_e":"metro:instantiate","_t":1789803822192,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1789803834804,"id":"1","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789803834805,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789803834812,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789803834915,"id":"1","progress":0.002066115702479339,"total":22,"current":1}
+{"_e":"metro:bundling:progress","_t":1789803834960,"id":"1","progress":0.008264462809917356,"total":22,"current":2}
+{"_e":"metro:bundling:progress","_t":1789803835063,"id":"1","progress":0.008264462809917356,"total":236,"current":18}
+{"_e":"metro:bundling:progress","_t":1789803835164,"id":"1","progress":0.008264462809917356,"total":255,"current":19}
+{"_e":"metro:bundling:progress","_t":1789803836487,"id":"1","progress":0.008264462809917356,"total":255,"current":20}
+{"_e":"metro:bundling:progress","_t":1789803836623,"id":"1","progress":0.008264462809917356,"total":257,"current":21}
+{"_e":"metro:bundling:progress","_t":1789803836653,"id":"1","progress":0.008264462809917356,"total":257,"current":22}
+{"_e":"metro:bundling:progress","_t":1789803836753,"id":"1","progress":0.07137278931180314,"total":408,"current":109}
+{"_e":"metro:bundling:progress","_t":1789803836854,"id":"1","progress":0.13002860656983734,"total":538,"current":194}
+{"_e":"metro:bundling:progress","_t":1789803836957,"id":"1","progress":0.1686862244897959,"total":616,"current":253}
+{"_e":"metro:bundling:progress","_t":1789803837897,"id":"1","progress":0.17002234778208805,"total":616,"current":254}
+{"_e":"metro:bundling:progress","_t":1789803837997,"id":"1","progress":0.17002234778208805,"total":617,"current":254}
+{"_e":"metro:bundling:progress","_t":1789803838401,"id":"1","progress":0.17080871787732244,"total":617,"current":255}
+{"_e":"metro:bundling:progress","_t":1789803838529,"id":"1","progress":0.17215102091208306,"total":617,"current":256}
+{"_e":"metro:bundling:progress","_t":1789803838533,"id":"1","progress":0.17349857757907372,"total":617,"current":257}
+{"_e":"metro:bundling:progress","_t":1789803838659,"id":"1","progress":0.17485138787829438,"total":617,"current":258}
+{"_e":"metro:bundling:progress","_t":1789803838759,"id":"1","progress":0.2644138640172532,"total":774,"current":398}
+{"_e":"metro:bundling:progress","_t":1789803838859,"id":"1","progress":0.3291692327295122,"total":868,"current":498}
+{"_e":"metro:bundling:progress","_t":1789803838961,"id":"1","progress":0.35284581825011957,"total":968,"current":575}
+{"_e":"metro:bundling:progress","_t":1789803839062,"id":"1","progress":0.39447666117979036,"total":976,"current":613}
+{"_e":"metro:bundling:progress","_t":1789803840347,"id":"1","progress":0.39576474737973655,"total":976,"current":614}
+{"_e":"metro:bundling:progress","_t":1789803840448,"id":"1","progress":0.3962425447524381,"total":977,"current":615}
+{"_e":"metro:bundling:progress","_t":1789803840804,"id":"1","progress":0.3975321860310163,"total":977,"current":616}
+{"_e":"metro:bundling:progress","_t":1789803840951,"id":"1","progress":0.4001177544108141,"total":977,"current":618}
+{"_e":"metro:bundling:progress","_t":1789803841059,"id":"1","progress":0.40141368151203366,"total":977,"current":619}
+{"_e":"metro:bundling:progress","_t":1789803841159,"id":"1","progress":0.5261743859044995,"total":1056,"current":766}
+{"_e":"metro:bundling:progress","_t":1789803841259,"id":"1","progress":0.6511788279773157,"total":1150,"current":928}
+{"_e":"metro:bundling:progress","_t":1789803841360,"id":"1","progress":0.6927821004697192,"total":1169,"current":973}
+{"_e":"metro:bundling:progress","_t":1789803842123,"id":"1","progress":0.6942068447731202,"total":1169,"current":974}
+{"_e":"metro:bundling:progress","_t":1789803842238,"id":"1","progress":0.6942068447731202,"total":1175,"current":977}
+{"_e":"metro:bundling:progress","_t":1789803842323,"id":"1","progress":0.6942068447731202,"total":1175,"current":978}
+{"_e":"metro:bundling:progress","_t":1789803842423,"id":"1","progress":0.8137009001994066,"total":1266,"current":1142}
+{"_e":"metro:bundling:progress","_t":1789803842523,"id":"1","progress":0.8137009001994066,"total":1364,"current":1167}
+{"_e":"metro:bundling:progress","_t":1789803842861,"id":"1","progress":0.8137009001994066,"total":1364,"current":1168}
+{"_e":"metro:bundling:progress","_t":1789803842975,"id":"1","progress":0.8137009001994066,"total":1365,"current":1175}
+{"_e":"metro:bundling:progress","_t":1789803843076,"id":"1","progress":0.8137009001994066,"total":1437,"current":1222}
+{"_e":"metro:bundling:progress","_t":1789803843176,"id":"1","progress":0.8493864134404675,"total":1480,"current":1364}
+{"_e":"metro:bundling:progress","_t":1789803843543,"id":"1","progress":0.8506323046018991,"total":1480,"current":1365}
+{"_e":"metro:bundling:progress","_t":1789803843643,"id":"1","progress":0.8635484655378047,"total":1527,"current":1419}
+{"_e":"metro:bundling:progress","_t":1789803843746,"id":"1","progress":0.8751300728407907,"total":1581,"current":1479}
+{"_e":"metro:bundling:progress","_t":1789803844272,"id":"1","progress":0.8763138807174541,"total":1581,"current":1480}
+{"_e":"metro:bundling:progress","_t":1789803844372,"id":"1","progress":0.8935884877540913,"total":1627,"current":1538}
+{"_e":"metro:bundling:progress","_t":1789803844474,"id":"1","progress":0.925775065600872,"total":1639,"current":1577}
+{"_e":"metro:bundling:progress","_t":1789803844577,"id":"1","progress":0.9269495343259424,"total":1639,"current":1578}
+{"_e":"metro:bundling:progress","_t":1789803844677,"id":"1","progress":0.970142029451417,"total":1662,"current":1637}
+{"_e":"metro:bundling:progress","_t":1789803844777,"id":"1","progress":0.9701598477564654,"total":1663,"current":1638}
+{"_e":"metro:bundling:progress","_t":1789803844781,"id":"1","progress":0.971344775704385,"total":1663,"current":1639}
+{"_e":"metro:bundling:progress","_t":1789803844882,"id":"1","progress":0.9940387614167966,"total":1675,"current":1670}
+{"_e":"metro:bundling:progress","_t":1789803844986,"id":"1","progress":0.999,"total":1676,"current":1676}
+{"_e":"metro:bundling:done","_t":1789803845295,"id":"1","total":1676,"ms":10490.0664}
+{"_e":"metro:bundling:started","_t":1789804078551,"id":"2","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789804078551,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789804078653,"id":"2","total":1,"ms":102.5031}
+{"_e":"metro:client_log","_t":1789804110002,"level":"error","data":["Login Error:","Request failed with status code 401"]}
+{"_e":"metro:bundling:started","_t":1789804214825,"id":"4","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789804214825,"id":"4","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789804214928,"id":"4","total":1,"ms":102.0936}
+{"_e":"metro:bundling:started","_t":1789804266824,"id":"5","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789804266824,"id":"5","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789804266923,"id":"5","total":1,"ms":99.0179}
+{"_e":"metro:bundling:started","_t":1789804299808,"id":"6","platform":"android","environment":null,"entry":"node_modules\\react-native\\index.js"}
+{"_e":"metro:bundling:progress","_t":1789804299808,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804299811,"id":"6","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789804299911,"id":"6","progress":0.039471952984518215,"total":151,"current":30}
+{"_e":"metro:bundling:progress","_t":1789804300011,"id":"6","progress":0.32213294375456536,"total":296,"current":168}
+{"_e":"metro:bundling:progress","_t":1789804300111,"id":"6","progress":0.50543212890625,"total":384,"current":273}
+{"_e":"metro:bundling:progress","_t":1789804300211,"id":"6","progress":0.8533451306078947,"total":446,"current":412}
+{"_e":"metro:bundling:progress","_t":1789804300333,"id":"6","progress":0.9048185603807257,"total":574,"current":546}
+{"_e":"metro:bundling:done","_t":1789804300423,"id":"6","total":574,"ms":615.0751}
+{"_e":"metro:client_log","_t":1789804300679,"level":"warn","data":["ProgressBarAndroid has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/progress-bar-android' instead of 'react-native'. See https://github.com/react-native-progress-view/progress-bar-android"]}
+{"_e":"metro:client_log","_t":1789804300726,"level":"warn","data":["SafeAreaView has been deprecated and will be removed in a future release. Please use 'react-native-safe-area-context' instead. See https://github.com/AppAndFlow/react-native-safe-area-context"]}
+{"_e":"metro:client_log","_t":1789804300770,"level":"warn","data":["Clipboard has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-clipboard/clipboard' instead of 'react-native'. See https://github.com/react-native-clipboard/clipboard"]}
+{"_e":"metro:client_log","_t":1789804300770,"level":"warn","data":["InteractionManager has been deprecated and will be removed in a future release. Please refactor long tasks into smaller ones, and  use 'requestIdleCallback' instead."]}
+{"_e":"metro:client_log","_t":1789804300770,"level":"warn","data":["PushNotificationIOS has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-community/push-notification-ios' instead of 'react-native'. See https://github.com/react-native-push-notification/ios"]}
+{"_e":"root:init","_t":1789804314914,"format":"v0-jsonl","version":"57.0.24"}
+{"_e":"env:mode","_t":1789804314915,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1789804314919,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1789804315289,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1789804315834,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1789804316269,"plugins":[]}

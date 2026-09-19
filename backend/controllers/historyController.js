@@ -83,7 +83,7 @@ const getActuatorHistory = (req, res) => {
     const limit = parseInt(req.query.limit) || 25;
     
     // Ambil data dalam jumlah besar untuk mencari histori perubahan state (ON/OFF)
-    const sql = 'SELECT id, waktu, status_led FROM histori_sensor ORDER BY id DESC LIMIT 5000';
+    const sql = 'SELECT id, waktu, status_led, sn FROM histori_sensor ORDER BY id DESC LIMIT 5000';
     
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Database error', error: err.message });
