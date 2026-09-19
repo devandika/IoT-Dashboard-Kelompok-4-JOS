@@ -453,11 +453,12 @@
                     updateChartData(chartSuhu, timeStr, data.suhu);
                     updateChartData(chartKelembaban, timeStr, data.kelembaban);
                 }
+                
+                // Perbarui status LED sesuai data dari sensor perangkat ini
+                var ledStatus = (data.status_led == 1 || data.status_led == 'ON') ? 'ON' : 'OFF';
+                updateLedUI(ledStatus);
             }
-        } else if (msg.destinationName === 'tugasiot/kontrol_led') {
-            updateLedUI(msg.payloadString);
-        }
-    };
+        };
 
     mqttClient.connect({
         onSuccess: () => {
@@ -468,7 +469,6 @@
             document.getElementById('mqtt-icon').className = 'fas fa-circle text-success';
             
             mqttClient.subscribe('tugasiot/sensor');
-            mqttClient.subscribe('tugasiot/kontrol_led');
         }
     });
 
@@ -494,7 +494,7 @@
         var perintah = isChecked ? 'ON' : 'OFF';
         updateLedUI(perintah);
 
-        axios.post('/api/led', { status: perintah }, { headers: { 'Authorization': `Bearer ${token}` }})
+        axios.post('/api/led', { status: perintah, sn: selectedDeviceSN }, { headers: { 'Authorization': `Bearer ${token}` }})
             .catch(err => console.error("Gagal mengirim perintah via API:", err));
     }
 
