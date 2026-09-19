@@ -73,11 +73,11 @@ export default function ActuatorHistoryScreen() {
       </View>
       
       <View style={themeStyles.tableWrapper}>
-        <View style={themeStyles.tableHeader}>
-          <Text style={[styles.thText, { flex: 0.8 }]}>ID</Text>
-          <Text style={[styles.thText, { flex: 1.5 }]}>Device</Text>
-          <Text style={[styles.thText, { flex: 1 }]}>Status</Text>
-          <Text style={[styles.thText, { flex: 1.5 }]}>Waktu Perubahan</Text>
+        <View style={[themeStyles.tableHeader, { backgroundColor: isDark ? '#1e293b' : '#f1f5f9' }]}>
+          <Text style={[styles.thText, { flex: 0.8, color: isDark ? '#f8fafc' : '#1f2937' }]}>ID</Text>
+          <Text style={[styles.thText, { flex: 1.5, color: isDark ? '#f8fafc' : '#1f2937' }]}>Nama Perangkat</Text>
+          <Text style={[styles.thText, { flex: 1, color: isDark ? '#f8fafc' : '#1f2937' }]}>Status</Text>
+          <Text style={[styles.thText, { flex: 1.5, color: isDark ? '#f8fafc' : '#1f2937' }]}>Waktu Perubahan</Text>
         </View>
 
         <FlatList
@@ -86,12 +86,19 @@ export default function ActuatorHistoryScreen() {
           contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item, index }) => {
             const isON = item.status_led === 1 || item.status_led === 'ON';
+            
+            let deviceName = 'Unknown Device';
+            if(item.sn === 'SN-ESP32-001') deviceName = 'ESP32 Main Controller';
+            else if(item.sn === 'SN-ARD-002') deviceName = 'Arduino Sensor Node';
+            else if(item.sn === 'SN-ESP82-003') deviceName = 'ESP8266 Kitchen Node';
+            else if(item.sn === 'SN-RPI-004') deviceName = 'Raspberry Pi Gateway';
+            
             return (
               <View style={[themeStyles.tableRow, index % 2 === 0 ? themeStyles.rowEven : themeStyles.rowOdd]}>
                 <Text style={[themeStyles.tdText, { flex: 0.8, fontWeight: 'bold' }]}>{item.id}</Text>
                 <View style={{ flex: 1.5, alignItems: 'center' }}>
-                  <Text style={[themeStyles.tdText, { fontWeight: 'bold' }]}>LED Utama</Text>
-                  <Text style={{ fontSize: 9, color: isDark ? '#94a3b8' : '#6b7280' }}>kelasiot/{item.sn || 'Unknown'}/led</Text>
+                  <Text style={[themeStyles.tdText, { fontWeight: 'bold' }]}>{deviceName}</Text>
+                  <Text style={{ fontSize: 9, color: isDark ? '#94a3b8' : '#6b7280' }}>{item.sn || 'Unknown'}</Text>
                 </View>
                 <View style={[{ flex: 1, alignItems: 'center' }]}>
                   <View style={[styles.badgeWeb, { backgroundColor: isON ? (isDark ? '#064e3b' : '#dcfce7') : (isDark ? '#7f1d1d' : '#fee2e2') }]}>

@@ -87,7 +87,6 @@
                                         <th>Serial Number</th>
                                         <th>Name</th>
                                         <th>Nilai</th>
-                                        <th>Topic</th>
                                         <th>Waktu</th>
                                     </tr>
                                 </thead>
@@ -139,14 +138,19 @@
                 data.forEach(item => {
                     var timeStr = new Date(item.waktu).toLocaleString('id-ID');
                     var parsedStatus = (item.status_led == 1 || item.status_led == 'ON') ? 'on' : 'off';
+                    
+                    var deviceName = 'Unknown Device';
+                    if(item.sn === 'SN-ESP32-001') deviceName = 'ESP32 Main Controller';
+                    else if(item.sn === 'SN-ARD-002') deviceName = 'Arduino Sensor Node';
+                    else if(item.sn === 'SN-ESP82-003') deviceName = 'ESP8266 Kitchen Node';
+                    else if(item.sn === 'SN-RPI-004') deviceName = 'Raspberry Pi Gateway';
 
                     // Baris LED
                     var row = `<tr>
                     <td class="fw-bold">${item.id}</td>
                     <td>${item.sn || 'Unknown'}</td>
-                    <td class="text-secondary fw-bold">led</td>
+                    <td class="text-secondary fw-bold">${deviceName}</td>
                     <td class="${parsedStatus === 'on' ? 'text-success' : 'text-danger'} fw-bold">${parsedStatus}</td>
-                    <td>kelasiot/${item.sn || 'Unknown'}/led</td>
                     <td>${timeStr}</td>
                 </tr>`;
 
