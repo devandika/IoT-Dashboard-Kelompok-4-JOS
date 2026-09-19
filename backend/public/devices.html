@@ -52,7 +52,9 @@
                             <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
+                                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i> Ubah Kata Sandi</a></li>
+                            <li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
                                         class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </div>
@@ -135,6 +137,36 @@
                         data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary shadow-sm rounded-3 fw-bold"
                         onclick="addDummyDevice()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Ubah Kata Sandi Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Ubah Kata Sandi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_current" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_new" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_confirm" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm fw-bold">Simpan Kata Sandi</button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -66,4 +66,40 @@ document.addEventListener('DOMContentLoaded', () => {
             usernameDisplay.innerText = user.username + ' (' + user.role + ')';
         }
     }
+
+    // Handle Change Password Form
+    const cpForm = document.getElementById('changePasswordForm');
+    if (cpForm) {
+        cpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const current = document.getElementById('cp_current').value;
+            const newPwd = document.getElementById('cp_new').value;
+            const confirmPwd = document.getElementById('cp_confirm').value;
+
+            if (newPwd !== confirmPwd) {
+                alert('Konfirmasi kata sandi baru tidak cocok!');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.post('/api/auth/change-password', 
+                    { currentPassword: current, newPassword: newPwd },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                alert(res.data.message);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                if (modal) modal.hide();
+                cpForm.reset();
+            } catch (err) {
+                let msg = 'Kata sandi salah atau terjadi kesalahan.';
+                if (err.response && err.response.data && err.response.data.message) {
+                    msg = err.response.data.message;
+                } else if (err.response && err.response.status === 400) {
+                    msg = 'Kata sandi salah.';
+                }
+                alert(msg);
+            }
+        });
+    }
 });
