@@ -23,7 +23,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper">
-            <div class="sidebar-heading">IoT Admin</div>
+            <div class="sidebar-heading">Monitoring IoT Based</div>
             <div class="list-group list-group-flush">
                 <a href="index.html" class="list-group-item list-group-item-action active">
                     <i class="fas fa-tachometer-alt me-2"></i> Dashboard
@@ -62,9 +62,13 @@
                             <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i> Ubah Kata Sandi</a></li>
-                            <li><hr class="dropdown-divider"></li>
-<li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i>
+                                    Ubah Kata Sandi</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
                                         class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </div>
@@ -215,7 +219,7 @@
         </div>
     </div>
 
-    
+
     <!-- Ubah Kata Sandi Modal -->
     <div class="modal fade" id="changePasswordModal" tabindex="-1">
         <div class="modal-dialog">
@@ -229,19 +233,23 @@
                         <div class="mb-3">
                             <div id="err_cp_current" class="text-danger small fw-bold d-none mb-1"></div>
                             <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
-                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_current" required>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_current" required>
                         </div>
                         <div class="mb-3">
                             <div id="err_cp_new" class="text-danger small fw-bold d-none mb-1"></div>
                             <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
-                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_new" required>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_new" required>
                         </div>
                         <div class="mb-3">
                             <div id="err_cp_confirm" class="text-danger small fw-bold d-none mb-1"></div>
                             <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
-                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3" id="cp_confirm" required>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_confirm" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm fw-bold">Simpan Kata Sandi</button>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm fw-bold">Simpan Kata
+                            Sandi</button>
                     </form>
                 </div>
             </div>
@@ -508,67 +516,77 @@
                     }
 
                     // Perbarui status LED sesuai data dari sensor perangkat ini
-                    var ledStatus = (data.status_led == 1 || data.status_led == 'ON') ? 'ON' : 'OFF';
-                    updateLedUI(ledStatus);
+                    if (!ledCooldown) {
+                        var ledStatus = (data.status_led == 1 || data.status_led == 'ON') ? 'ON' : 'OFF';
+                        updateLedUI(ledStatus);
+                    }
                 }
             }
         };
 
-            mqttClient.connect({
-                onSuccess: () => {
-                    console.log("MQTT Terhubung");
-                    document.getElementById('mqtt-status').innerText = 'MQTT Terhubung';
-                    document.getElementById('mqtt-status').classList.remove('text-danger');
-                    document.getElementById('mqtt-status').classList.add('text-success');
-                    document.getElementById('mqtt-icon').className = 'fas fa-circle text-success';
+        mqttClient.connect({
+            onSuccess: () => {
+                console.log("MQTT Terhubung");
+                document.getElementById('mqtt-status').innerText = 'MQTT Terhubung';
+                document.getElementById('mqtt-status').classList.remove('text-danger');
+                document.getElementById('mqtt-status').classList.add('text-success');
+                document.getElementById('mqtt-icon').className = 'fas fa-circle text-success';
 
-                    mqttClient.subscribe('tugasiot/sensor');
-                }
-            });
-
-            // === REALTIME STATUS VIA HTTP PING ===
-            var pingStatus = async () => {
-                try {
-                    await axios.post('/api/auth/ping', {}, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                } catch (e) {
-                    if (e.response && (e.response.status === 401 || e.response.status === 403)) {
-                        logout(); // Logout and redirect to login
-                    }
-                    console.error("Gagal ping status online", e);
-                }
-            };
-            pingStatus();
-            setInterval(pingStatus, 2000);
-
-            // === KENDALI LED ===
-            function toggleLED() {
-                var isChecked = document.getElementById('led-toggle').checked;
-                var perintah = isChecked ? 'ON' : 'OFF';
-                updateLedUI(perintah);
-
-                axios.post('/api/led', { status: perintah, sn: selectedDeviceSN }, { headers: { 'Authorization': `Bearer ${token}` } })
-                    .catch(err => console.error("Gagal mengirim perintah via API:", err));
+                mqttClient.subscribe('tugasiot/sensor');
             }
+        });
 
-            function updateLedUI(status) {
-                var toggle = document.getElementById('led-toggle');
-                var icon = document.getElementById('led-icon');
-                var text = document.getElementById('led-status-text');
-
-                if (status === 'ON') {
-                    toggle.checked = true;
-                    icon.className = "fas fa-lightbulb text-warning";
-                    text.innerText = "Menyala / ON";
-                    text.className = "m-0 text-white fw-bold";
-                } else {
-                    toggle.checked = false;
-                    icon.className = "fas fa-lightbulb text-white-50";
-                    text.innerText = "Padam / OFF";
-                    text.className = "m-0 text-white fw-bold";
+        // === REALTIME STATUS VIA HTTP PING ===
+        var pingStatus = async () => {
+            try {
+                await axios.post('/api/auth/ping', {}, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (e) {
+                if (e.response && (e.response.status === 401 || e.response.status === 403)) {
+                    logout(); // Logout and redirect to login
                 }
+                console.error("Gagal ping status online", e);
             }
+        };
+        pingStatus();
+        setInterval(pingStatus, 2000);
+
+        let ledCooldown = false;
+        let ledCooldownTimer = null;
+
+        // === KENDALI LED ===
+        function toggleLED() {
+            var isChecked = document.getElementById('led-toggle').checked;
+            var perintah = isChecked ? 'ON' : 'OFF';
+            updateLedUI(perintah);
+
+            // Set cooldown agar UI tidak glitch bolak-balik karena MQTT delay
+            ledCooldown = true;
+            if (ledCooldownTimer) clearTimeout(ledCooldownTimer);
+            ledCooldownTimer = setTimeout(() => { ledCooldown = false; }, 3000);
+
+            axios.post('/api/led', { status: perintah, sn: selectedDeviceSN }, { headers: { 'Authorization': `Bearer ${token}` } })
+                .catch(err => console.error("Gagal mengirim perintah via API:", err));
+        }
+
+        function updateLedUI(status) {
+            var toggle = document.getElementById('led-toggle');
+            var icon = document.getElementById('led-icon');
+            var text = document.getElementById('led-status-text');
+
+            if (status === 'ON') {
+                toggle.checked = true;
+                icon.className = "fas fa-lightbulb text-warning";
+                text.innerText = "Menyala / ON";
+                text.className = "m-0 text-white fw-bold";
+            } else {
+                toggle.checked = false;
+                icon.className = "fas fa-lightbulb text-white-50";
+                text.innerText = "Padam / OFF";
+                text.className = "m-0 text-white fw-bold";
+            }
+        }
     </script>
 </body>
 
