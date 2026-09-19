@@ -145,6 +145,14 @@ module.exports = {
             return res.status(400).json({ success: false, message: 'Password saat ini dan password baru wajib diisi.' });
         }
 
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password baru harus minimal 6 karakter.' });
+        }
+
+        if (currentPassword === newPassword) {
+            return res.status(400).json({ success: false, message: 'Password baru tidak boleh sama dengan password lama.' });
+        }
+
         try {
             const sql = 'SELECT * FROM users WHERE id = ?';
             db.query(sql, [userId], async (err, results) => {
@@ -152,8 +160,15 @@ module.exports = {
                 if (results.length === 0) return res.status(404).json({ success: false, message: 'User tidak ditemukan.' });
 
                 const user = results[0];
+                
+                // Jika password user kosong/bukan string, tolak
+                if (!user.password || typeof user.password !== 'string') {
+                    return res.status(400).json({ success: false, message: 'Data password tidak valid di database.' });
+                }
+
                 const isMatch = await bcrypt.compare(currentPassword, user.password);
                 if (!isMatch) {
+                    console.log(`[ChangePassword] Gagal: Password saat ini salah untuk user ${user.username}`);
                     return res.status(400).json({ success: false, message: 'Password saat ini salah.' });
                 }
 
@@ -163,6 +178,7 @@ module.exports = {
                 const updateSql = 'UPDATE users SET password = ? WHERE id = ?';
                 db.query(updateSql, [hashedPassword, userId], (updateErr) => {
                     if (updateErr) return res.status(500).json({ success: false, message: 'Gagal mengubah password', error: updateErr.message });
+                    console.log(`[ChangePassword] Sukses: Password diubah untuk user ${user.username}`);
                     res.json({ success: true, message: 'Password berhasil diubah.' });
                 });
             });

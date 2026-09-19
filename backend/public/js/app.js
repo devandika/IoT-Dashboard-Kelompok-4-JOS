@@ -87,6 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     { currentPassword: current, newPassword: newPwd },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+
+                if (!res.data.success) {
+                    throw new Error(res.data.message || 'Gagal mengubah password');
+                }
+
                 alert(res.data.message);
                 const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
                 if (modal) modal.hide();
@@ -96,7 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (err.response && err.response.data && err.response.data.message) {
                     msg = err.response.data.message;
                 } else if (err.response && err.response.status === 400) {
-                    msg = 'Kata sandi salah.';
+                    msg = 'Kata sandi saat ini salah.';
+                } else if (err.message) {
+                    msg = err.message;
                 }
                 alert(msg);
             }
