@@ -131,27 +131,23 @@ Penyempurnaan visual konsistensi antarmuka pengguna di seluruh halaman dashboard
 
 ---
 
-## 8. Migrasi Database ke Cloud MySQL (TiDB Cloud Serverless - AWS Singapore)
-Peralihan penuh dari database lokal (XAMPP/phpMyAdmin) ke database cloud terdistribusi berperforma tinggi.
+## 8. Arsitektur Database Fleksibel (XAMPP Lokal & Cloud Hybrid)
+Sistem dikonfigurasi dengan arsitektur fleksibel yang mendukung database MySQL lokal (XAMPP/phpMyAdmin) sebagai mode utama, serta siap beralih ke Cloud MySQL (TiDB Cloud) kapan saja hanya melalui pengaturan variabel lingkungan.
 
-* **Layanan:** **TiDB Cloud Serverless** (Host di AWS Region Singapore: `ap-southeast-1`).
-* **Fitur & Keuntungan:**
-  * **100% Bebas XAMPP:** Backend terhubung langsung ke internet via SSL/TLS terenkripsi tanpa perlu membuka aplikasi XAMPP lokal lagi.
-  * **Gratis Selamanya Tanpa Kartu Kredit:** Menggunakan tier Serverless gratis dengan kuota storage 5 GB.
-  * **Data Tersimpan Permanen & Aman:** Data pembacaan sensor dan akun tersimpan di cloud, tidak hilang saat laptop restart atau mati.
-  * **Dukungan Kerja Sama Tim:** Anggota kelompok lain dapat membuka dashboard dari laptop masing-masing dan langsung terhubung ke database terpusat yang sama.
-* **Konfigurasi Lingkungan:**
-  * Dikelola via [`backend/.env`](backend/.env) dengan parameter:
-    * `DB_HOST=gateway01.ap-southeast-1.prod.aws.tidbcloud.com`
-    * `DB_PORT=4000`
-    * `DB_USER=27jRdYcrhyT9Ynw.root`
-    * `DB_NAME=test`
-    * `DB_SSL=true`
+* **Mode Aktif Saat Ini:** **MySQL Lokal (XAMPP / phpMyAdmin)**.
+  * Host: `localhost`
+  * Port: `3306`
+  * Database: `tugasiot_4`
+  * User: `root` (Password kosong)
+  * SSL: Dinonaktifkan (`DB_SSL=false`)
+* **Dukungan Cloud Ready:**
+  * Driver pool di [`backend/config/db.js`](backend/config/db.js) dirancang otomatis mendeteksi apakah host berada di cloud (mengaktifkan SSL) atau lokal (tanpa SSL).
+  * Kredensial TiDB Cloud Serverless tetap tersimpan sebagai cadangan jika sewaktu-waktu ingin beralih ke cloud.
 
 ---
 
 ## 9. Sistem Inisialisasi & Seeding Tabel Otomatis (Auto-Migration)
-Penambahan modul migrasi otomatis agar database cloud langsung siap pakai tanpa perlu mengeksekusi script SQL manual.
+Penambahan modul migrasi otomatis agar database lokal maupun cloud langsung siap pakai tanpa perlu mengeksekusi script SQL manual.
 
 * **File Baru:** [`backend/config/initDb.js`](backend/config/initDb.js)
 * **Mekanisme Kerja:**
@@ -177,6 +173,18 @@ Struktur proyek diperbarui agar memenuhi standar deployment modern (*zero-config
 * **Sinkronisasi Repositori GitHub:**
   * Repositori resmi tersinkronisasi di: **`https://github.com/devandika/IoT-Dashboard-Kelompok-4-JOS.git`** (Branch: `main`).
   * File credential rahasia [`.env`](backend/.env) dan file dump lokal besar secara ketat diabaikan oleh [`.gitignore`](.gitignore) demi menjaga keamanan kredensial.
+
+---
+
+## 11. Pelacakan Status Realtime & Heartbeat Timeout Perangkat
+Pembaruan cerdas pada penanganan status perangkat (*Online / Offline*) baik di level basis data maupun antarmuka dashboard.
+
+* **File:** [`backend/services/mqttService.js`](backend/services/mqttService.js) & [`backend/controllers/deviceController.js`](backend/controllers/deviceController.js).
+* **Auto-Update `'Online'`:** Setiap kali ada data telemetri MQTT masuk dari ESP32 atau simulator, backend secara otomatis memperbarui kolom `status = 'Online'`, waktu `updated_at`, dan IP perangkat di tabel `devices`.
+* **Mekanisme Heartbeat (Auto-Set `'Offline'`):**
+  * Backend menjalankan interval pemantauan setiap 10 detik.
+  * Jika perangkat tidak mengirimkan data selama lebih dari 30 detik (misal ESP32 dicabut atau simulator dihentikan), status perangkat di tabel `devices` akan otomatis diubah kembali menjadi `'Offline'`.
+  * Endpoint REST API `GET /api/devices` juga menghitung status dinamis berdasarkan interval 30 detik terakhir secara konsisten.
 
 ---
 
