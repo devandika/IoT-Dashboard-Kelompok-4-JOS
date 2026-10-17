@@ -26,22 +26,22 @@
             <div class="sidebar-heading">Monitoring IoT Based</div>
             <div class="list-group list-group-flush">
                 <a href="index.html" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
                 </a>
                 <a href="sensor-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                    <i class="fas fa-thermometer-half fa-fw me-2"></i> Data Sensor
                 </a>
                 <a href="actuator-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                    <i class="fas fa-lightbulb fa-fw me-2"></i> Data Aktuator
                 </a>
                 <a href="devices.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-microchip me-2"></i> Perangkat
+                    <i class="fas fa-microchip fa-fw me-2"></i> Perangkat
                 </a>
                 <a href="ai-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                    <i class="fas fa-chart-line fa-fw me-2"></i> Riwayat Analisa
                 </a>
                 <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
-                    <i class="fas fa-users me-2"></i> Pengguna
+                    <i class="fas fa-users fa-fw me-2"></i> Pengguna
                 </a>
             </div>
             <div class="mt-auto p-3 text-center text-white-50"
@@ -179,8 +179,10 @@
                         <!-- Charts Row -->
                         <div class="d-flex flex-column flex-grow-1 gap-2" style="min-height: 0;">
                             <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
-                                <div class="card-header py-1" style="font-size: 0.85rem;"><i
-                                        class="fas fa-chart-line text-warning me-2"></i> Tren Suhu</div>
+                                <div class="card-header py-1 d-flex align-items-center" style="font-size: 0.85rem;">
+                                    <i class="fas fa-chart-line text-warning me-2"></i>
+                                    <span class="fw-semibold">Tren Suhu</span>&nbsp;<span class="text-warning fw-bold">(°C)</span>
+                                </div>
                                 <div class="card-body p-1 flex-grow-1" style="position: relative;">
                                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
                                         <canvas id="chartSuhu"></canvas>
@@ -188,8 +190,10 @@
                                 </div>
                             </div>
                             <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
-                                <div class="card-header py-1" style="font-size: 0.85rem;"><i
-                                        class="fas fa-chart-area text-info me-2"></i> Tren Kelembaban</div>
+                                <div class="card-header py-1 d-flex align-items-center" style="font-size: 0.85rem;">
+                                    <i class="fas fa-chart-area text-info me-2"></i>
+                                    <span class="fw-semibold">Tren Kelembaban</span>&nbsp;<span class="text-info fw-bold">(%)</span>
+                                </div>
                                 <div class="card-body p-1 flex-grow-1" style="position: relative;">
                                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
                                         <canvas id="chartKelembaban"></canvas>
@@ -206,12 +210,12 @@
                             </div>
                             <div class="card-body p-0" style="overflow-y: auto; flex: 1;">
                                 <table class="table table-hover m-0 align-middle">
-                                    <thead class="table-light sticky-top">
+                                    <thead class="bg-light text-secondary sticky-top" style="font-size: 13px;">
                                         <tr>
-                                            <th class="ps-3">Perangkat</th>
-                                            <th>Ruangan</th>
-                                            <th class="text-center">Analisa AI</th>
-                                            <th class="text-center">Status</th>
+                                            <th class="ps-3 py-2.5">PERANGKAT</th>
+                                            <th class="py-2.5">RUANGAN</th>
+                                            <th class="text-center py-2.5">ANALISA AI</th>
+                                            <th class="text-center py-2.5">STATUS</th>
                                         </tr>
                                     </thead>
                                     <tbody id="device-status-tbody">
@@ -615,6 +619,39 @@
         var deviceTimeoutMs = 5000;
         var dashboardDevices = []; // Dimuat dinamis dari database (/api/devices), BUKAN hardcoded
         var isDevicesLoading = true;
+        var prevSelectedDeviceOnlineState = null;
+
+        function isDeviceOnline(sn) {
+            if (!sn) return false;
+            var lastSeen = deviceLastSeen[sn] || 0;
+            return (Date.now() - lastSeen <= deviceTimeoutMs) && lastSeen > 0;
+        }
+
+        function clearDashboardToOffline() {
+            var emptyLabels = Array(10).fill('');
+            var emptyData = Array(10).fill(null);
+            if (typeof chartSuhu !== 'undefined' && chartSuhu) {
+                chartSuhu.data.labels = [...emptyLabels];
+                chartSuhu.data.datasets[0].data = [...emptyData];
+                chartSuhu.update('none');
+            }
+            if (typeof chartKelembaban !== 'undefined' && chartKelembaban) {
+                chartKelembaban.data.labels = [...emptyLabels];
+                chartKelembaban.data.datasets[0].data = [...emptyData];
+                chartKelembaban.update('none');
+            }
+            var elSuhu = document.getElementById('val-suhu');
+            var elHum = document.getElementById('val-kelembaban');
+            var elUpdate = document.getElementById('last-update');
+            var elAvgTemp = document.getElementById('avgTempText');
+            var elAvgHum = document.getElementById('avgHumText');
+            if (elSuhu) elSuhu.innerText = '--';
+            if (elHum) elHum.innerText = '--';
+            if (elUpdate) elUpdate.innerText = 'Offline';
+            if (elAvgTemp) elAvgTemp.innerText = '-';
+            if (elAvgHum) elAvgHum.innerText = '-';
+            updateLedUI('OFF');
+        }
 
         async function fetchDashboardDevices() {
             try {
@@ -637,20 +674,25 @@
                         };
                     });
 
-                    // Pastikan selectedDeviceSN valid. Jika belum dipilih atau device lama sudah dihapus, pilih device pertama
+                    // Pastikan selectedDeviceSN valid.
                     if (dashboardDevices.length > 0) {
                         var isCurrentValid = dashboardDevices.some(d => d.sn === selectedDeviceSN);
+                        // Jika belum ada perangkat terpilih, atau perangkat lama tidak valid:
+                        // Prioritaskan pilih perangkat pertama yang online, jika belum ada yang online pilih perangkat pertama
                         if (!selectedDeviceSN || !isCurrentValid) {
-                            selectedDeviceSN = dashboardDevices[0].sn;
+                            var onlineDev = dashboardDevices.find(d => isDeviceOnline(d.sn));
+                            selectedDeviceSN = onlineDev ? onlineDev.sn : dashboardDevices[0].sn;
                             localStorage.setItem('lastSelectedDeviceSN', selectedDeviceSN);
-                            if (isFilterActive) {
-                                applyFilter();
-                            } else {
-                                fetchInitialData();
-                            }
+                        }
+
+                        if (isFilterActive) {
+                            applyFilter();
+                        } else {
+                            fetchInitialData();
                         }
                     } else {
                         selectedDeviceSN = null;
+                        clearDashboardToOffline();
                     }
 
                     renderDeviceTable();
@@ -712,7 +754,14 @@
             renderDeviceTable();
             if (isFilterActive) {
                 applyFilter();
+                return;
+            }
+
+            if (!isDeviceOnline(sn)) {
+                // Perangkat offline: grafiknya langsung kosong!
+                clearDashboardToOffline();
             } else {
+                // Perangkat online: kembalikan dan tampilkan grafiknya!
                 fetchInitialData();
             }
         };
@@ -723,6 +772,15 @@
         // Heartbeat status online/offline setiap 1 detik
         setInterval(() => {
             renderDeviceTable();
+
+            if (selectedDeviceSN && !isFilterActive) {
+                var currentlyOnline = isDeviceOnline(selectedDeviceSN);
+                // Jika perangkat yang sedang dipantau tadinya online lalu menjadi offline:
+                if (prevSelectedDeviceOnlineState === true && !currentlyOnline) {
+                    clearDashboardToOffline();
+                }
+                prevSelectedDeviceOnlineState = currentlyOnline;
+            }
         }, 1000);
 
         // Sinkronisasi otomatis daftar perangkat terbaru dari database setiap 10 detik
@@ -744,7 +802,7 @@
             document.getElementById('chartFilterDate').value = `${yyyy}-${mm}-${dd}`;
         });
 
-        function createChartConfig(color, bgColor, labelText, yUnit) {
+        function createChartConfig(color, bgColor, labelText) {
             return {
                 type: 'line',
                 data: {
@@ -770,7 +828,7 @@
                         y: {
                             min: 0,
                             max: 100,
-                            title: { display: true, text: yUnit, align: 'end', color: color, font: { weight: 'bold' } }
+                            title: { display: false }
                         }
                     },
                     plugins: { legend: { display: false } },
@@ -780,8 +838,8 @@
             };
         }
 
-        var chartSuhu = new Chart(document.getElementById('chartSuhu').getContext('2d'), createChartConfig('#ffc107', 'rgba(255, 193, 7, 0.2)', 'Suhu', '°C'));
-        var chartKelembaban = new Chart(document.getElementById('chartKelembaban').getContext('2d'), createChartConfig('#0dcaf0', 'rgba(13, 202, 240, 0.2)', 'Kelembaban', '%'));
+        var chartSuhu = new Chart(document.getElementById('chartSuhu').getContext('2d'), createChartConfig('#ffc107', 'rgba(255, 193, 7, 0.2)', 'Suhu'));
+        var chartKelembaban = new Chart(document.getElementById('chartKelembaban').getContext('2d'), createChartConfig('#0dcaf0', 'rgba(13, 202, 240, 0.2)', 'Kelembaban'));
 
         function updateChartData(chart, label, data) {
             chart.data.labels.push(label);
@@ -798,11 +856,33 @@
         }
 
         function fetchInitialData() {
-            if (!selectedDeviceSN) return;
+            if (!selectedDeviceSN) {
+                clearDashboardToOffline();
+                return;
+            }
+
             axios.get(`/api/history?limit=10&sn=${selectedDeviceSN}`, { headers: { 'Authorization': `Bearer ${token}` } })
                 .then(res => {
-                    if (!res.data.data || res.data.data.length === 0) return;
-                    var dataChronological = [...res.data.data].reverse();
+                    var data = res.data && res.data.data ? res.data.data : [];
+
+                    // Cek apakah perangkat ini online (berdasarkan telemetri MQTT atau data DB yang baru masuk <= 10 detik lalu)
+                    var isOnline = isDeviceOnline(selectedDeviceSN);
+                    if (!isOnline && data.length > 0) {
+                        var latestTime = new Date(data[0].waktu).getTime();
+                        if (Date.now() - latestTime <= 10000) {
+                            isOnline = true;
+                            deviceLastSeen[selectedDeviceSN] = latestTime;
+                        }
+                    }
+
+                    // Jika perangkat offline atau belum ada data: grafiknya harus kosong!
+                    if (!isOnline || data.length === 0) {
+                        clearDashboardToOffline();
+                        return;
+                    }
+
+                    // Jika perangkat online: kembalikan dan tampilkan grafiknya!
+                    var dataChronological = [...data].reverse();
 
                     var labels = [];
                     var suhuData = [];
@@ -814,23 +894,35 @@
                         kelembabanData.push(item.kelembaban);
                     });
 
-                    while (labels.length < 10) { labels.unshift(''); suhuData.unshift(null); kelembabanData.unshift(null); }
+                    while (labels.length < 10) { 
+                        labels.unshift(''); 
+                        suhuData.unshift(null); 
+                        kelembabanData.unshift(null); 
+                    }
 
-                    chartSuhu.data.labels = labels; chartSuhu.data.datasets[0].data = suhuData; chartSuhu.update();
-                    chartKelembaban.data.labels = labels; chartKelembaban.data.datasets[0].data = kelembabanData; chartKelembaban.update();
+                    chartSuhu.data.labels = labels; 
+                    chartSuhu.data.datasets[0].data = suhuData; 
+                    chartSuhu.update();
 
-                    var latest = res.data.data[0];
+                    chartKelembaban.data.labels = labels; 
+                    chartKelembaban.data.datasets[0].data = kelembabanData; 
+                    chartKelembaban.update();
+
+                    var latest = data[0];
                     document.getElementById('val-suhu').innerText = latest.suhu;
                     document.getElementById('val-kelembaban').innerText = latest.kelembaban;
                     document.getElementById('last-update').innerText = new Date(latest.waktu).toLocaleTimeString('id-ID');
                     updateLedUI(latest.status_led === 1 ? 'ON' : 'OFF');
 
-                    // Hitung rata-rata awal
+                    // Hitung rata-rata
                     var sumSuhu = 0, sumHum = 0;
-                    res.data.data.forEach(d => { sumSuhu += d.suhu; sumHum += d.kelembaban; });
-                    document.getElementById('avgTempText').innerText = (sumSuhu / res.data.data.length).toFixed(1);
-                    document.getElementById('avgHumText').innerText = (sumHum / res.data.data.length).toFixed(1);
-                }).catch(err => console.error(err));
+                    data.forEach(d => { sumSuhu += d.suhu; sumHum += d.kelembaban; });
+                    document.getElementById('avgTempText').innerText = (sumSuhu / data.length).toFixed(1);
+                    document.getElementById('avgHumText').innerText = (sumHum / data.length).toFixed(1);
+                }).catch(err => {
+                    console.error("Gagal mengambil histori:", err);
+                    clearDashboardToOffline();
+                });
         }
 
         // Panggil saat pertama kali
@@ -869,8 +961,12 @@
             document.getElementById('avgTempLabel').innerText = 'Realtime';
             document.getElementById('avgHumLabel').innerText = 'Realtime';
 
-            // Panggil kembali data 10 terakhir tanpa reload web
-            fetchInitialData();
+            // Panggil kembali data tanpa reload web
+            if (isDeviceOnline(selectedDeviceSN)) {
+                fetchInitialData();
+            } else {
+                clearDashboardToOffline();
+            }
         }
 
         // === MQTT LOGIC ===
@@ -889,6 +985,7 @@
             if (msg.destinationName === 'tugasiot/sensor') {
                 var data = JSON.parse(msg.payloadString);
                 var sn = data.sn || 'SN-ESP32-001';
+                var wasOnline = isDeviceOnline(sn);
                 deviceLastSeen[sn] = Date.now();
 
                 var statusChanged = false;
@@ -901,13 +998,16 @@
                 if (statusChanged) renderDeviceTable();
 
                 if (sn === selectedDeviceSN) {
-                    document.getElementById('val-suhu').innerText = data.suhu;
-                    document.getElementById('val-kelembaban').innerText = data.kelembaban;
+                    // Jika perangkat ini sebelumnya offline (grafiknya kosong), kembalikan grafiknya dengan fetch data historis
+                    if (!wasOnline && !isFilterActive) {
+                        fetchInitialData();
+                    } else if (!isFilterActive) {
+                        document.getElementById('val-suhu').innerText = data.suhu;
+                        document.getElementById('val-kelembaban').innerText = data.kelembaban;
 
-                    var timeStr = new Date().toLocaleTimeString('id-ID');
-                    document.getElementById('last-update').innerText = timeStr;
+                        var timeStr = new Date().toLocaleTimeString('id-ID');
+                        document.getElementById('last-update').innerText = timeStr;
 
-                    if (!isFilterActive) {
                         updateChartData(chartSuhu, timeStr, data.suhu);
                         updateChartData(chartKelembaban, timeStr, data.kelembaban);
                     }

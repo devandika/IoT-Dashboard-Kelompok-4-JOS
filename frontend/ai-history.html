@@ -25,22 +25,22 @@
             <div class="sidebar-heading">Monitoring IoT Based</div>
             <div class="list-group list-group-flush">
                 <a href="index.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
                 </a>
                 <a href="sensor-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                    <i class="fas fa-thermometer-half fa-fw me-2"></i> Data Sensor
                 </a>
                 <a href="actuator-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                    <i class="fas fa-lightbulb fa-fw me-2"></i> Data Aktuator
                 </a>
                 <a href="devices.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-microchip me-2"></i> Perangkat
+                    <i class="fas fa-microchip fa-fw me-2"></i> Perangkat
                 </a>
                 <a href="ai-history.html" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                    <i class="fas fa-chart-line fa-fw me-2"></i> Riwayat Analisa
                 </a>
                 <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
-                    <i class="fas fa-users me-2"></i> Pengguna
+                    <i class="fas fa-users fa-fw me-2"></i> Pengguna
                 </a>
             </div>
             <div class="mt-auto p-3 text-center text-white-50"
@@ -85,16 +85,6 @@
                     <h5 class="fw-bold m-0 text-secondary">
                         <i class="fas fa-chart-line text-primary me-2"></i> Riwayat Analisa Suhu & Kelembaban
                     </h5>
-                    <div class="d-flex align-items-center gap-2">
-                        <button id="btn-delete-selected" onclick="deleteSelectedRecords()"
-                            class="btn btn-danger btn-sm px-3 shadow-sm rounded-3 fw-semibold d-none">
-                            <i class="fas fa-trash me-1"></i> Hapus Terpilih (<span id="selected-count">0</span>)
-                        </button>
-                        <button onclick="clearAllHistory()"
-                            class="btn btn-outline-danger btn-sm px-3 shadow-sm rounded-3 fw-semibold">
-                            <i class="fas fa-trash-alt me-1"></i> Bersihkan Riwayat
-                        </button>
-                    </div>
                 </div>
 
                 <div class="row g-3 mb-4">
@@ -144,20 +134,13 @@
                     </div>
                 </div>
 
-                <!-- Filter & Search Toolbar -->
+                <!-- Filter Toolbar -->
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
-                    <div class="row g-2 align-items-center">
+                    <div class="row g-3 align-items-center">
                         <div class="col-md-6">
-                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
-                                <span class="input-group-text bg-light border-0"><i
-                                        class="fas fa-search text-muted"></i></span>
-                                <input type="text" id="searchInput" class="form-control bg-light border-0"
-                                    placeholder="Cari nama perangkat, ruangan, SN..." onkeyup="filterHistory()">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                            <label class="form-label text-muted small fw-bold mb-1"><i class="fas fa-microchip me-1 text-primary"></i>Filter Perangkat:</label>
                             <select id="filterDevice" class="form-select bg-light border-0 shadow-sm rounded-3"
-                                onchange="filterHistory()">
+                                onchange="currentHistoryPage=1; filterHistory()">
                                 <option value="ALL">Semua Perangkat (SN)</option>
                                 <option value="SN-ESP32-001">ESP32 Main Controller (SN-ESP32-001)</option>
                                 <option value="SN-ARD-002">Arduino Sensor Node (SN-ARD-002)</option>
@@ -165,9 +148,10 @@
                                 <option value="SN-RPI-004">Raspberry Pi Gateway (SN-RPI-004)</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold mb-1"><i class="fas fa-heart-pulse me-1 text-danger"></i>Filter Kondisi Termal:</label>
                             <select id="filterStatus" class="form-select bg-light border-0 shadow-sm rounded-3"
-                                onchange="filterHistory()">
+                                onchange="currentHistoryPage=1; filterHistory()">
                                 <option value="ALL">Semua Kondisi</option>
                                 <option value="Optimal">Optimal</option>
                                 <option value="Perlu Penyesuaian">Perlu Penyesuaian</option>
@@ -178,42 +162,62 @@
                 </div>
 
                 <!-- Table Card -->
-                <div class="card card-custom border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-                    <div
-                        class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div>
-                            <h5 class="fw-bold m-0 text-dark"><i class="fas fa-list-check text-primary me-2"></i>Tabel
-                                Riwayat Analisa</h5>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <select id="historyLimit"
-                                class="form-select form-select-sm w-auto bg-light border-0 shadow-sm rounded-3"
-                                onchange="currentHistoryPage=1; filterHistory()">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="all">All</option>
-                            </select>
-                            <span class="text-muted small">entries</span>
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                            <div>
+                                <h5 class="fw-bold m-0 text-dark"><i
+                                        class="fas fa-chart-line text-primary me-2"></i>Daftar Riwayat Analisa AI</h5>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
+                                <button type="button" id="btn-delete-selected"
+                                    class="btn btn-sm btn-outline-danger rounded-3 shadow-sm d-none fw-bold"
+                                    onclick="openDeleteSelectedModal()">
+                                    <i class="fas fa-trash-alt me-1"></i> Hapus Terpilih (<span id="selected-count">0</span>)
+                                </button>
+                                <div class="d-flex align-items-center gap-2 me-1">
+                                    <select id="historyLimit"
+                                        class="form-select w-auto bg-light border-0 shadow-sm rounded-3"
+                                        onchange="currentHistoryPage=1; filterHistory()">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                    <span class="text-muted small">entries</span>
+                                </div>
+                                <div class="input-group" style="max-width: 260px;">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="fas fa-search text-muted"></i></span>
+                                    <input type="text" id="searchInput"
+                                        class="form-control bg-light border-0 shadow-sm"
+                                        placeholder="Cari nama, SN, ruangan..."
+                                        oninput="currentHistoryPage=1; filterHistory()">
+                                </div>
+                                <button onclick="clearAllHistory()"
+                                    class="btn btn-outline-danger rounded-3 fw-bold shadow-sm">
+                                    <i class="fas fa-trash-alt me-1"></i> Bersihkan Riwayat
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0"
-                                style="table-layout: fixed; width: 100%; border-top: 1px solid #f1f5f9;">
+                            <table class="table table-hover align-middle m-0" style="border-top: 1px solid #f1f5f9;">
                                 <thead class="bg-light text-secondary" style="font-size: 13px;">
                                     <tr>
-                                        <th class="ps-3 py-3 text-center" style="width: 4%;">
+                                        <th class="ps-4 py-3" style="width: 45px;">
                                             <input type="checkbox" class="form-check-input" id="selectAllCheckbox"
                                                 onclick="toggleSelectAll(this)" onchange="toggleSelectAll(this)"
                                                 title="Pilih Semua" style="cursor: pointer;">
                                         </th>
-                                        <th class="py-3" style="width: 22%;">WAKTU ANALISA</th>
-                                        <th class="py-3" style="width: 23%;">PERANGKAT & SN</th>
-                                        <th class="py-3" style="width: 17%;">RUANGAN</th>
-                                        <th class="py-3 text-center" style="width: 17%;">KONDISI</th>
-                                        <th class="py-3 text-center" style="width: 9%;">DETAIL</th>
-                                        <th class="py-3 text-center pe-3" style="width: 8%;">AKSI</th>
+                                        <th class="py-3">WAKTU ANALISA</th>
+                                        <th class="py-3">PERANGKAT & SN</th>
+                                        <th class="py-3">RUANGAN</th>
+                                        <th class="py-3">ENGINE AI</th>
+                                        <th class="py-3 text-center">KONDISI</th>
+                                        <th class="py-3 text-center" style="width: 85px;">DETAIL</th>
+                                        <th class="py-3 text-center pe-4" style="width: 85px;">HAPUS</th>
                                     </tr>
                                 </thead>
                                 <tbody id="history-tbody">
@@ -510,6 +514,79 @@
         </div>
     </div>
 
+    <!-- Modal Delete History Confirmation (Red Nuance, Centered, Large Warning) -->
+    <div class="modal fade" id="deleteHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Header with red accent -->
+                <div class="p-4 pb-0 d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger"
+                            style="width: 56px; height: 56px; min-width: 56px;">
+                            <i class="fas fa-trash-alt fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="modal-title fw-bold text-dark m-0" style="font-size: 1.35rem;" id="delHistModalTitle">Hapus Riwayat Analisa</h4>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 fw-bold px-2 py-1 rounded-pill mt-1"
+                                style="font-size: 0.8rem;">
+                                <i class="fas fa-triangle-exclamation me-1"></i>TINDAKAN PERMANEN
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 pt-3 pb-3">
+                    <!-- Prominent Red Alert Warning Box -->
+                    <div class="alert alert-danger border-danger border-opacity-50 bg-danger bg-opacity-10 p-3 rounded-3 mb-3 d-flex align-items-start gap-2.5">
+                        <i class="fas fa-triangle-exclamation fs-4 text-danger flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <strong class="d-block text-danger mb-1" style="font-size: 1.05rem;">PERINGATAN HAPUS DATA</strong>
+                            <p class="text-danger-emphasis mb-0" style="font-size: 0.96rem; line-height: 1.45;" id="delHistModalDesc">
+                                Apakah Anda yakin ingin menghapus catatan analisa ini? Tindakan ini <strong>tidak dapat dibatalkan</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Detail Data Card -->
+                    <div class="p-3 rounded-3 border border-secondary border-opacity-25 bg-light mb-3" id="delHistDetailCard">
+                        <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-light-subtle">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Waktu Analisa:</span>
+                            <span class="fw-bold text-dark" style="font-size: 1.0rem;" id="delHistTime">-</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-light-subtle">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Perangkat:</span>
+                            <span class="fw-bold text-dark" style="font-size: 1.0rem;" id="delHistDevice">-</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Kondisi:</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.95rem;" id="delHistStatus">-</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 text-danger fw-semibold px-1" style="font-size: 0.88rem;">
+                        <i class="fas fa-circle-info fs-6"></i>
+                        <span>Data yang dihapus akan hilang dari penyimpanan lokal sistem.</span>
+                    </div>
+                    <input type="hidden" id="delHistTargetId" value="">
+                    <input type="hidden" id="delHistTargetType" value="single">
+                </div>
+
+                <div class="modal-footer border-top-0 px-4 pb-4 pt-2 d-flex gap-2 justify-content-end bg-light bg-opacity-50">
+                    <button type="button" class="btn btn-light shadow-sm rounded-3 fw-bold text-secondary px-3 py-2"
+                        style="font-size: 0.95rem;" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="button" id="btnConfirmDeleteHist"
+                        class="btn btn-danger shadow-sm rounded-3 fw-bold px-4 py-2" style="font-size: 0.98rem;"
+                        onclick="executeDeleteHistory()">
+                        <i class="fas fa-trash-alt me-1.5"></i> Ya, Hapus Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- App Logic -->
@@ -561,19 +638,19 @@
                 return {
                     status: 'Optimal',
                     badgeClass: 'bg-success text-white',
-                    icon: '<i class="fas fa-circle-check me-1"></i>'
+                    icon: '<i class="fas fa-circle me-1" style="font-size:7px"></i>'
                 };
             } else if (st === 'Perlu Penyesuaian' || (sc >= 50 && sc < 75)) {
                 return {
                     status: 'Perlu Penyesuaian',
                     badgeClass: 'bg-warning text-dark',
-                    icon: '<i class="fas fa-triangle-exclamation me-1"></i>'
+                    icon: '<i class="fas fa-circle me-1" style="font-size:7px"></i>'
                 };
             } else {
                 return {
                     status: 'Anomali Termal',
                     badgeClass: 'bg-danger text-white',
-                    icon: '<i class="fas fa-fire me-1"></i>'
+                    icon: '<i class="fas fa-circle me-1" style="font-size:7px"></i>'
                 };
             }
         }
@@ -939,55 +1016,55 @@
                 var badgeConfig = getStatusBadgeConfig(r.status, r.score);
                 var isCloud = (r.engine === 'AI Cloud');
                 var engineBadge = isCloud
-                    ? '<span class="badge text-white px-2 py-1" style="background:#1e40af; font-size:0.68rem;"><i class="fas fa-cloud me-1"></i>AI Cloud</span>'
-                    : '<span class="badge bg-info text-white px-2 py-1" style="font-size:0.68rem;"><i class="fas fa-microchip me-1"></i>AI Lokal</span>';
+                    ? '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1.5 fw-bold"><i class="fas fa-cloud me-1"></i>AI Cloud</span>'
+                    : '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2.5 py-1.5 fw-bold"><i class="fas fa-microchip me-1"></i>AI Lokal</span>';
 
                 html += `
                 <tr>
                     <!-- 0. Checkbox -->
-                    <td class="ps-3 text-center">
+                    <td class="ps-4 text-center">
                         <input type="checkbox" class="form-check-input row-checkbox" value="${r.id}" onclick="handleRowCheckboxChange()" onchange="handleRowCheckboxChange()" style="cursor: pointer;">
                     </td>
 
                     <!-- 1. Waktu Analisa -->
                     <td>
-                        <div class="fw-bold text-dark small">${r.timestamp || r.date}</div>
-                        <div class="d-flex align-items-center gap-1 mt-1">
-                            ${engineBadge}
-                            <span class="badge bg-light text-secondary border" style="font-size: 0.68rem;"></span>
-                        </div>
+                        <div class="fw-bold text-dark">${r.timestamp || r.date}</div>
+                        <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>${r.date || '-'}</small>
                     </td>
 
                     <!-- 2. Perangkat & SN -->
                     <td>
-                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">${r.deviceName || 'Node IoT'}</div>
-                        <span class="text-muted font-monospace small">${r.sn}</span>
+                        <div class="fw-bold text-dark">${r.deviceName || 'Node IoT'}</div>
+                        <code class="fw-bold text-primary">${r.sn}</code>
                     </td>
 
                     <!-- 3. Ruangan -->
                     <td>
-                        <span class="badge bg-light text-dark border px-2 py-1">
-                            <i class="fas fa-location-dot text-danger me-1"></i>${r.room}
-                        </span>
+                        <i class="fas fa-location-dot text-danger me-1"></i> ${r.room}
                     </td>
 
-                    <!-- 4. Kondisi (Hanya kondisi tanpa angka) -->
-                    <td class="text-center align-middle">
-                        <span class="badge ${badgeConfig.badgeClass} badge-status-pill fw-semibold shadow-sm" style="font-size: 0.8rem; letter-spacing: -0.01em;">
+                    <!-- 4. Engine AI -->
+                    <td>
+                        ${engineBadge}
+                    </td>
+
+                    <!-- 5. Kondisi -->
+                    <td class="text-center">
+                        <span class="badge rounded-pill ${badgeConfig.badgeClass} px-3 py-2">
                             ${badgeConfig.icon} ${badgeConfig.status}
                         </span>
                     </td>
 
-                    <!-- 5. Detail -->
+                    <!-- 6. Detail -->
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-circle p-1 shadow-sm" style="width: 32px; height: 32px;" onclick="viewDetail('${r.id}')" title="Lihat Visualisasi & Diagnosa">
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px;" onclick="viewDetail('${r.id}')" title="Lihat Detail Analisa">
                             <i class="fas fa-eye" style="font-size: 0.85rem;"></i>
                         </button>
                     </td>
 
-                    <!-- 6. Aksi -->
-                    <td class="text-center pe-3">
-                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" onclick="deleteRecord('${r.id}')" title="Hapus Data Analisa">
+                    <!-- 7. Aksi -->
+                    <td class="text-center pe-4">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px;" onclick="openDeleteHistoryModal('${r.id}')" title="Hapus Data Analisa">
                             <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
                         </button>
                     </td>
@@ -998,10 +1075,55 @@
             tbody.innerHTML = html;
         }
 
-        function deleteRecord(id) {
-            if (!confirm('Apakah Anda yakin ingin menghapus catatan analisa ini?')) return;
-            allRecords = allRecords.filter(r => r.id !== id);
+        var deleteHistoryModal;
+        document.addEventListener('DOMContentLoaded', () => {
+            var modalEl = document.getElementById('deleteHistoryModal');
+            if (modalEl) deleteHistoryModal = new bootstrap.Modal(modalEl);
+        });
+
+        function openDeleteHistoryModal(id) {
+            var r = allRecords.find(item => item.id === id);
+            if (!r) return;
+            document.getElementById('delHistTargetId').value = id;
+            document.getElementById('delHistTargetType').value = 'single';
+            document.getElementById('delHistModalTitle').innerText = 'Hapus Riwayat Analisa';
+            document.getElementById('delHistModalDesc').innerHTML = 'Apakah Anda yakin ingin menghapus catatan analisa ini? Tindakan ini <strong>tidak dapat dibatalkan</strong>.';
+            document.getElementById('delHistDetailCard').classList.remove('d-none');
+            document.getElementById('delHistTime').innerText = r.timestamp || r.date || '-';
+            document.getElementById('delHistDevice').innerText = (r.deviceName || 'Node IoT') + ' (' + r.sn + ')';
+            document.getElementById('delHistStatus').innerText = r.status || '-';
+            if (deleteHistoryModal) deleteHistoryModal.show();
+        }
+
+        function openDeleteSelectedModal() {
+            var selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            var count = selectedCheckboxes.length;
+            if (count === 0) return;
+            document.getElementById('delHistTargetType').value = 'selected';
+            document.getElementById('delHistModalTitle').innerText = `Hapus ${count} Riwayat Analisa`;
+            document.getElementById('delHistModalDesc').innerHTML = `Apakah Anda yakin ingin menghapus <strong>${count} catatan analisa terpilih</strong>? Tindakan ini <strong>tidak dapat dibatalkan</strong>.`;
+            document.getElementById('delHistDetailCard').classList.add('d-none');
+            if (deleteHistoryModal) deleteHistoryModal.show();
+        }
+
+        function executeDeleteHistory() {
+            var type = document.getElementById('delHistTargetType').value;
+            if (type === 'single') {
+                var id = document.getElementById('delHistTargetId').value;
+                allRecords = allRecords.filter(r => r.id !== id);
+            } else if (type === 'selected') {
+                var selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+                var selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+                allRecords = allRecords.filter(r => !selectedIds.includes(r.id));
+            }
             localStorage.setItem(getAIHistoryStorageKey(), JSON.stringify(allRecords));
+
+            var masterCheckbox = document.getElementById('selectAllCheckbox');
+            if (masterCheckbox) {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = false;
+            }
+            if (deleteHistoryModal) deleteHistoryModal.hide();
             updateSelectedUI();
             updateStatsOverview(allRecords);
             filterHistory();

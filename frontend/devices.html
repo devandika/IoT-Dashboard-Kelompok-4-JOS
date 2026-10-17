@@ -23,22 +23,22 @@
             <div class="sidebar-heading">Monitoring IoT Based</div>
             <div class="list-group list-group-flush">
                 <a href="index.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
                 </a>
                 <a href="sensor-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                    <i class="fas fa-thermometer-half fa-fw me-2"></i> Data Sensor
                 </a>
                 <a href="actuator-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                    <i class="fas fa-lightbulb fa-fw me-2"></i> Data Aktuator
                 </a>
                 <a href="devices.html" class="list-group-item list-group-item-action active">
-                    <i class="fas fa-microchip me-2"></i> Perangkat
+                    <i class="fas fa-microchip fa-fw me-2"></i> Perangkat
                 </a>
                 <a href="ai-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                    <i class="fas fa-chart-line fa-fw me-2"></i> Riwayat Analisa
                 </a>
                 <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
-                    <i class="fas fa-users me-2"></i> Pengguna
+                    <i class="fas fa-users fa-fw me-2"></i> Pengguna
                 </a>
             </div>
             <div class="mt-auto p-3 text-center text-white-50"
@@ -571,13 +571,13 @@
                     <td><i class="fas fa-location-dot text-danger me-1"></i> ${dev.room}</td>
                     <td class="text-center">${badge}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-primary shadow-sm rounded-3 px-2.5 py-1" onclick="openEditDeviceModal(${dev.id})" title="Edit Data Perangkat">
-                            <i class="fas fa-edit"></i>
+                        <button class="btn btn-sm btn-outline-primary rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px;" onclick="openEditDeviceModal(${dev.id})" title="Edit Data Perangkat">
+                            <i class="fas fa-edit" style="font-size: 0.85rem;"></i>
                         </button>
                     </td>
                     <td class="text-center pe-4">
-                        <button class="btn btn-sm btn-outline-danger shadow-sm rounded-3 px-2.5 py-1" onclick="openDeleteDeviceModal(${dev.id})" title="Hapus Perangkat">
-                            <i class="fas fa-trash-alt"></i>
+                        <button class="btn btn-sm btn-outline-danger rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px;" onclick="openDeleteDeviceModal(${dev.id})" title="Hapus Perangkat">
+                            <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
                         </button>
                     </td>
                 </tr>

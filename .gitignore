@@ -10,3 +10,4 @@ node_modules/
 *.log
 .expo/
 mobile/.expo/
+database_dump.sql

@@ -38,23 +38,27 @@
             <div class="sidebar-heading">Monitoring IoT Based</div>
             <div class="list-group list-group-flush">
                 <a href="index.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
                 </a>
                 <a href="sensor-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                    <i class="fas fa-thermometer-half fa-fw me-2"></i> Data Sensor
                 </a>
                 <a href="actuator-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                    <i class="fas fa-lightbulb fa-fw me-2"></i> Data Aktuator
                 </a>
                 <a href="devices.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-microchip me-2"></i> Perangkat
+                    <i class="fas fa-microchip fa-fw me-2"></i> Perangkat
                 </a>
                 <a href="ai-history.html" class="list-group-item list-group-item-action">
-                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                    <i class="fas fa-chart-line fa-fw me-2"></i> Riwayat Analisa
                 </a>
                 <a href="users.html" class="list-group-item list-group-item-action active" id="menu-pengguna">
-                    <i class="fas fa-users me-2"></i> Pengguna
+                    <i class="fas fa-users fa-fw me-2"></i> Pengguna
                 </a>
+            </div>
+            <div class="mt-auto p-3 text-center text-white-50"
+                style="font-size: 0.85rem; border-top: 1px solid #4b545c; background-color: rgba(0,0,0,0.1);">
+                &copy; 2026 Kelompok 4 AB1
             </div>
         </div>
 
@@ -134,24 +138,35 @@
                 <!-- Table Card -->
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-                        <h5 class="fw-bold m-0 mb-3 text-secondary">Cari Pengguna</h5>
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <select id="userLimit" class="form-select w-auto bg-light border-0 shadow-sm rounded-3"
-                                    onchange="currentPage=1; loadUsers()">
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="all">All</option>
-                                </select>
-                                <span class="text-muted">entries</span>
+                            <div>
+                                <h5 class="fw-bold m-0 text-dark"><i
+                                        class="fas fa-users text-primary me-2"></i>Daftar Pengguna Terdaftar</h5>
                             </div>
                             <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
-                                <input type="text" id="searchInput"
-                                    class="form-control w-auto bg-light border-0 shadow-sm rounded-3"
-                                    placeholder="Search User" oninput="currentPage=1; loadUsers()">
-                                <button class="btn btn-primary rounded-3 fw-bold shadow-sm" onclick="openAddModal()"><i
-                                        class="fas fa-plus me-1"></i> Add New User</button>
+                                <div class="d-flex align-items-center gap-2 me-1">
+                                    <select id="userLimit"
+                                        class="form-select w-auto bg-light border-0 shadow-sm rounded-3"
+                                        onchange="currentPage=1; renderUsersTable()">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                    <span class="text-muted small">entries</span>
+                                </div>
+                                <div class="input-group" style="max-width: 260px;">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="fas fa-search text-muted"></i></span>
+                                    <input type="text" id="searchInput"
+                                        class="form-control bg-light border-0 shadow-sm"
+                                        placeholder="Cari username, role..."
+                                        oninput="currentPage=1; renderUsersTable()">
+                                </div>
+                                <button class="btn btn-primary rounded-3 fw-bold shadow-sm"
+                                    onclick="openAddModal()">
+                                    <i class="fas fa-plus me-1"></i> Tambah Pengguna
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -160,17 +175,20 @@
                             <table class="table table-hover align-middle m-0" style="border-top: 1px solid #f1f5f9;">
                                 <thead class="bg-light text-secondary" style="font-size: 13px;">
                                     <tr>
-                                        <th class="ps-4 border-0">ID</th>
-                                        <th class="border-0">USER</th>
-                                        <th class="border-0">EMAIL / ROLE</th>
-                                        <th class="border-0">STATUS</th>
-                                        <th class="border-0 text-center" style="width: 85px;">EDIT</th>
-                                        <th class="pe-4 border-0 text-center" style="width: 85px;">HAPUS</th>
+                                        <th class="ps-4 py-3">#</th>
+                                        <th class="py-3">NAMA PENGGUNA</th>
+                                        <th class="py-3">ROLE / HAK AKSES</th>
+                                        <th class="py-3 text-center">STATUS</th>
+                                        <th class="py-3 text-center" style="width: 85px;">EDIT</th>
+                                        <th class="py-3 text-center pe-4" style="width: 85px;">HAPUS</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabel-users">
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">Memuat data...</td>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                            Memuat data pengguna dari database...
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -309,6 +327,42 @@
         </div>
     </div>
 
+    <!-- Ubah Kata Sandi Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Ubah Kata Sandi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <div id="err_cp_current" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_current" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_new" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_new" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_confirm" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_confirm" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm fw-bold">Simpan Kata
+                            Sandi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="js/app.js"></script>
@@ -333,7 +387,7 @@
 
         function changePage(page) {
             currentPage = page;
-            loadUsers();
+            renderUsersTable();
         }
 
         function renderPagination(totalPages) {
@@ -368,119 +422,134 @@
             ul.innerHTML = html;
         }
 
-        async function loadUsers() {
+        var allUsers = [];
+
+        async function loadUsers(silent = false) {
             try {
                 var res = await axios.get('/api/auth/users', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                var data = res.data.data;
-                var tbody = document.getElementById('tabel-users');
-
-                var currentUser = JSON.parse(localStorage.getItem('user'));
-                var totalAdmin = 0;
-                var totalUser = 0;
-
-                var searchKeyword = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase().trim() : '';
-
-                if (searchKeyword) {
-                    var matched = data.filter(u => u.username.toLowerCase().includes(searchKeyword));
-                    var notMatched = data.filter(u => !u.username.toLowerCase().includes(searchKeyword));
-
-                    if (matched.length > 0) {
-                        data = [...matched, ...notMatched];
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger fw-bold">Pengguna tidak ditemukan</td></tr>';
-                        return;
-                    }
-                } else if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Tidak ada data pengguna.</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = '';
-
-                // Limit and Pagination logic
-                var limitSelect = document.getElementById('userLimit').value;
-                var limit = data.length;
-                if (limitSelect !== 'all') {
-                    limit = parseInt(limitSelect);
-                }
-
-                data.forEach(user => {
-                    if (user.role === 'Admin') totalAdmin++;
-                    else totalUser++;
-                });
-
-                var totalPages = Math.ceil(data.length / limit) || 1;
-                if (currentPage > totalPages) currentPage = totalPages;
-
-                var startIndex = (currentPage - 1) * limit;
-                var endIndex = startIndex + limit;
-                var displayData = data.slice(startIndex, endIndex);
-
-                renderPagination(totalPages);
-
-                displayData.forEach(user => {
-                    var isMatch = searchKeyword && user.username.toLowerCase().includes(searchKeyword);
-                    var rowClass = isMatch ? 'glow-effect' : '';
-
-                    var initial = user.username.substring(0, 2).toUpperCase();
-                    var avatarColor = user.role === 'Admin' ? 'bg-danger text-white' : 'bg-success text-white';
-
-                    var roleBadge = user.role === 'Admin' ? '<i class="fas fa-shield-alt text-danger me-2"></i>Admin' : '<i class="fas fa-user text-secondary me-2"></i>User';
-
-                    // Indikator Online (Realtime dari API)
-                    var statusIndicator = user.is_online
-                        ? '<span class="badge bg-success bg-opacity-10 text-success"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Online</span>'
-                        : '<span class="badge bg-secondary bg-opacity-10 text-secondary"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Offline</span>';
-
-                    var safeUsername = (user.username || '').replace(/'/g, "\\'");
-
-                    tbody.innerHTML += `
-                    <tr class="${rowClass}">
-                        <td class="ps-4 fw-bold text-secondary">${user.id}</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold ${avatarColor} me-3" style="width: 35px; height: 35px; font-size: 13px;">
-                                    ${initial}
-                                </div>
-                                <div>
-                                    <h6 class="m-0 fw-bold text-dark">${user.username}</h6>
-                                    <small class="text-muted">@${user.username}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="fw-bold">${roleBadge}</td>
-                        <td id="status-col-${user.username}">${statusIndicator}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary shadow-sm rounded-3 px-2.5 py-1" onclick="openEditModal(${user.id}, '${safeUsername}', '${user.role}')" title="Edit Pengguna">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                        <td class="pe-4 text-center">
-                            <button class="btn btn-sm btn-outline-danger shadow-sm rounded-3 px-2.5 py-1" onclick="confirmDeleteUser(${user.id}, '${safeUsername}')" title="Hapus Pengguna">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                });
-
-                document.getElementById('stat-total').innerText = data.length;
-                document.getElementById('stat-admin').innerText = totalAdmin;
-                document.getElementById('stat-user').innerText = totalUser;
-
-                var startEntry = displayData.length > 0 ? startIndex + 1 : 0;
-                var endEntry = startIndex + displayData.length;
-                document.getElementById('user-count-text').innerText = `Showing ${startEntry} to ${endEntry} of ${data.length} entries`;
-
+                allUsers = res.data.data || [];
+                renderUsersTable();
             } catch (error) {
                 console.error('Gagal mengambil data user', error);
                 if (error.response && error.response.status === 403) {
                     alert("Sesi kedaluwarsa atau akses ditolak.");
                     logout();
+                } else if (!silent) {
+                    var tbody = document.getElementById('tabel-users');
+                    if (tbody) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger fw-bold"><i class="fas fa-triangle-exclamation me-2"></i>Gagal memuat pengguna.</td></tr>';
+                    }
                 }
             }
+        }
+
+        function renderUsersTable() {
+            var tbody = document.getElementById('tabel-users');
+            if (!tbody) return;
+
+            var totalAdmin = 0;
+            var totalUser = 0;
+            allUsers.forEach(user => {
+                if (user.role === 'Admin') totalAdmin++;
+                else totalUser++;
+            });
+
+            var statTotal = document.getElementById('stat-total');
+            var statAdmin = document.getElementById('stat-admin');
+            var statUser = document.getElementById('stat-user');
+            if (statTotal) statTotal.innerText = allUsers.length;
+            if (statAdmin) statAdmin.innerText = totalAdmin;
+            if (statUser) statUser.innerText = totalUser;
+
+            if (allUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-inbox fs-4 d-block mb-2"></i>Tidak ada data pengguna.</td></tr>';
+                document.getElementById('user-count-text').innerText = 'Showing 0 to 0 of 0 entries';
+                renderPagination(0);
+                return;
+            }
+
+            var searchKeyword = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase().trim() : '';
+            var filtered = allUsers.filter(u => {
+                if (!searchKeyword) return true;
+                return (u.username && u.username.toLowerCase().includes(searchKeyword)) ||
+                    (u.role && u.role.toLowerCase().includes(searchKeyword));
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-inbox fs-4 d-block mb-2"></i>Pengguna tidak ditemukan</td></tr>';
+                document.getElementById('user-count-text').innerText = 'Showing 0 to 0 of 0 entries';
+                renderPagination(0);
+                return;
+            }
+
+            var limitSelect = document.getElementById('userLimit') ? document.getElementById('userLimit').value : '10';
+            var limit = filtered.length;
+            if (limitSelect !== 'all') {
+                limit = parseInt(limitSelect) || 10;
+            }
+
+            var totalPages = Math.ceil(filtered.length / limit) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            var startIndex = (currentPage - 1) * limit;
+            var endIndex = startIndex + limit;
+            var displayData = filtered.slice(startIndex, endIndex);
+
+            renderPagination(totalPages);
+
+            var html = '';
+            displayData.forEach((user, index) => {
+                var actualIndex = startIndex + index + 1;
+                var initial = (user.username || 'U').substring(0, 2).toUpperCase();
+                var avatarColor = user.role === 'Admin' ? 'bg-danger text-white' : 'bg-success text-white';
+                var roleBadge = user.role === 'Admin' ? '<i class="fas fa-shield-alt text-danger me-1"></i> Admin' : '<i class="fas fa-user text-secondary me-1"></i> User';
+
+                var statusIndicator = user.is_online
+                    ? '<span class="badge rounded-pill bg-success px-3 py-2"><i class="fas fa-circle me-1" style="font-size: 7px;"></i> Online</span>'
+                    : '<span class="badge rounded-pill bg-danger px-3 py-2"><i class="fas fa-circle me-1" style="font-size: 7px;"></i> Offline</span>';
+
+                var safeUsername = (user.username || '').replace(/'/g, "\\'");
+
+                html += `
+                <tr>
+                    <td class="ps-4 fw-bold text-muted">${actualIndex}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold ${avatarColor} me-3 shadow-sm" style="width: 36px; height: 36px; font-size: 13px;">
+                                ${initial}
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">${user.username}</div>
+                                <small class="text-muted"><i class="fas fa-id-badge me-1"></i>ID Akun: #${user.id}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${user.role === 'Admin' ? 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25' : 'bg-light text-secondary border'} px-2.5 py-1.5 fw-bold">
+                            ${roleBadge}
+                        </span>
+                    </td>
+                    <td class="text-center" id="status-col-${user.username}">${statusIndicator}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px;" onclick="openEditModal(${user.id}, '${safeUsername}', '${user.role}')" title="Edit Data Pengguna">
+                            <i class="fas fa-edit" style="font-size: 0.85rem;"></i>
+                        </button>
+                    </td>
+                    <td class="text-center pe-4">
+                        <button class="btn btn-sm btn-outline-danger rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px;" onclick="confirmDeleteUser(${user.id}, '${safeUsername}')" title="Hapus Pengguna">
+                            <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+
+            var startEntry = displayData.length > 0 ? startIndex + 1 : 0;
+            var endEntry = startIndex + displayData.length;
+            var countEl = document.getElementById('user-count-text');
+            if (countEl) countEl.innerText = `Showing ${startEntry} to ${endEntry} of ${filtered.length} entries`;
         }
 
         var userModal;
@@ -582,7 +651,7 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 // Update tabel tanpa memuat ulang UI modal/lainnya secara destruktif 
-                loadUsers();
+                loadUsers(true);
             } catch (e) {
                 if (e.response && (e.response.status === 401 || e.response.status === 403)) {
                     logout(); // Logout and redirect to login
