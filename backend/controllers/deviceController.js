@@ -48,7 +48,16 @@ initDevicesTable();
 
 // GET /api/devices - Ambil semua perangkat terdaftar
 const getDevices = (req, res) => {
-    const sql = 'SELECT * FROM devices ORDER BY id ASC';
+    const sql = `
+        SELECT id, sn, name, type, room, ip,
+               CASE 
+                   WHEN updated_at >= NOW() - INTERVAL 30 SECOND AND status = 'Online' THEN 'Online'
+                   ELSE 'Offline'
+               END AS status,
+               created_at, updated_at
+        FROM devices 
+        ORDER BY id ASC
+    `;
     db.query(sql, (err, rows) => {
         if (err) {
             console.error('Error getDevices:', err);

@@ -33,23 +33,42 @@ function initMqtt() {
                     }
                 });
 
-                // Auto-update IP perangkat di tabel devices jika ada data IP yang valid & berubah
+                // Auto-update status 'Online', waktu aktif, dan IP perangkat di tabel devices (TiDB Cloud)
+                let updateSql = 'UPDATE devices SET status = "Online", updated_at = CURRENT_TIMESTAMP';
+                let params = [];
+
                 if (ip && typeof ip === 'string' && ip.trim() !== '' && ip.trim() !== '-') {
-                    const cleanIp = ip.trim();
-                    const updateIpSql = 'UPDATE devices SET ip = ? WHERE sn = ? AND (ip != ? OR ip IS NULL OR ip = "-")';
-                    db.query(updateIpSql, [cleanIp, sn, cleanIp], (errUpdate, resUpdate) => {
-                        if (errUpdate) {
-                            console.error('❌ GAGAL AUTO-UPDATE IP PERANGKAT:', errUpdate.message);
-                        } else if (resUpdate && resUpdate.affectedRows > 0) {
-                            console.log(`🌐 IP perangkat [${sn}] otomatis diperbarui ke: ${cleanIp}`);
-                        }
-                    });
+                    updateSql += ', ip = ?';
+                    params.push(ip.trim());
                 }
+
+                updateSql += ' WHERE sn = ?';
+                params.push(sn);
+
+                db.query(updateSql, params, (errUpdate) => {
+                    if (errUpdate) {
+                        console.error('❌ GAGAL AUTO-UPDATE STATUS/IP PERANGKAT:', errUpdate.message);
+                    }
+                });
             } catch (e) {
                 console.error('Gagal parse JSON dari MQTT:', e.message);
             }
         }
     });
+
+    // Cek heartbeat perangkat setiap 10 detik di database:
+    // Jika perangkat tidak mengirim data lebih dari 30 detik, ubah statusnya menjadi 'Offline'
+    setInterval(() => {
+        const offlineSql = `
+            UPDATE devices 
+            SET status = 'Offline' 
+            WHERE status = 'Online' 
+              AND updated_at < NOW() - INTERVAL 30 SECOND
+        `;
+        db.query(offlineSql, (errOff) => {
+            // silent check
+        });
+    }, 10000);
 }
 
 function publishLedControl(status, sn) {
