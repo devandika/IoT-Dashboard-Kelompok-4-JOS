@@ -13,10 +13,15 @@ const deviceRoutes = require('./routes/deviceRoutes');
 
 const app = express();
 
+const initializeDatabase = require('./config/initDb');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+// Initialize Database schema (auto-create tables if not exists)
+initializeDatabase();
 
 // Initialize MQTT
 mqttService.initMqtt();
