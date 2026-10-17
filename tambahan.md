@@ -114,4 +114,70 @@ Pembaruan menyeluruh pada tampilan visual popup modal analisis AI agar rapi, mod
 
 ---
 
+## 7. Penyelarasan UI Sidebar & Standardisasi Tabel Antarmuka
+Penyempurnaan visual konsistensi antarmuka pengguna di seluruh halaman dashboard web.
+
+* **File:** Seluruh file HTML di [`frontend/`](frontend/) & [`frontend/css/style.css`](frontend/css/style.css).
+* **Penyelarasan Teks Menu Sidebar:**
+  * Seluruh ikon navigasi samping diberikan constraint `min-width: 24px` dan utility `fa-fw` (Fixed Width), sehingga teks label menu (`Dashboard`, `Data Sensor`, `Data Aktuator`, `Daftar Perangkat`, `Riwayat Analisis AI`, `Pengguna`) rata lurus secara vertikal.
+* **Pembaruan Ikon Menu Aktuator:**
+  * Mengganti ikon menu **"Data Aktuator"** dari roda gigi (`fas fa-cog`) menjadi lampu bohlam (`fas fa-lightbulb`), lebih intuitif merepresentasikan kendali aktuator lampu/relay.
+* **Standardisasi Format Tabel (Meniru Presisi Tabel Perangkat):**
+  * Tabel pada halaman **Riwayat Analisis AI** ([`frontend/ai-history.html`](frontend/ai-history.html)) dan **Manajemen Pengguna** ([`frontend/users.html`](frontend/users.html)) distandarisasi 100% mengikuti referensi tabel pada [`frontend/devices.html`](frontend/devices.html):
+    * Kartu pembungkus dengan lengkungan sudut modern: `rounded-4 border-0 shadow-sm`.
+    * Header tabel konsisten: font size 13px, font weight semibold (600), teks uppercase berjarak, dan background abu-abu lembut (`#f8fafc`).
+    * Badge status pill lembut: `rounded-pill px-3 py-2 font-monospace`.
+    * Tombol aksi sirkular 32x32px presisi dengan transisi halus dan efek hover scale.
+
+---
+
+## 8. Migrasi Database ke Cloud MySQL (TiDB Cloud Serverless - AWS Singapore)
+Peralihan penuh dari database lokal (XAMPP/phpMyAdmin) ke database cloud terdistribusi berperforma tinggi.
+
+* **Layanan:** **TiDB Cloud Serverless** (Host di AWS Region Singapore: `ap-southeast-1`).
+* **Fitur & Keuntungan:**
+  * **100% Bebas XAMPP:** Backend terhubung langsung ke internet via SSL/TLS terenkripsi tanpa perlu membuka aplikasi XAMPP lokal lagi.
+  * **Gratis Selamanya Tanpa Kartu Kredit:** Menggunakan tier Serverless gratis dengan kuota storage 5 GB.
+  * **Data Tersimpan Permanen & Aman:** Data pembacaan sensor dan akun tersimpan di cloud, tidak hilang saat laptop restart atau mati.
+  * **Dukungan Kerja Sama Tim:** Anggota kelompok lain dapat membuka dashboard dari laptop masing-masing dan langsung terhubung ke database terpusat yang sama.
+* **Konfigurasi Lingkungan:**
+  * Dikelola via [`backend/.env`](backend/.env) dengan parameter:
+    * `DB_HOST=gateway01.ap-southeast-1.prod.aws.tidbcloud.com`
+    * `DB_PORT=4000`
+    * `DB_USER=27jRdYcrhyT9Ynw.root`
+    * `DB_NAME=test`
+    * `DB_SSL=true`
+
+---
+
+## 9. Sistem Inisialisasi & Seeding Tabel Otomatis (Auto-Migration)
+Penambahan modul migrasi otomatis agar database cloud langsung siap pakai tanpa perlu mengeksekusi script SQL manual.
+
+* **File Baru:** [`backend/config/initDb.js`](backend/config/initDb.js)
+* **Mekanisme Kerja:**
+  * Saat server Node.js dijalankan (`npm start`), fungsi `initializeDatabase()` dieksekusi secara asinkron.
+  * Memeriksa dan membuat tabel secara otomatis jika belum tersedia:
+    1. `CREATE TABLE IF NOT EXISTS devices ...`
+    2. `CREATE TABLE IF NOT EXISTS histori_sensor ...`
+    3. `CREATE TABLE IF NOT EXISTS users ...`
+  * Menyuntikkan data awal (*auto-seed*) dengan pengaman `ON DUPLICATE KEY UPDATE`:
+    * 5 perangkat awal lengkap dengan serial number dan ruangan.
+    * Akun pengguna lengkap (admin + user) dengan password terenkripsi bcrypt.
+
+---
+
+## 10. Kesiapan Deployment Cloud & Repositori GitHub
+Struktur proyek diperbarui agar memenuhi standar deployment modern (*zero-config deployment*).
+
+* **File:** [`package.json`](package.json) (Root) & [`database_schema.sql`](database_schema.sql).
+* **Fitur Port Dinamis:**
+  * File [`backend/server.js`](backend/server.js) telah disesuaikan menggunakan `process.env.PORT || 8080` untuk mendukung deteksi port otomatis penyedia hosting cloud (Render, Railway, Hugging Face, dsb).
+* **Root Package Script:**
+  * Root `package.json` menyatukan skrip eksekusi `npm start` $\rightarrow$ `node backend/server.js` untuk build otomatis.
+* **Sinkronisasi Repositori GitHub:**
+  * Repositori resmi tersinkronisasi di: **`https://github.com/devandika/IoT-Dashboard-Kelompok-4-JOS.git`** (Branch: `main`).
+  * File credential rahasia [`.env`](backend/.env) dan file dump lokal besar secara ketat diabaikan oleh [`.gitignore`](.gitignore) demi menjaga keamanan kredensial.
+
+---
+
 *Dokumentasi ini dibuat otomatis sebagai referensi teknis integrasi sistem IoT Tugas Kelompok 4.*
