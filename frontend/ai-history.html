@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Analisa AI - IoT Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Chart.js & Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="d-flex flex-column">
+            <div class="sidebar-heading">Monitoring IoT Based</div>
+            <div class="list-group list-group-flush">
+                <a href="index.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="sensor-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                </a>
+                <a href="actuator-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                </a>
+                <a href="devices.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-microchip me-2"></i> Perangkat
+                </a>
+                <a href="ai-history.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                </a>
+                <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
+                    <i class="fas fa-users me-2"></i> Pengguna
+                </a>
+            </div>
+            <div class="mt-auto p-3 text-center text-white-50"
+                style="font-size: 0.85rem; border-top: 1px solid #4b545c; background-color: rgba(0,0,0,0.1);">
+                &copy; 2026 Kelompok 4 AB1
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <!-- Top Navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light top-navbar py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bars fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                    <h4 class="m-0 fw-bold">Riwayat Analisa AI</h4>
+                </div>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i>
+                                    Ubah Kata Sandi</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
+                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content Container -->
+            <div class="container-fluid p-4" style="height: calc(100vh - 75px); overflow-y: auto;">
+
+                <!-- Header Info Bar -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                    <h5 class="fw-bold m-0 text-secondary">
+                        <i class="fas fa-chart-line text-primary me-2"></i> Riwayat Analisa Suhu & Kelembaban
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <button id="btn-delete-selected" onclick="deleteSelectedRecords()"
+                            class="btn btn-danger btn-sm px-3 shadow-sm rounded-3 fw-semibold d-none">
+                            <i class="fas fa-trash me-1"></i> Hapus Terpilih (<span id="selected-count">0</span>)
+                        </button>
+                        <button onclick="clearAllHistory()"
+                            class="btn btn-outline-danger btn-sm px-3 shadow-sm rounded-3 fw-semibold">
+                            <i class="fas fa-trash-alt me-1"></i> Bersihkan Riwayat
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Total Analisa</h6>
+                                    <h3 class="fw-bold mb-0" id="stat-total-count">0</h3>
+                                    <small class="text-muted">Tersimpan di perangkat</small>
+                                </div>
+                                <div class="p-3 bg-primary bg-opacity-10 rounded-3">
+                                    <i class="fas fa-layer-group text-primary fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Rata-rata Skor</h6>
+                                    <h3 class="fw-bold mb-0 text-success"><span id="stat-avg-score">--</span> <small
+                                            class="fs-6 text-muted">/100</small></h3>
+                                    <small class="text-muted">Kondisi termal optimal</small>
+                                </div>
+                                <div class="p-3 bg-success bg-opacity-10 rounded-3">
+                                    <i class="fas fa-shield-heart text-success fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Kondisi Anomali</h6>
+                                    <h3 class="fw-bold mb-0 text-primary" id="stat-anomaly-count">0</h3>
+                                    <small class="text-success fw-semibold"><i
+                                            class="fas fa-check-circle me-1"></i>Semua Terkendali</small>
+                                </div>
+                                <div class="p-3 bg-warning bg-opacity-10 rounded-3">
+                                    <i class="fas fa-triangle-exclamation text-warning fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter & Search Toolbar -->
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <span class="input-group-text bg-light border-0"><i
+                                        class="fas fa-search text-muted"></i></span>
+                                <input type="text" id="searchInput" class="form-control bg-light border-0"
+                                    placeholder="Cari nama perangkat, ruangan, SN..." onkeyup="filterHistory()">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterDevice" class="form-select bg-light border-0 shadow-sm rounded-3"
+                                onchange="filterHistory()">
+                                <option value="ALL">Semua Perangkat (SN)</option>
+                                <option value="SN-ESP32-001">ESP32 Main Controller (SN-ESP32-001)</option>
+                                <option value="SN-ARD-002">Arduino Sensor Node (SN-ARD-002)</option>
+                                <option value="SN-ESP82-003">ESP8266 Kitchen Node (SN-ESP82-003)</option>
+                                <option value="SN-RPI-004">Raspberry Pi Gateway (SN-RPI-004)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterStatus" class="form-select bg-light border-0 shadow-sm rounded-3"
+                                onchange="filterHistory()">
+                                <option value="ALL">Semua Kondisi</option>
+                                <option value="Optimal">Optimal</option>
+                                <option value="Perlu Penyesuaian">Perlu Penyesuaian</option>
+                                <option value="Anomali Termal">Anomali Termal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Card -->
+                <div class="card card-custom border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div
+                        class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="fw-bold m-0 text-dark"><i class="fas fa-list-check text-primary me-2"></i>Tabel
+                                Riwayat Analisa</h5>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="historyLimit"
+                                class="form-select form-select-sm w-auto bg-light border-0 shadow-sm rounded-3"
+                                onchange="currentHistoryPage=1; filterHistory()">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="all">All</option>
+                            </select>
+                            <span class="text-muted small">entries</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0"
+                                style="table-layout: fixed; width: 100%; border-top: 1px solid #f1f5f9;">
+                                <thead class="bg-light text-secondary" style="font-size: 13px;">
+                                    <tr>
+                                        <th class="ps-3 py-3 text-center" style="width: 4%;">
+                                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox"
+                                                onclick="toggleSelectAll(this)" onchange="toggleSelectAll(this)"
+                                                title="Pilih Semua" style="cursor: pointer;">
+                                        </th>
+                                        <th class="py-3" style="width: 22%;">WAKTU ANALISA</th>
+                                        <th class="py-3" style="width: 23%;">PERANGKAT & SN</th>
+                                        <th class="py-3" style="width: 17%;">RUANGAN</th>
+                                        <th class="py-3 text-center" style="width: 17%;">KONDISI</th>
+                                        <th class="py-3 text-center" style="width: 9%;">DETAIL</th>
+                                        <th class="py-3 text-center pe-3" style="width: 8%;">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-tbody">
+                                    <!-- Injected via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="empty-state" class="text-center py-5 d-none">
+                            <div class="bg-light d-inline-flex p-4 rounded-circle mb-3 text-secondary">
+                                <i class="fas fa-chart-line fs-1 opacity-50"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark">Belum Ada Riwayat Analisa</h5>
+                            <p class="text-muted small mb-3">Tidak ditemukan data analisa yang sesuai dengan filter
+                                pencarian Anda.</p>
+                            <a href="index.html" class="btn btn-primary btn-sm px-4 rounded-3 shadow-sm">
+                                Buka Dashboard & Klik Analisa
+                            </a>
+                        </div>
+                    </div>
+                    <div
+                        class="card-footer bg-white border-top-0 p-3 px-4 d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="history-count-text">Showing 0 to 0 of 0 entries</small>
+                        <nav>
+                            <ul class="pagination pagination-sm m-0" id="history-pagination-ul">
+                                <!-- Di-render oleh JavaScript -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- AI Analysis Detail Modal (Large Display & Motion System) -->
+    <!-- ======================================================= -->
+    <div class="ai-modal-backdrop" id="aiModalBackdrop" onclick="closeAIModal()"></div>
+    <div class="ai-modal-wrapper" id="aiModalWrapper" role="dialog" aria-modal="true" aria-labelledby="ai-modal-title"
+        onclick="handleBackdropClick(event)">
+        <div class="ai-modal-dialog" id="aiModalDialog">
+            <!-- AI Modal Body -->
+            <div class="modal-body bg-white">
+                <div id="ai-results-content">
+                    <!-- Clean Results Header Bar -->
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                <h5 class="fw-bold text-dark m-0" id="ai-modal-title" style="letter-spacing: -0.01em;">
+                                    Detail Analisis Telemetri</h5>
+                                <span id="ai-modal-engine-badge"
+                                    class="badge rounded-pill px-2 py-1 text-white border border-light-subtle"
+                                    style="font-size: 0.72rem; background: #0284c7;">
+                                    <i class="fas fa-microchip me-1"></i> AI Lokal
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.78rem;">
+                                <span id="ai-modal-dev-name" class="fw-semibold text-dark">ESP32 Main Controller</span>
+                                <span>•</span>
+                                <span id="ai-modal-dev-room" class="badge bg-light text-secondary border px-2 py-1"
+                                    style="font-size: 0.72rem;">Ruang Tamu</span>
+                                <span>•</span>
+                                <span id="ai-modal-dev-sn" class="font-monospace text-muted"
+                                    style="font-size: 0.72rem;">SN-ESP32-001</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Row 1: Comfort Score & 4 Mini Metrics -->
+                    <div class="row g-2 mb-3">
+                        <!-- Comfort Score Card -->
+                        <div class="col-lg-4 col-md-5">
+                            <div class="ai-score-card h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-secondary fw-bold text-uppercase"
+                                            style="font-size: 0.68rem; letter-spacing: 0.05em;">Indeks Kenyamanan</span>
+                                        <span id="ai-score-badge" class="badge-soft-status badge-soft-optimal">
+                                            <i class="fas fa-circle-check"></i> Optimal
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1 mt-1">
+                                        <h2 class="display-score" id="ai-score-number">88</h2>
+                                        <span class="score-max">/ 100</span>
+                                    </div>
+                                    <p class="text-muted small mt-1 mb-0" id="ai-score-desc"
+                                        style="font-size: 0.76rem; line-height: 1.35;">
+                                        Kombinasi temperatur dan kelembaban udara berada pada zona nyaman termal standar
+                                        ISO 7730.
+                                    </p>
+                                </div>
+                                <div class="mt-2 pt-2 border-top">
+                                    <div class="d-flex justify-content-between text-muted small mb-1"
+                                        style="font-size: 0.72rem;">
+                                        <span>Stabilitas Lingkungan</span>
+                                        <span class="fw-bold text-dark" id="ai-stability-pct">94%</span>
+                                    </div>
+                                    <div class="progress" style="height: 5px; border-radius: 9999px;">
+                                        <div class="progress-bar bg-primary" id="ai-stability-bar"
+                                            style="width: 94%; border-radius: 9999px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Metric Mini Cards -->
+                        <div class="col-lg-8 col-md-7">
+                            <div class="row g-2 h-100">
+                                <!-- Rata-rata Suhu -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted"
+                                                style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Suhu
+                                                Rata-rata</span>
+                                            <div class="metric-icon-pill metric-icon-amber">
+                                                <i class="fas fa-temperature-half"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mb-1">
+                                            <span class="metric-val" id="ai-avg-temp">26.5</span><span
+                                                class="metric-unit">°C</span>
+                                        </div>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <span class="metric-chip chip-min"><i class="fas fa-arrow-down-long"></i>
+                                                Min: <b id="ai-min-temp">23.2°C</b></span>
+                                            <span class="metric-chip chip-max"><i class="fas fa-arrow-up-long"></i> Max:
+                                                <b id="ai-max-temp">30.8°C</b></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Rata-rata Kelembaban -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted"
+                                                style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Kelembaban
+                                                Rata-rata</span>
+                                            <div class="metric-icon-pill metric-icon-cyan">
+                                                <i class="fas fa-droplet"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mb-1">
+                                            <span class="metric-val" id="ai-avg-hum">63.2</span><span
+                                                class="metric-unit">%</span>
+                                        </div>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <span class="metric-chip chip-min"><i class="fas fa-arrow-down-long"></i>
+                                                Min: <b id="ai-min-hum">52.0%</b></span>
+                                            <span class="metric-chip chip-max"><i class="fas fa-arrow-up-long"></i> Max:
+                                                <b id="ai-max-hum">77.5%</b></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Puncak Fluktuasi -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted"
+                                                style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Jam
+                                                Puncak Panas</span>
+                                            <div class="metric-icon-pill metric-icon-rose">
+                                                <i class="fas fa-fire-flame-curved"></i>
+                                            </div>
+                                        </div>
+                                        <div class="fw-bold text-danger mb-1" id="ai-peak-hours"
+                                            style="font-size: 1.05rem; letter-spacing: -0.01em;">12:30 - 14:30</div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.72rem;"
+                                            id="ai-peak-desc">
+                                            Deviasi suhu mencapai +4.1°C dari rata-rata.
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Status Sensor & Kualitas Data -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted"
+                                                style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Integritas
+                                                Sensor IoT</span>
+                                            <div class="metric-icon-pill metric-icon-emerald">
+                                                <i class="fas fa-shield-check"></i>
+                                            </div>
+                                        </div>
+                                        <div class="fw-bold text-success mb-1" id="ai-integrity-status"
+                                            style="font-size: 1.05rem; letter-spacing: -0.01em;">Normal & Stabil</div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.72rem;">
+                                            Transmisi sensor stabil tanpa anomali hardware.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: 24-Hour Visual Chart -->
+                    <div class="ai-chart-card">
+                        <div class="ai-chart-header">
+                            <div class="fw-bold text-dark d-flex align-items-center" style="font-size: 0.78rem;">
+                                <i class="fas fa-chart-line text-primary me-2"></i> Kurva Dinamika Suhu & Kelembaban (24
+                                Jam)
+                            </div>
+                            <div class="d-flex gap-3">
+                                <span class="chart-legend-pill text-warning"><span class="legend-indicator"
+                                        style="background:#f59e0b;"></span> Suhu (°C)</span>
+                                <span class="chart-legend-pill text-info"><span class="legend-indicator"
+                                        style="background:#06b6d4;"></span> Kelembaban (%)</span>
+                            </div>
+                        </div>
+                        <div class="p-1 px-2" style="height: 250px; position: relative;">
+                            <canvas id="ai24hChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Engineering Diagnosis & Actionable Recommendations -->
+                    <div class="row g-2 mb-1">
+                        <div class="col-md-6">
+                            <div class="ai-insight-box h-100">
+                                <h6 class="fw-bold mb-1 d-flex align-items-center"
+                                    style="color: #0369a1; font-size: 0.78rem;">
+                                    <i class="fas fa-microchip me-2" style="color: #0284c7;"></i> Diagnosa Kondisi
+                                    Termal & Udara
+                                </h6>
+                                <p class="small text-secondary mb-0" id="ai-diagnosis-text"
+                                    style="font-size: 0.75rem; line-height: 1.45;">
+                                    --
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="ai-rec-box h-100">
+                                <h6 class="fw-bold mb-1 d-flex align-items-center"
+                                    style="color: #15803d; font-size: 0.78rem;">
+                                    <i class="fas fa-clipboard-check me-2 text-success"></i> Rekomendasi Kontrol &
+                                    Operasional
+                                </h6>
+                                <ul class="list-unstyled small text-secondary mb-0" id="ai-recommendations-list"
+                                    style="font-size: 0.74rem; line-height: 1.4;">
+                                    <!-- Injected -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Modal Footer: Light Blue Circle X Button -->
+            <div class="ai-modal-footer">
+                <button type="button" class="btn-ai-circle-close" onclick="closeAIModal()" title="Tutup (ESC)"
+                    aria-label="Tutup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ubah Kata Sandi Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Ubah Kata Sandi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <div id="err_cp_current" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_current" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_new" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_new" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_confirm" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_confirm" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold mt-2 py-2">Simpan Kata
+                            Sandi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- App Logic -->
+    <script src="js/app.js"></script>
+
+    <script>
+        checkAuth();
+
+        // Menu Toggle
+        document.getElementById("menu-toggle").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("wrapper").classList.toggle("toggled");
+            var sidebar = document.getElementById("sidebar-wrapper");
+            if (sidebar.style.marginLeft === "-250px") sidebar.style.marginLeft = "0";
+            else sidebar.style.marginLeft = "-250px";
+        });
+
+        // ==========================================
+        // === USER ISOLATION & STORAGE =============
+        // ==========================================
+        function getCurrentUserKey() {
+            try {
+                var u = JSON.parse(localStorage.getItem('user'));
+                if (u && u.username) return u.username;
+            } catch (e) { }
+            return 'default';
+        }
+
+        function getAIHistoryStorageKey() {
+            return 'iot_ai_analysis_history_' + getCurrentUserKey();
+        }
+
+        function updateActiveUserBadge() {
+            var badge = document.getElementById('ai-active-user-badge');
+            if (badge) {
+                var username = getCurrentUserKey();
+                badge.innerHTML = '<i class="fas fa-user-circle me-1"></i> ' + username;
+            }
+        }
+
+        // ==========================================
+        // === INITIALIZE MOCK DATA PER USER ========
+        // ==========================================
+        function getStatusBadgeConfig(status, score) {
+            var st = String(status || '').trim();
+            var sc = typeof score === 'number' ? score : 80;
+
+            if (st === 'Optimal' || st === 'Normal' || st === 'Stabil & Normal' || sc >= 75) {
+                return {
+                    status: 'Optimal',
+                    badgeClass: 'bg-success text-white',
+                    icon: '<i class="fas fa-circle-check me-1"></i>'
+                };
+            } else if (st === 'Perlu Penyesuaian' || (sc >= 50 && sc < 75)) {
+                return {
+                    status: 'Perlu Penyesuaian',
+                    badgeClass: 'bg-warning text-dark',
+                    icon: '<i class="fas fa-triangle-exclamation me-1"></i>'
+                };
+            } else {
+                return {
+                    status: 'Anomali Termal',
+                    badgeClass: 'bg-danger text-white',
+                    icon: '<i class="fas fa-fire me-1"></i>'
+                };
+            }
+        }
+
+        function initInitialHistoryIfEmpty() {
+            var storageKey = getAIHistoryStorageKey();
+            var raw = localStorage.getItem(storageKey);
+            var username = getCurrentUserKey();
+
+            if (!raw || JSON.parse(raw).length === 0) {
+                var initialRecords = [
+                    {
+                        id: 'AI-' + username + '-001',
+                        timestamp: '16/10/2026, 11:45:00',
+                        date: '2026-10-16',
+                        sn: 'SN-ESP32-001',
+                        deviceName: 'ESP32 Main Controller',
+                        room: 'Ruang Tamu',
+                        engine: 'AI Lokal',
+                        user: username,
+                        score: 91,
+                        status: 'Optimal',
+                        badgeClass: 'bg-success text-white',
+                        avgTemp: 26.2,
+                        minTemp: 23.4,
+                        maxTemp: 29.8,
+                        avgHum: 62.5,
+                        minHum: 52.0,
+                        maxHum: 76.0,
+                        peakHours: '13:00 - 14:00',
+                        labels: generateHourLabels(),
+                        tempData: [24.2, 23.8, 23.5, 23.4, 23.7, 24.5, 25.4, 26.5, 27.8, 28.9, 29.5, 29.8, 29.6, 29.0, 28.1, 27.4, 26.8, 26.3, 25.8, 25.5, 25.1, 24.8, 24.5, 24.3],
+                        humData: [74.0, 75.5, 76.0, 75.0, 73.0, 70.0, 66.0, 62.0, 58.0, 54.0, 52.0, 53.0, 55.0, 58.0, 62.0, 65.0, 68.0, 70.0, 71.5, 72.0, 72.8, 73.5, 74.0, 74.2],
+                        diagnosis: 'Telemetri 24 jam ESP32 Main Controller (Ruang Tamu) via AI Lokal: Suhu rata-rata 26.2°C (rentang 23.4-29.8°C), RH rata-rata 62.5%. Kondisi optimal sesuai zona kenyamanan termal SNI 03-6572.',
+                        recommendations: [
+                            'Parameter suhu Ruang Tamu terjaga stabil di bawah ambang batas 27°C, pertahankan pola sirkulasi udara saat ini.',
+                            'Kelembaban udara terkontrol seimbang pada zona nyaman 50% - 70% RH.',
+                            'Transmisi data perangkat SN-ESP32-001 konsisten melalui MQTT tanpa packet loss.'
+                        ]
+                    },
+                    {
+                        id: 'AI-' + username + '-002',
+                        timestamp: '16/10/2026, 09:20:00',
+                        date: '2026-10-16',
+                        sn: 'SN-ARD-002',
+                        deviceName: 'Arduino Sensor Node',
+                        room: 'Kamar Tidur',
+                        engine: 'AI Cloud',
+                        user: username,
+                        score: 87,
+                        status: 'Optimal',
+                        badgeClass: 'bg-success text-white',
+                        avgTemp: 24.9,
+                        minTemp: 22.8,
+                        maxTemp: 27.5,
+                        avgHum: 67.2,
+                        minHum: 57.0,
+                        maxHum: 78.5,
+                        peakHours: '14:00 - 15:00',
+                        labels: generateHourLabels(),
+                        tempData: [23.5, 23.1, 22.9, 22.8, 23.0, 23.6, 24.2, 24.9, 25.8, 26.5, 27.1, 27.5, 27.4, 26.8, 26.2, 25.6, 25.1, 24.7, 24.4, 24.2, 24.0, 23.8, 23.6, 23.5],
+                        humData: [76.0, 77.5, 78.5, 78.0, 76.5, 73.0, 69.0, 66.0, 63.0, 60.0, 58.0, 57.0, 59.0, 62.0, 65.0, 68.0, 71.0, 73.0, 74.5, 75.0, 75.5, 76.0, 76.2, 76.0],
+                        diagnosis: 'Telemetri 24 jam Arduino Sensor Node (Kamar Tidur) via AI Cloud: Suhu rata-rata 24.9°C (rentang 22.8-27.5°C), RH rata-rata 67.2%. Kondisi termal sejuk memenuhi standar tidur higienis.',
+                        recommendations: [
+                            'Temperatur sangat menunjang standar higienis istirahat malam hari (22-25°C).',
+                            'Kelembaban fajar mencapai 78.5%; buka ventilasi jendela antara 06:30 - 08:00 WIB untuk pertukaran udara segar.',
+                            'Sensor DHT22 beroperasi pada deviasi kalibrasi stabil di bawah toleransi 2%.'
+                        ]
+                    },
+                    {
+                        id: 'AI-' + username + '-003',
+                        timestamp: '15/10/2026, 17:30:00',
+                        date: '2026-10-15',
+                        sn: 'SN-ESP82-003',
+                        deviceName: 'ESP8266 Kitchen Node',
+                        room: 'Dapur',
+                        engine: 'AI Lokal',
+                        user: username,
+                        score: 68,
+                        status: 'Perlu Penyesuaian',
+                        badgeClass: 'bg-warning text-dark',
+                        avgTemp: 28.4,
+                        minTemp: 24.5,
+                        maxTemp: 32.6,
+                        avgHum: 58.4,
+                        minHum: 46.0,
+                        maxHum: 72.0,
+                        peakHours: '12:00 - 13:30',
+                        labels: generateHourLabels(),
+                        tempData: [24.8, 24.5, 24.6, 24.5, 25.0, 26.2, 27.8, 29.4, 31.0, 32.4, 32.6, 31.8, 30.5, 29.8, 29.0, 28.5, 28.0, 27.5, 27.0, 26.5, 26.0, 25.6, 25.2, 25.0],
+                        humData: [70.0, 72.0, 71.5, 71.0, 68.0, 64.0, 58.0, 52.0, 48.0, 46.0, 47.0, 50.0, 54.0, 58.0, 62.0, 65.0, 66.5, 68.0, 69.0, 69.5, 70.0, 70.5, 71.0, 70.5],
+                        diagnosis: 'Telemetri 24 jam ESP8266 Kitchen Node (Dapur) via AI Lokal: Suhu rata-rata 28.4°C (rentang 24.5-32.6°C), RH rata-rata 58.4%. Kondisi memerlukan penyesuaian karena lonjakan panas aktivitas memasak siang hari.',
+                        recommendations: [
+                            'Temperatur puncak 32.6°C tercatat saat aktivitas memasak siang hari.',
+                            'Nyalakan exhaust fan atau cooker hood lebih awal untuk mempercepat disipasi panas termal.',
+                            'Kelembaban udara dapur dalam rentang aman 46-72% RH.'
+                        ]
+                    },
+                    {
+                        id: 'AI-' + username + '-004',
+                        timestamp: '15/10/2026, 14:15:00',
+                        date: '2026-10-15',
+                        sn: 'SN-RPI-004',
+                        deviceName: 'Raspberry Pi Gateway',
+                        room: 'Teras Depan',
+                        engine: 'AI Cloud',
+                        user: username,
+                        score: 42,
+                        status: 'Anomali Termal',
+                        badgeClass: 'bg-danger text-white',
+                        avgTemp: 33.1,
+                        minTemp: 25.8,
+                        maxTemp: 38.4,
+                        avgHum: 45.2,
+                        minHum: 32.0,
+                        maxHum: 68.0,
+                        peakHours: '12:00 - 14:30',
+                        labels: generateHourLabels(),
+                        tempData: [26.0, 25.8, 26.1, 26.0, 26.8, 28.5, 30.8, 33.5, 36.2, 38.0, 38.4, 37.8, 36.5, 35.0, 33.2, 31.8, 30.5, 29.5, 28.8, 28.2, 27.6, 27.0, 26.5, 26.2],
+                        humData: [68.0, 67.5, 68.0, 66.0, 62.0, 55.0, 48.0, 41.0, 35.0, 32.0, 33.0, 36.0, 40.0, 44.0, 48.0, 52.0, 55.0, 58.0, 60.5, 62.0, 64.0, 65.5, 66.5, 67.0],
+                        diagnosis: 'Telemetri 24 jam Raspberry Pi Gateway (Teras Depan) via AI Cloud: Suhu rata-rata 33.1°C (rentang 25.8-38.4°C), RH rata-rata 45.2%. Terdeteksi anomali termal panas ekstrem akibat paparan sinar matahari langsung.',
+                        recommendations: [
+                            'Temperatur puncak ekstrem 38.4°C berpotensi menyebabkan pelambatan kinerja SoC.',
+                            'Pasang pelindung kanopi/sunshade pada posisi sensor outdoor.',
+                            'Pertimbangkan penambahan heatsink aktif atau ventilasi tambahan pada casing node.'
+                        ]
+                    }
+                ];
+                localStorage.setItem(storageKey, JSON.stringify(initialRecords));
+            }
+        }
+
+        function generateHourLabels() {
+            var labels = [];
+            for (var h = 0; h < 24; h++) {
+                labels.push(String(h).padStart(2, '0') + ':00');
+            }
+            return labels;
+        }
+
+        // ==========================================
+        // === RENDER & FILTER HISTORY ==============
+        // ==========================================
+        var allRecords = [];
+
+        function loadHistory() {
+            updateActiveUserBadge();
+            initInitialHistoryIfEmpty();
+            try {
+                var storageKey = getAIHistoryStorageKey();
+                allRecords = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            } catch (e) {
+                allRecords = [];
+            }
+            updateStatsOverview(allRecords);
+            filterHistory();
+        }
+
+        function updateStatsOverview(records) {
+            document.getElementById('stat-total-count').innerText = records.length + ' Sesi';
+
+            if (records.length === 0) {
+                document.getElementById('stat-avg-score').innerText = '--';
+                document.getElementById('stat-anomaly-count').innerText = '0';
+                return;
+            }
+
+            var sumScore = 0;
+            var anomalies = 0;
+
+            records.forEach(r => {
+                sumScore += (r.score || 80);
+                var conf = getStatusBadgeConfig(r.status, r.score); if (conf.status === 'Anomali Termal' || r.score < 50) anomalies++;
+            });
+
+            var avgScore = Math.round(sumScore / records.length);
+            document.getElementById('stat-avg-score').innerText = avgScore;
+            document.getElementById('stat-anomaly-count').innerText = anomalies;
+        }
+
+        // ==========================================
+        // === SELECT ALL & BATCH DELETE SYSTEM =====
+        // ==========================================
+        function toggleSelectAll(masterCheckbox) {
+            var rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            rowCheckboxes.forEach(function (cb) {
+                cb.checked = masterCheckbox.checked;
+            });
+            updateSelectedUI();
+        }
+
+        function handleRowCheckboxChange() {
+            var rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            var masterCheckbox = document.getElementById('selectAllCheckbox');
+            if (!rowCheckboxes.length || !masterCheckbox) return;
+
+            var checkedCount = 0;
+            rowCheckboxes.forEach(function (cb) {
+                if (cb.checked) checkedCount++;
+            });
+
+            if (checkedCount === 0) {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = false;
+            } else if (checkedCount === rowCheckboxes.length) {
+                masterCheckbox.checked = true;
+                masterCheckbox.indeterminate = false;
+            } else {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = true;
+            }
+
+            updateSelectedUI();
+        }
+
+        function updateSelectedUI() {
+            var selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            var count = selectedCheckboxes.length;
+            var btnDeleteSelected = document.getElementById('btn-delete-selected');
+            var selectedCountEl = document.getElementById('selected-count');
+
+            if (btnDeleteSelected && selectedCountEl) {
+                selectedCountEl.innerText = count;
+                if (count > 0) {
+                    btnDeleteSelected.classList.remove('d-none');
+                } else {
+                    btnDeleteSelected.classList.add('d-none');
+                }
+            }
+        }
+
+        function deleteSelectedRecords() {
+            var selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            var selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+            if (selectedIds.length === 0) return;
+
+            if (!confirm(`Apakah Anda yakin ingin menghapus ${selectedIds.length} catatan analisa terpilih?`)) {
+                return;
+            }
+
+            allRecords = allRecords.filter(r => !selectedIds.includes(r.id));
+            localStorage.setItem(getAIHistoryStorageKey(), JSON.stringify(allRecords));
+
+            var masterCheckbox = document.getElementById('selectAllCheckbox');
+            if (masterCheckbox) {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = false;
+            }
+            updateSelectedUI();
+            updateStatsOverview(allRecords);
+            filterHistory();
+        }
+
+        var currentHistoryPage = 1;
+        var filteredRecordsCache = [];
+
+        function changeHistoryPage(page) {
+            currentHistoryPage = page;
+            renderTable(filteredRecordsCache);
+        }
+
+        function renderHistoryPagination(totalPages) {
+            var ul = document.getElementById('history-pagination-ul');
+            if (!ul) return;
+
+            var html = '';
+
+            // Prev button
+            if (currentHistoryPage === 1) {
+                html += `<li class="page-item disabled"><a class="page-link border-0 shadow-sm rounded-3 me-1" href="#"><i class="fas fa-chevron-left"></i></a></li>`;
+            } else {
+                html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 me-1 text-secondary" href="#" onclick="event.preventDefault(); changeHistoryPage(${currentHistoryPage - 1})"><i class="fas fa-chevron-left"></i></a></li>`;
+            }
+
+            // Page numbers
+            for (var i = 1; i <= totalPages; i++) {
+                if (i === currentHistoryPage) {
+                    html += `<li class="page-item active"><a class="page-link border-0 shadow-sm rounded-3 me-1 bg-primary text-white" href="#" onclick="event.preventDefault()">${i}</a></li>`;
+                } else {
+                    html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 me-1 text-secondary" href="#" onclick="event.preventDefault(); changeHistoryPage(${i})">${i}</a></li>`;
+                }
+            }
+
+            // Next button
+            if (currentHistoryPage === totalPages || totalPages === 0) {
+                html += `<li class="page-item disabled"><a class="page-link border-0 shadow-sm rounded-3 text-secondary" href="#"><i class="fas fa-chevron-right"></i></a></li>`;
+            } else {
+                html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 text-secondary" href="#" onclick="event.preventDefault(); changeHistoryPage(${currentHistoryPage + 1})"><i class="fas fa-chevron-right"></i></a></li>`;
+            }
+
+            ul.innerHTML = html;
+        }
+
+        function filterHistory(resetPage = true) {
+            if (resetPage) currentHistoryPage = 1;
+            var search = (document.getElementById('searchInput').value || '').toLowerCase();
+            var devFilter = document.getElementById('filterDevice').value;
+            var statusFilter = document.getElementById('filterStatus').value;
+
+            var filtered = allRecords.filter(r => {
+                var matchDev = devFilter === 'ALL' || r.sn === devFilter;
+                var matchStatus = statusFilter === 'ALL' || (r.status && r.status.toLowerCase().includes(statusFilter.toLowerCase()));
+                var matchSearch = !search ||
+                    (r.deviceName && r.deviceName.toLowerCase().includes(search)) ||
+                    (r.room && r.room.toLowerCase().includes(search)) ||
+                    (r.sn && r.sn.toLowerCase().includes(search)) ||
+                    (r.engine && r.engine.toLowerCase().includes(search)) ||
+                    (r.diagnosis && r.diagnosis.toLowerCase().includes(search));
+
+                return matchDev && matchStatus && matchSearch;
+            });
+
+            renderTable(filtered);
+        }
+
+        function renderTable(records) {
+            filteredRecordsCache = records || [];
+            var tbody = document.getElementById('history-tbody');
+            var emptyState = document.getElementById('empty-state');
+            var masterCheckbox = document.getElementById('selectAllCheckbox');
+            var countTextEl = document.getElementById('history-count-text');
+
+            if (masterCheckbox) {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = false;
+            }
+            updateSelectedUI();
+
+
+
+            if (records.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('d-none');
+                if (countTextEl) countTextEl.innerText = 'Showing 0 to 0 of 0 entries';
+                renderHistoryPagination(1);
+                return;
+            }
+
+            emptyState.classList.add('d-none');
+
+            // Limit and Pagination logic
+            var limitSelect = document.getElementById('historyLimit') ? document.getElementById('historyLimit').value : '10';
+            var limit = records.length;
+            if (limitSelect !== 'all') {
+                limit = parseInt(limitSelect) || 10;
+            }
+
+            var totalPages = Math.ceil(records.length / limit) || 1;
+            if (currentHistoryPage > totalPages) currentHistoryPage = totalPages;
+
+            var startIndex = (currentHistoryPage - 1) * limit;
+            var endIndex = startIndex + limit;
+            var displayData = records.slice(startIndex, endIndex);
+
+            renderHistoryPagination(totalPages);
+            if (countTextEl) {
+                countTextEl.innerText = `Showing ${startIndex + 1} to ${Math.min(endIndex, records.length)} of ${records.length} entries`;
+            }
+
+            var html = '';
+            displayData.forEach((r, idx) => {
+                var badgeConfig = getStatusBadgeConfig(r.status, r.score);
+                var isCloud = (r.engine === 'AI Cloud');
+                var engineBadge = isCloud
+                    ? '<span class="badge text-white px-2 py-1" style="background:#1e40af; font-size:0.68rem;"><i class="fas fa-cloud me-1"></i>AI Cloud</span>'
+                    : '<span class="badge bg-info text-white px-2 py-1" style="font-size:0.68rem;"><i class="fas fa-microchip me-1"></i>AI Lokal</span>';
+
+                html += `
+                <tr>
+                    <!-- 0. Checkbox -->
+                    <td class="ps-3 text-center">
+                        <input type="checkbox" class="form-check-input row-checkbox" value="${r.id}" onclick="handleRowCheckboxChange()" onchange="handleRowCheckboxChange()" style="cursor: pointer;">
+                    </td>
+
+                    <!-- 1. Waktu Analisa -->
+                    <td>
+                        <div class="fw-bold text-dark small">${r.timestamp || r.date}</div>
+                        <div class="d-flex align-items-center gap-1 mt-1">
+                            ${engineBadge}
+                            <span class="badge bg-light text-secondary border" style="font-size: 0.68rem;"></span>
+                        </div>
+                    </td>
+
+                    <!-- 2. Perangkat & SN -->
+                    <td>
+                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">${r.deviceName || 'Node IoT'}</div>
+                        <span class="text-muted font-monospace small">${r.sn}</span>
+                    </td>
+
+                    <!-- 3. Ruangan -->
+                    <td>
+                        <span class="badge bg-light text-dark border px-2 py-1">
+                            <i class="fas fa-location-dot text-danger me-1"></i>${r.room}
+                        </span>
+                    </td>
+
+                    <!-- 4. Kondisi (Hanya kondisi tanpa angka) -->
+                    <td class="text-center align-middle">
+                        <span class="badge ${badgeConfig.badgeClass} badge-status-pill fw-semibold shadow-sm" style="font-size: 0.8rem; letter-spacing: -0.01em;">
+                            ${badgeConfig.icon} ${badgeConfig.status}
+                        </span>
+                    </td>
+
+                    <!-- 5. Detail -->
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-circle p-1 shadow-sm" style="width: 32px; height: 32px;" onclick="viewDetail('${r.id}')" title="Lihat Visualisasi & Diagnosa">
+                            <i class="fas fa-eye" style="font-size: 0.85rem;"></i>
+                        </button>
+                    </td>
+
+                    <!-- 6. Aksi -->
+                    <td class="text-center pe-3">
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" onclick="deleteRecord('${r.id}')" title="Hapus Data Analisa">
+                            <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function deleteRecord(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus catatan analisa ini?')) return;
+            allRecords = allRecords.filter(r => r.id !== id);
+            localStorage.setItem(getAIHistoryStorageKey(), JSON.stringify(allRecords));
+            updateSelectedUI();
+            updateStatsOverview(allRecords);
+            filterHistory();
+        }
+
+        function clearAllHistory() {
+            if (!confirm('Apakah Anda yakin ingin menghapus seluruh riwayat analisa untuk akun Anda? Tindakan ini tidak dapat dibatalkan.')) return;
+            allRecords = [];
+            localStorage.setItem(getAIHistoryStorageKey(), JSON.stringify([]));
+            updateSelectedUI();
+            updateStatsOverview(allRecords);
+            filterHistory();
+        }
+
+        // ==========================================
+        // === DETAIL MODAL SYSTEM (WITH MOTION) ====
+        // ==========================================
+        var detailChartInstance = null;
+
+        function viewDetail(id) {
+            var record = allRecords.find(r => r.id === id);
+            if (!record) return;
+
+            var dialog = document.getElementById('aiModalDialog');
+            var wrapper = document.getElementById('aiModalWrapper');
+            var backdrop = document.getElementById('aiModalBackdrop');
+            if (!dialog || !wrapper || !backdrop) return;
+
+            // Trigger entrance motion
+            dialog.classList.remove('ai-modal-animate-out');
+            dialog.classList.add('ai-modal-animate-in');
+            wrapper.classList.add('show');
+            backdrop.classList.add('show');
+
+            // Populate Modal Content
+            document.getElementById('ai-modal-dev-name').innerText = record.deviceName;
+            document.getElementById('ai-modal-dev-room').innerText = record.room;
+            document.getElementById('ai-modal-dev-sn').innerText = record.sn;
+            if (document.getElementById('ai-modal-timestamp')) document.getElementById('ai-modal-timestamp').innerText = record.timestamp;
+
+            // Update Engine Badge in Detail Modal
+            var engineBadge = document.getElementById('ai-modal-engine-badge');
+            if (engineBadge) {
+                var isCloud = (record.engine === 'AI Cloud');
+                engineBadge.className = 'badge rounded-pill px-2 py-1 text-white border border-light-subtle';
+                if (isCloud) {
+                    engineBadge.style.backgroundColor = '#1e40af';
+                    engineBadge.innerHTML = '<i class="fas fa-cloud me-1"></i> AI Cloud (Inference)';
+                } else {
+                    engineBadge.style.backgroundColor = '#0284c7';
+                    engineBadge.innerHTML = '<i class="fas fa-microchip me-1"></i> AI Lokal (Edge)';
+                }
+            }
+
+            document.getElementById('ai-score-number').innerText = record.score;
+            var badgeEl = document.getElementById('ai-score-badge');
+            var badgeConfig = getStatusBadgeConfig(record.status, record.score);
+            badgeEl.innerText = badgeConfig.status;
+            badgeEl.className = 'badge rounded-pill px-3 py-1.5 ' + badgeConfig.badgeClass;
+
+            var descEl = document.getElementById('ai-score-desc');
+            descEl.innerText = record.score >= 85
+                ? `Kombinasi temperatur dan kelembaban udara berada pada zona nyaman termal standar tata ruang IoT (${record.engine || 'AI'}).`
+                : `Terpantau variasi termal minor di ruangan, namun dalam batas aman operasional (${record.engine || 'AI'}).`;
+
+            document.getElementById('ai-stability-pct').innerText = (record.score + 4) + '%';
+            document.getElementById('ai-stability-bar').style.width = (record.score + 4) + '%';
+
+            document.getElementById('ai-avg-temp').innerText = record.avgTemp;
+            document.getElementById('ai-min-temp').innerText = record.minTemp + '°C';
+            document.getElementById('ai-max-temp').innerText = record.maxTemp + '°C';
+
+            document.getElementById('ai-avg-hum').innerText = record.avgHum;
+            document.getElementById('ai-min-hum').innerText = record.minHum + '%';
+            document.getElementById('ai-max-hum').innerText = record.maxHum + '%';
+
+            document.getElementById('ai-peak-hours').innerText = record.peakHours || '12:30 - 14:00';
+            document.getElementById('ai-peak-desc').innerText = `Suhu puncak tercatat mencapai ${record.maxTemp}°C pada siang hari.`;
+
+            document.getElementById('ai-diagnosis-text').innerHTML = record.diagnosis;
+
+            var recsList = document.getElementById('ai-recommendations-list');
+            var recsHtml = '';
+            if (record.recommendations && record.recommendations.length > 0) {
+                record.recommendations.forEach(rec => {
+                    recsHtml += `<li class="mb-1"><i class="fas fa-check-circle text-success me-2"></i> ${rec}</li>`;
+                });
+            } else {
+                recsHtml = `<li class="text-muted small">Tidak ada rekomendasi tindakan khusus saat ini.</li>`;
+            }
+            recsList.innerHTML = recsHtml;
+
+            // Render Chart
+            renderDetailChart(record.labels || ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"], record.tempData, record.humData);
+        }
+
+        function closeAIModal() {
+            var dialog = document.getElementById("aiModalDialog");
+            var wrapper = document.getElementById("aiModalWrapper");
+            var backdrop = document.getElementById("aiModalBackdrop");
+            if (!dialog || !wrapper || !backdrop) return;
+
+            // Trigger exit motion
+            dialog.classList.remove("ai-modal-animate-in");
+            dialog.classList.add("ai-modal-animate-out");
+            backdrop.style.opacity = "0";
+
+            setTimeout(function () {
+                dialog.classList.remove("ai-modal-animate-out");
+                wrapper.classList.remove("show");
+                backdrop.classList.remove("show");
+                backdrop.style.opacity = "";
+            }, 260);
+        }
+
+        function handleBackdropClick(event) {
+            if (event.target === document.getElementById("aiModalWrapper")) {
+                closeAIModal();
+            }
+        }
+
+        function renderDetailChart(labels, temps, hums) {
+            var canvas = document.getElementById("ai24hChart");
+            if (!canvas) return;
+            var ctx = canvas.getContext("2d");
+
+            if (detailChartInstance) {
+                detailChartInstance.destroy();
+            }
+
+            var tempGradient = ctx.createLinearGradient(0, 0, 0, 240);
+            tempGradient.addColorStop(0, "rgba(255, 193, 7, 0.45)");
+            tempGradient.addColorStop(1, "rgba(255, 193, 7, 0.02)");
+
+            var humGradient = ctx.createLinearGradient(0, 0, 0, 240);
+            humGradient.addColorStop(0, "rgba(13, 202, 240, 0.45)");
+            humGradient.addColorStop(1, "rgba(13, 202, 240, 0.02)");
+
+            detailChartInstance = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Suhu (°C)",
+                            data: temps,
+                            borderColor: "#f59e0b",
+                            backgroundColor: tempGradient,
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            yAxisID: "yTemp"
+                        },
+                        {
+                            label: "Kelembaban (%)",
+                            data: hums,
+                            borderColor: "#06b6d4",
+                            backgroundColor: humGradient,
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            yAxisID: "yHum"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 12, font: { size: 10 } }
+                        },
+                        yTemp: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            min: 15,
+                            max: 40,
+                            title: { display: true, text: 'Suhu (°C)', color: '#f59e0b', font: { weight: 'bold', size: 11 } },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        yHum: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 30,
+                            max: 100,
+                            title: { display: true, text: 'Kelembaban (%)', color: '#06b6d4', font: { weight: 'bold', size: 11 } },
+                            grid: { drawOnChartArea: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', loadHistory);
+
+        // Accessibility: Menutup AI modal saat tombol Escape ditekan
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                var wrapper = document.getElementById('aiModalWrapper');
+                if (wrapper && wrapper.classList.contains('show')) {
+                    closeAIModal();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

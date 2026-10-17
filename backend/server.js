@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -7,13 +8,15 @@ const mqttService = require('./services/mqttService');
 const authRoutes = require('./routes/authRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const ledRoutes = require('./routes/ledRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+const deviceRoutes = require('./routes/deviceRoutes');
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // Initialize MQTT
 mqttService.initMqtt();
@@ -22,10 +25,12 @@ mqttService.initMqtt();
 app.use('/api/auth', authRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/led', ledRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/devices', deviceRoutes);
 
 // Fallback to index.html for unknown routes (SPA like behavior if needed)
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
 const PORT = 8080;

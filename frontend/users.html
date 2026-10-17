@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengguna - IoT Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .glow-effect {
+            animation: glowAnim 1.5s infinite alternate;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes glowAnim {
+            from {
+                box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+                background-color: #f8fbff;
+            }
+
+            to {
+                box-shadow: 0 0 15px rgba(13, 110, 253, 0.6);
+                background-color: #e6f0ff;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="d-flex flex-column">
+            <div class="sidebar-heading">Monitoring IoT Based</div>
+            <div class="list-group list-group-flush">
+                <a href="index.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="sensor-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                </a>
+                <a href="actuator-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                </a>
+                <a href="devices.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-microchip me-2"></i> Perangkat
+                </a>
+                <a href="ai-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                </a>
+                <a href="users.html" class="list-group-item list-group-item-action active" id="menu-pengguna">
+                    <i class="fas fa-users me-2"></i> Pengguna
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light top-navbar py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bars fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                    <h4 class="m-0 fw-bold">Manajemen Pengguna</h4>
+                </div>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i>
+                                    Ubah Kata Sandi</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
+                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+
+                <!-- Stats Cards (Vuexy Feature) -->
+                <div class="row g-4 mb-4" id="user-stats">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Total Users</h6>
+                                    <h3 class="fw-bold mb-0" id="stat-total">0</h3>
+                                </div>
+                                <div class="p-3 bg-primary bg-opacity-10 rounded-3">
+                                    <i class="fas fa-users text-primary fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Admin Users</h6>
+                                    <h3 class="fw-bold mb-0" id="stat-admin">0</h3>
+                                    <small class="text-muted">Total Admin</small>
+                                </div>
+                                <div class="p-3 bg-danger bg-opacity-10 rounded-3">
+                                    <i class="fas fa-user-shield text-danger fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Regular Users</h6>
+                                    <h3 class="fw-bold mb-0" id="stat-user">0</h3>
+                                    <small class="text-muted">Total User</small>
+                                </div>
+                                <div class="p-3 bg-success bg-opacity-10 rounded-3">
+                                    <i class="fas fa-user text-success fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Card -->
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                        <h5 class="fw-bold m-0 mb-3 text-secondary">Cari Pengguna</h5>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <select id="userLimit" class="form-select w-auto bg-light border-0 shadow-sm rounded-3"
+                                    onchange="currentPage=1; loadUsers()">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="all">All</option>
+                                </select>
+                                <span class="text-muted">entries</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
+                                <input type="text" id="searchInput"
+                                    class="form-control w-auto bg-light border-0 shadow-sm rounded-3"
+                                    placeholder="Search User" oninput="currentPage=1; loadUsers()">
+                                <button class="btn btn-primary rounded-3 fw-bold shadow-sm" onclick="openAddModal()"><i
+                                        class="fas fa-plus me-1"></i> Add New User</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle m-0" style="border-top: 1px solid #f1f5f9;">
+                                <thead class="bg-light text-secondary" style="font-size: 13px;">
+                                    <tr>
+                                        <th class="ps-4 border-0">ID</th>
+                                        <th class="border-0">USER</th>
+                                        <th class="border-0">EMAIL / ROLE</th>
+                                        <th class="border-0">STATUS</th>
+                                        <th class="border-0 text-center" style="width: 85px;">EDIT</th>
+                                        <th class="pe-4 border-0 text-center" style="width: 85px;">HAPUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabel-users">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">Memuat data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div
+                        class="card-footer bg-white border-top-0 p-3 px-4 d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="user-count-text">Showing 0 to 0 of 0 entries</small>
+                        <nav>
+                            <ul class="pagination pagination-sm m-0" id="pagination-ul">
+                                <!-- Di-render oleh JavaScript -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal User -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold" id="userModalLabel">Add New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <input type="hidden" id="userId">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Username</label>
+                            <input type="text" class="form-control bg-light border-0 shadow-sm rounded-3" id="username"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Password <small class="text-muted"
+                                    id="passwordHint">(Leave blank to keep current password)</small></label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="password">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Role</label>
+                            <select class="form-select bg-light border-0 shadow-sm rounded-3" id="role">
+                                <option value="User">User</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-light shadow-sm rounded-3 fw-bold text-secondary"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary shadow-sm rounded-3 fw-bold" onclick="saveUser()">Save
+                        changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Delete Confirmation (Red Nuance, Centered, Large Warning) -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Red Accent Header -->
+                <div class="p-4 pb-0 d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger"
+                            style="width: 56px; height: 56px; min-width: 56px;">
+                            <i class="fas fa-trash-alt fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="modal-title fw-bold text-dark m-0" style="font-size: 1.35rem;">Hapus Pengguna
+                            </h4>
+                            <span
+                                class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 fw-bold px-2 py-1 rounded-pill mt-1"
+                                style="font-size: 0.8rem;">
+                                <i class="fas fa-triangle-exclamation me-1"></i>TINDAKAN PERMANEN
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 pt-3 pb-3">
+                    <!-- Prominent Red Alert Warning Box -->
+                    <div
+                        class="alert alert-danger border-danger border-opacity-50 bg-danger bg-opacity-10 p-3 rounded-3 mb-3 d-flex align-items-start gap-2.5">
+                        <i class="fas fa-triangle-exclamation fs-4 text-danger flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <strong class="d-block text-danger mb-1" style="font-size: 1.05rem;">PERINGATAN HAPUS
+                                AKUN</strong>
+                            <p class="text-danger-emphasis mb-0" style="font-size: 0.96rem; line-height: 1.45;">
+                                Apakah Anda yakin ingin menghapus akun pengguna ini secara permanen? Data akun dan hak
+                                akses <strong>tidak dapat dikembalikan</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Detail Data Card -->
+                    <div class="p-3 rounded-3 border border-secondary border-opacity-25 bg-light mb-3">
+                        <div
+                            class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-light-subtle">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Username:</span>
+                            <span class="fw-bold text-dark" style="font-size: 1.05rem;"
+                                id="deleteUsernameDisplay">-</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">ID Pengguna:</span>
+                            <span class="font-monospace fw-bold text-danger" style="font-size: 1.05rem;"
+                                id="deleteUserIdDisplay">-</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 text-danger fw-semibold px-1"
+                        style="font-size: 0.88rem;">
+                        <i class="fas fa-circle-info fs-6"></i>
+                        <span>Pengguna yang dihapus tidak akan dapat login kembali ke dashboard.</span>
+                    </div>
+                    <input type="hidden" id="deleteUserId">
+                </div>
+
+                <div
+                    class="modal-footer border-top-0 px-4 pb-4 pt-2 d-flex gap-2 justify-content-end bg-light bg-opacity-50">
+                    <button type="button" class="btn btn-light shadow-sm rounded-3 fw-bold text-secondary px-3 py-2"
+                        style="font-size: 0.95rem;" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="button" id="btnConfirmDeleteUser"
+                        class="btn btn-danger shadow-sm rounded-3 fw-bold px-4 py-2" style="font-size: 0.98rem;"
+                        onclick="executeDelete()">
+                        <i class="fas fa-trash-alt me-1.5"></i> Ya, Hapus Pengguna
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        var token = checkAuth();
+
+        // Pastikan admin
+        if (!isAdmin()) {
+            alert("Akses ditolak! Halaman ini hanya untuk Admin.");
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById("menu-toggle").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("wrapper").classList.toggle("toggled");
+            var sidebar = document.getElementById("sidebar-wrapper");
+            if (sidebar.style.marginLeft === "-250px") sidebar.style.marginLeft = "0";
+            else sidebar.style.marginLeft = "-250px";
+        });
+
+        var currentPage = 1;
+
+        function changePage(page) {
+            currentPage = page;
+            loadUsers();
+        }
+
+        function renderPagination(totalPages) {
+            var ul = document.getElementById('pagination-ul');
+            if (!ul) return;
+
+            var html = '';
+
+            // Prev button
+            if (currentPage === 1) {
+                html += `<li class="page-item disabled"><a class="page-link border-0 shadow-sm rounded-3 me-1" href="#"><i class="fas fa-chevron-left"></i></a></li>`;
+            } else {
+                html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 me-1 text-secondary" href="#" onclick="event.preventDefault(); changePage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></a></li>`;
+            }
+
+            // Page numbers
+            for (var i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<li class="page-item active"><a class="page-link border-0 shadow-sm rounded-3 me-1 bg-primary text-white" href="#" onclick="event.preventDefault()">${i}</a></li>`;
+                } else {
+                    html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 me-1 text-secondary" href="#" onclick="event.preventDefault(); changePage(${i})">${i}</a></li>`;
+                }
+            }
+
+            // Next button
+            if (currentPage === totalPages || totalPages === 0) {
+                html += `<li class="page-item disabled"><a class="page-link border-0 shadow-sm rounded-3 text-secondary" href="#"><i class="fas fa-chevron-right"></i></a></li>`;
+            } else {
+                html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 text-secondary" href="#" onclick="event.preventDefault(); changePage(${currentPage + 1})"><i class="fas fa-chevron-right"></i></a></li>`;
+            }
+
+            ul.innerHTML = html;
+        }
+
+        async function loadUsers() {
+            try {
+                var res = await axios.get('/api/auth/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                var data = res.data.data;
+                var tbody = document.getElementById('tabel-users');
+
+                var currentUser = JSON.parse(localStorage.getItem('user'));
+                var totalAdmin = 0;
+                var totalUser = 0;
+
+                var searchKeyword = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase().trim() : '';
+
+                if (searchKeyword) {
+                    var matched = data.filter(u => u.username.toLowerCase().includes(searchKeyword));
+                    var notMatched = data.filter(u => !u.username.toLowerCase().includes(searchKeyword));
+
+                    if (matched.length > 0) {
+                        data = [...matched, ...notMatched];
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger fw-bold">Pengguna tidak ditemukan</td></tr>';
+                        return;
+                    }
+                } else if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Tidak ada data pengguna.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+
+                // Limit and Pagination logic
+                var limitSelect = document.getElementById('userLimit').value;
+                var limit = data.length;
+                if (limitSelect !== 'all') {
+                    limit = parseInt(limitSelect);
+                }
+
+                data.forEach(user => {
+                    if (user.role === 'Admin') totalAdmin++;
+                    else totalUser++;
+                });
+
+                var totalPages = Math.ceil(data.length / limit) || 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                var startIndex = (currentPage - 1) * limit;
+                var endIndex = startIndex + limit;
+                var displayData = data.slice(startIndex, endIndex);
+
+                renderPagination(totalPages);
+
+                displayData.forEach(user => {
+                    var isMatch = searchKeyword && user.username.toLowerCase().includes(searchKeyword);
+                    var rowClass = isMatch ? 'glow-effect' : '';
+
+                    var initial = user.username.substring(0, 2).toUpperCase();
+                    var avatarColor = user.role === 'Admin' ? 'bg-danger text-white' : 'bg-success text-white';
+
+                    var roleBadge = user.role === 'Admin' ? '<i class="fas fa-shield-alt text-danger me-2"></i>Admin' : '<i class="fas fa-user text-secondary me-2"></i>User';
+
+                    // Indikator Online (Realtime dari API)
+                    var statusIndicator = user.is_online
+                        ? '<span class="badge bg-success bg-opacity-10 text-success"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Online</span>'
+                        : '<span class="badge bg-secondary bg-opacity-10 text-secondary"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Offline</span>';
+
+                    var safeUsername = (user.username || '').replace(/'/g, "\\'");
+
+                    tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td class="ps-4 fw-bold text-secondary">${user.id}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex justify-content-center align-items-center fw-bold ${avatarColor} me-3" style="width: 35px; height: 35px; font-size: 13px;">
+                                    ${initial}
+                                </div>
+                                <div>
+                                    <h6 class="m-0 fw-bold text-dark">${user.username}</h6>
+                                    <small class="text-muted">@${user.username}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="fw-bold">${roleBadge}</td>
+                        <td id="status-col-${user.username}">${statusIndicator}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary shadow-sm rounded-3 px-2.5 py-1" onclick="openEditModal(${user.id}, '${safeUsername}', '${user.role}')" title="Edit Pengguna">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                        <td class="pe-4 text-center">
+                            <button class="btn btn-sm btn-outline-danger shadow-sm rounded-3 px-2.5 py-1" onclick="confirmDeleteUser(${user.id}, '${safeUsername}')" title="Hapus Pengguna">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                });
+
+                document.getElementById('stat-total').innerText = data.length;
+                document.getElementById('stat-admin').innerText = totalAdmin;
+                document.getElementById('stat-user').innerText = totalUser;
+
+                var startEntry = displayData.length > 0 ? startIndex + 1 : 0;
+                var endEntry = startIndex + displayData.length;
+                document.getElementById('user-count-text').innerText = `Showing ${startEntry} to ${endEntry} of ${data.length} entries`;
+
+            } catch (error) {
+                console.error('Gagal mengambil data user', error);
+                if (error.response && error.response.status === 403) {
+                    alert("Sesi kedaluwarsa atau akses ditolak.");
+                    logout();
+                }
+            }
+        }
+
+        var userModal;
+        var deleteModal;
+        document.addEventListener('DOMContentLoaded', () => {
+            userModal = new bootstrap.Modal(document.getElementById('userModal'));
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        });
+
+        function confirmDeleteUser(id, username) {
+            document.getElementById('deleteUserId').value = id;
+            document.getElementById('deleteUserIdDisplay').innerText = '#' + id;
+            document.getElementById('deleteUsernameDisplay').innerText = username || ('User #' + id);
+            deleteModal.show();
+        }
+
+        async function executeDelete() {
+            var id = document.getElementById('deleteUserId').value;
+            var btn = document.getElementById('btnConfirmDeleteUser');
+            var originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menghapus...';
+            }
+            try {
+                await axios.delete(`/api/auth/users/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                deleteModal.hide();
+                loadUsers();
+            } catch (e) {
+                alert('Gagal menghapus user. ' + (e.response?.data?.message || ''));
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('userModalLabel').innerText = 'Add New User';
+            document.getElementById('passwordHint').style.display = 'none';
+            document.getElementById('password').required = true;
+            userModal.show();
+        }
+
+        function openEditModal(id, username, role) {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = id;
+            document.getElementById('username').value = username;
+            document.getElementById('role').value = role;
+            document.getElementById('userModalLabel').innerText = 'Edit User';
+            document.getElementById('passwordHint').style.display = 'inline';
+            document.getElementById('password').required = false;
+            userModal.show();
+        }
+
+        async function saveUser() {
+            var id = document.getElementById('userId').value;
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var role = document.getElementById('role').value;
+
+            if (!username || (!id && !password)) {
+                alert('Username dan Password wajib diisi untuk user baru!');
+                return;
+            }
+
+            var data = { username, role };
+            if (password) data.password = password;
+
+            try {
+                if (id) {
+                    await axios.put(`/api/auth/users/${id}`, data, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } else {
+                    await axios.post(`/api/auth/users`, data, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+                userModal.hide();
+                loadUsers();
+            } catch (e) {
+                alert('Gagal menyimpan user. ' + (e.response?.data?.message || ''));
+            }
+        }
+
+        loadUsers();
+
+        // === REALTIME STATUS VIA HTTP PING ===
+        // Ping backend setiap 2 detik agar tercatat aktif, sekaligus refresh tabel
+        setInterval(async () => {
+            try {
+                await axios.post('/api/auth/ping', {}, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                // Update tabel tanpa memuat ulang UI modal/lainnya secara destruktif 
+                loadUsers();
+            } catch (e) {
+                if (e.response && (e.response.status === 401 || e.response.status === 403)) {
+                    logout(); // Logout and redirect to login
+                }
+                console.error("Gagal ping status online", e);
+            }
+        }, 2000);
+    </script>
+
+</body>
+
+</html>

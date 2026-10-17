@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'rahasia_iot_dashboard_123'; 
+const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_iot_dashboard_123'; 
 
 // Middleware untuk memverifikasi token
 const verifyToken = (req, res, next) => {

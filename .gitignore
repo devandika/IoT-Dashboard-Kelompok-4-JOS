@@ -1,0 +1,12 @@
+# Environment Variables
+.env
+*.env
+backend/.env
+
+# Node modules
+node_modules/
+
+# Logs and temp files
+*.log
+.expo/
+mobile/.expo/

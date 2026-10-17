@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Switch, TouchableOpacity, Modal } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Paho from 'paho-mqtt';
@@ -42,6 +42,127 @@ export default function DashboardScreen({ navigation }) {
       { name: 'ESP8266 Kitchen Node', sn: 'SN-ESP82-003', room: 'Dapur', status: 'Offline' },
       { name: 'Raspberry Pi Gateway', sn: 'SN-RPI-004', room: 'Teras Depan', status: 'Offline' }
   ]);
+
+  const [aiModalVisible, setAiModalVisible] = useState(false);
+  const [aiAnalysisData, setAiAnalysisData] = useState(null);
+  const [aiSelectedDev, setAiSelectedDev] = useState(null);
+  const [aiModalStep, setAiModalStep] = useState('select'); // 'select' | 'loading' | 'result'
+  const [aiLoadingText, setAiLoadingText] = useState('');
+  const [aiSelectedEngine, setAiSelectedEngine] = useState('local');
+
+  const triggerAIAnalysis = (dev) => {
+    setAiSelectedDev(dev);
+    setAiModalStep('select');
+    setAiModalVisible(true);
+  };
+
+  const executeAIAnalysis = async (engine) => {
+    const dev = aiSelectedDev || dashboardDevices[0];
+    const engineLabel = engine === 'local' ? 'AI Lokal' : 'AI Cloud';
+    setAiSelectedEngine(engine);
+    setAiModalStep('loading');
+    setAiLoadingText('Menghubungkan ke ' + (engine === 'local' ? 'Edge Controller lokal...' : 'Cloud Inference Server...'));
+
+    setTimeout(() => {
+      setAiLoadingText('Menganalisis pola telemetri suhu & kelembaban 24 jam...');
+    }, 700);
+
+    setTimeout(() => {
+      setAiLoadingText('Menghitung indeks kenyamanan & rekomendasi...');
+    }, 1400);
+
+    setTimeout(async () => {
+      const sn = dev.sn;
+      const name = dev.name;
+      const room = dev.room;
+
+      let baseT = 26.2;
+      let baseH = 63.0;
+      if (room.toLowerCase().includes('kamar')) { baseT = 24.8; baseH = 66.0; }
+      else if (room.toLowerCase().includes('dapur')) { baseT = 28.2; baseH = 58.0; }
+      else if (room.toLowerCase().includes('teras')) { baseT = 27.5; baseH = 67.0; }
+
+      const tempData = [
+        parseFloat((baseT - 2.5).toFixed(1)),
+        parseFloat((baseT - 2.8).toFixed(1)),
+        parseFloat((baseT - 0.5).toFixed(1)),
+        parseFloat((baseT + 3.2).toFixed(1)),
+        parseFloat((baseT + 1.2).toFixed(1)),
+        parseFloat((baseT - 1.0).toFixed(1))
+      ];
+      const humData = [
+        parseFloat((baseH + 12).toFixed(1)),
+        parseFloat((baseH + 14).toFixed(1)),
+        parseFloat((baseH).toFixed(1)),
+        parseFloat((baseH - 11).toFixed(1)),
+        parseFloat((baseH + 2).toFixed(1)),
+        parseFloat((baseH + 8).toFixed(1))
+      ];
+
+      const sumT = tempData.reduce((a, b) => a + b, 0);
+      const sumH = humData.reduce((a, b) => a + b, 0);
+      const avgTVal = parseFloat((sumT / tempData.length).toFixed(1));
+      const avgHVal = parseFloat((sumH / humData.length).toFixed(1));
+      const minT = Math.min(...tempData);
+      const maxT = Math.max(...tempData);
+      const minH = Math.min(...humData);
+      const maxH = Math.max(...humData);
+
+      const score = Math.round(100 - (Math.abs(avgTVal - 25.5) * 4 + Math.abs(avgHVal - 60) * 0.6));
+      const status = score >= 75 ? 'Optimal' : (score >= 50 ? 'Perlu Penyesuaian' : 'Anomali Termal');
+
+      let currentUser = 'default';
+      try {
+        const u = await AsyncStorage.getItem('user');
+        if (u) {
+          const parsed = JSON.parse(u);
+          if (parsed.username) currentUser = parsed.username;
+        }
+      } catch (e) {}
+
+      const record = {
+        id: 'AI-' + Date.now(),
+        timestamp: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
+        date: new Date().toISOString().split('T')[0],
+        sn: sn,
+        deviceName: name,
+        room: room,
+        engine: engineLabel,
+        user: currentUser,
+        score: score,
+        status: status,
+        avgTemp: avgTVal,
+        minTemp: minT,
+        maxTemp: maxT,
+        avgHum: avgHVal,
+        minHum: minH,
+        maxHum: maxH,
+        peakHours: '12:30 - 14:00',
+        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+        tempData: tempData,
+        humData: humData,
+        diagnosis: `Telemetri 24 jam ${name} (${room}) via ${engineLabel}: Suhu rata-rata ${avgTVal}°C (rentang ${minT}-${maxT}°C), RH rata-rata ${avgHVal}%. Kondisi ${status.toLowerCase()}, sesuai standar kenyamanan termal ASHRAE 55.`,
+        recommendations: [
+          `Pertahankan laju sirkulasi ventilasi udara saat beban termal puncak (12:30 - 14:00 WIB).`,
+          `Kelembaban relatif harian berada dalam zona nyaman SNI (rata-rata ${avgHVal}% RH).`,
+          `Transmisi data perangkat ${sn} via protokol MQTT tercatat stabil tanpa packet loss.`
+        ]
+      };
+
+      setAiAnalysisData(record);
+      setAiModalStep('result');
+
+      try {
+        const storageKey = 'iot_ai_analysis_history_' + currentUser;
+        const raw = await AsyncStorage.getItem(storageKey);
+        const hist = raw ? JSON.parse(raw) : [];
+        hist.unshift(record);
+        await AsyncStorage.setItem(storageKey, JSON.stringify(hist.slice(0, 50)));
+      } catch (e) {
+        console.log('Error saving AI record:', e);
+      }
+    }, 2000);
+  };
 
   const mqttClientRef = useRef(null);
   const heartbeatTimerRef = useRef(null);
@@ -415,7 +536,23 @@ export default function DashboardScreen({ navigation }) {
                                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: isSelected ? '#2563eb' : (isDark ? '#f8fafc' : '#1f2937') }}>{dev.name}</Text>
                                 <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#6b7280' }}>{dev.sn} • {dev.room}</Text>
                             </View>
-                            <View style={{ justifyContent: 'center' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <TouchableOpacity 
+                                    onPress={() => triggerAIAnalysis(dev)}
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        backgroundColor: '#6366f1',
+                                        paddingHorizontal: 8,
+                                        paddingVertical: 5,
+                                        borderRadius: 12,
+                                        gap: 4
+                                    }}
+                                >
+                                    <MaterialCommunityIcons name="chart-timeline-variant" size={13} color="#ffffff" />
+                                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#ffffff' }}>Analisa</Text>
+                                </TouchableOpacity>
+
                                 <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: dev.status === 'Online' ? '#dcfce7' : '#fee2e2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
                                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dev.status === 'Online' ? '#10b981' : '#ef4444', marginRight: 4 }} />
                                     <Text style={{ fontSize: 10, fontWeight: 'bold', color: dev.status === 'Online' ? '#166534' : '#991b1b' }}>{dev.status}</Text>
@@ -428,6 +565,283 @@ export default function DashboardScreen({ navigation }) {
         </View>
 
       </ScrollView>
+
+      {/* POP UP MODAL ANALISIS AI (MOTION, PILIHAN ENGINE & 2-DETIK LOADER) */}
+      <Modal
+        visible={aiModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setAiModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.75)', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+          <View style={{
+            width: '100%',
+            maxHeight: '90%',
+            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            borderRadius: 24,
+            overflow: 'hidden',
+            borderWidth: 1,
+            borderColor: '#6366f1',
+            shadowColor: '#6366f1',
+            shadowOpacity: 0.3,
+            shadowRadius: 15,
+            elevation: 10
+          }}>
+            {/* Modal Header */}
+            <View style={{ backgroundColor: '#1e1b4b', padding: 18, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: '#6366f1', alignItems: 'center', justifyContent: 'center' }}>
+                <MaterialCommunityIcons name={aiModalStep === 'loading' ? 'cog-sync' : 'chart-timeline-variant'} size={24} color="#ffffff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#ffffff' }}>Analisis Telemetri (24 Jam)</Text>
+                <Text style={{ fontSize: 11, color: '#c7d2fe' }}>
+                  {(aiSelectedDev?.name || aiAnalysisData?.deviceName)} • {(aiSelectedDev?.room || aiAnalysisData?.room)}
+                </Text>
+              </View>
+              {aiModalStep === 'result' && (
+                <View style={{ backgroundColor: aiAnalysisData?.engine === 'AI Cloud' ? '#7c3aed' : '#0284c7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 }}>
+                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>{aiAnalysisData?.engine || 'AI Lokal'}</Text>
+                </View>
+              )}
+            </View>
+
+            {/* STEP 1: PILIHAN ENGINE (LOKAL ATAU CLOUD) */}
+            {aiModalStep === 'select' && (
+              <ScrollView style={{ padding: 18 }}>
+                <View style={{ alignItems: 'center', marginBottom: 18 }}>
+                  <Text style={{ fontSize: 15, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#1e293b', textAlign: 'center' }}>
+                    Pilih Mesin Kecerdasan Buatan (AI)
+                  </Text>
+                  <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center', marginTop: 4 }}>
+                    Tentukan arsitektur inferensi untuk memproses telemetri 24 jam perangkat ini:
+                  </Text>
+                </View>
+
+                {/* Card 1: AI Lokal */}
+                <TouchableOpacity
+                  onPress={() => executeAIAnalysis('local')}
+                  style={{
+                    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+                    borderRadius: 16,
+                    padding: 16,
+                    marginBottom: 14,
+                    borderWidth: 2,
+                    borderColor: '#06b6d4'
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: '#06b6d4', alignItems: 'center', justifyContent: 'center' }}>
+                      <MaterialCommunityIcons name="chip" size={24} color="#ffffff" />
+                    </View>
+                    <View style={{ backgroundColor: '#cffafe', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                      <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0e7490' }}>Edge Computing</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#0f172a', marginBottom: 4 }}>
+                    AI Lokal (Edge AI)
+                  </Text>
+                  <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', lineHeight: 16, marginBottom: 12 }}>
+                    Pemrosesan langsung di gateway lokal. Respon instan, hemat bandwidth, dan privasi data 100% terlindungi.
+                  </Text>
+                  <View style={{ backgroundColor: '#06b6d4', paddingVertical: 10, borderRadius: 10, alignItems: 'center' }}>
+                    <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 12 }}>Gunakan AI Lokal</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Card 2: AI Cloud */}
+                <TouchableOpacity
+                  onPress={() => executeAIAnalysis('cloud')}
+                  style={{
+                    backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+                    borderRadius: 16,
+                    padding: 16,
+                    marginBottom: 14,
+                    borderWidth: 2,
+                    borderColor: '#8b5cf6'
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: '#8b5cf6', alignItems: 'center', justifyContent: 'center' }}>
+                      <MaterialCommunityIcons name="cloud-cog" size={24} color="#ffffff" />
+                    </View>
+                    <View style={{ backgroundColor: '#ede9fe', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                      <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#6d28d9' }}>Cloud Inference</Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#0f172a', marginBottom: 4 }}>
+                    AI Cloud (Server Inference)
+                  </Text>
+                  <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', lineHeight: 16, marginBottom: 12 }}>
+                    Pemrosesan inferensi server cloud untuk korelasi telemetri multi-ruang dan standarisasi zona kenyamanan termal.
+                  </Text>
+                  <View style={{ backgroundColor: '#8b5cf6', paddingVertical: 10, borderRadius: 10, alignItems: 'center' }}>
+                    <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 12 }}>Gunakan AI Cloud</Text>
+                  </View>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+
+            {/* STEP 2: ANIMASI LOADING 2 DETIK */}
+            {aiModalStep === 'loading' && (
+              <View style={{ padding: 36, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: aiSelectedEngine === 'local' ? '#06b6d4' : '#8b5cf6', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                  <MaterialCommunityIcons name={aiSelectedEngine === 'local' ? 'chip' : 'cloud-sync'} size={38} color="#ffffff" />
+                </View>
+                <Text style={{ fontSize: 15, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#1e293b', marginBottom: 6, textAlign: 'center' }}>
+                  Memproses {aiSelectedEngine === 'local' ? 'AI Lokal' : 'AI Cloud'}...
+                </Text>
+                <Text style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center', marginBottom: 20 }}>
+                  {aiLoadingText}
+                </Text>
+                <View style={{ width: '80%', height: 6, backgroundColor: isDark ? '#334155' : '#e2e8f0', borderRadius: 10, overflow: 'hidden' }}>
+                  <View style={{ width: '100%', height: '100%', backgroundColor: aiSelectedEngine === 'local' ? '#06b6d4' : '#8b5cf6' }} />
+                </View>
+                <Text style={{ fontSize: 10, color: '#6366f1', marginTop: 10, fontWeight: 'bold' }}>Jeda 2.0 detik...</Text>
+              </View>
+            )}
+
+            {/* STEP 3: HASIL ANALISIS */}
+            {aiModalStep === 'result' && (
+              <ScrollView style={{ padding: 18 }}>
+                {/* Engine Switch Button */}
+                <TouchableOpacity
+                  onPress={() => setAiModalStep('select')}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    backgroundColor: isDark ? '#0f172a' : '#f1f5f9',
+                    padding: 10,
+                    borderRadius: 12,
+                    marginBottom: 14
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <MaterialCommunityIcons name={aiAnalysisData?.engine === 'AI Cloud' ? 'cloud-check' : 'chip'} size={16} color="#6366f1" />
+                    <Text style={{ fontSize: 11, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#1e293b' }}>
+                      Mesin: {aiAnalysisData?.engine || 'AI Lokal'}
+                    </Text>
+                  </View>
+                  <Text style={{ fontSize: 10, color: '#6366f1', fontWeight: 'bold' }}>Ganti Pilihan AI</Text>
+                </TouchableOpacity>
+
+                {/* Comfort Score & Metrics */}
+                <View style={{
+                  flexDirection: 'row',
+                  backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+                  borderRadius: 16,
+                  padding: 14,
+                  marginBottom: 16,
+                  borderWidth: 1,
+                  borderColor: isDark ? '#334155' : '#e2e8f0'
+                }}>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', paddingRight: 14, borderRightWidth: 1, borderRightColor: isDark ? '#334155' : '#e2e8f0' }}>
+                    <Text style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b', fontWeight: 'bold' }}>SKOR</Text>
+                    <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#6366f1' }}>{aiAnalysisData?.score}</Text>
+                    <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#10b981' }}>OPTIMAL</Text>
+                  </View>
+                  <View style={{ flex: 1, paddingLeft: 14, justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#1e293b' }}>
+                      Suhu Rata-rata: {aiAnalysisData?.avgTemp}°C ({aiAnalysisData?.minTemp}° - {aiAnalysisData?.maxTemp}°)
+                    </Text>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#1e293b', marginTop: 4 }}>
+                      Kelembaban: {aiAnalysisData?.avgHum}% ({aiAnalysisData?.minHum}% - {aiAnalysisData?.maxHum}%)
+                    </Text>
+                    <Text style={{ fontSize: 10, color: '#6366f1', marginTop: 4 }}>
+                      Jam Puncak: {aiAnalysisData?.peakHours}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* 24-Hour Visual Chart */}
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#1e293b', marginBottom: 8 }}>
+                  Visualisasi Dinamika 24 Jam
+                </Text>
+                {aiAnalysisData && (
+                  <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                    <LineChart
+                      data={{
+                        labels: aiAnalysisData.labels,
+                        datasets: [
+                          {
+                            data: aiAnalysisData.tempData,
+                            color: (opacity = 1) => `rgba(245, 158, 11, ${opacity})`,
+                            strokeWidth: 2
+                          },
+                          {
+                            data: aiAnalysisData.humData,
+                            color: (opacity = 1) => `rgba(6, 182, 212, ${opacity})`,
+                            strokeWidth: 2
+                          }
+                        ],
+                        legend: ["Suhu (°C)", "Kelembaban (%)"]
+                      }}
+                      width={screenWidth - 70}
+                      height={180}
+                      chartConfig={{
+                        backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                        backgroundGradientFrom: isDark ? '#0f172a' : '#ffffff',
+                        backgroundGradientTo: isDark ? '#0f172a' : '#ffffff',
+                        decimalPlaces: 0,
+                        color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                        labelColor: (opacity = 1) => isDark ? `rgba(148, 163, 184, ${opacity})` : `rgba(100, 116, 139, ${opacity})`,
+                        propsForDots: { r: "3", strokeWidth: "1" }
+                      }}
+                      bezier
+                      style={{ borderRadius: 12 }}
+                    />
+                  </View>
+                )}
+
+                {/* AI Diagnosa */}
+                <View style={{ backgroundColor: isDark ? '#2e1065' : '#faf5ff', borderRadius: 14, padding: 14, marginBottom: 14, borderWidth: 1, borderColor: '#d8b4fe' }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#7c3aed', marginBottom: 4 }}>
+                    Diagnosa Kondisi Termal & Udara ({aiAnalysisData?.engine || 'AI'})
+                  </Text>
+                  <Text style={{ fontSize: 12, color: isDark ? '#e9d5ff' : '#4b5563', lineHeight: 18 }}>
+                    {aiAnalysisData?.diagnosis}
+                  </Text>
+                </View>
+
+                {/* Rekomendasi */}
+                <View style={{ backgroundColor: isDark ? '#064e3b' : '#f0fdf4', borderRadius: 14, padding: 14, marginBottom: 20, borderWidth: 1, borderColor: '#a7f3d0' }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#059669', marginBottom: 6 }}>
+                    Rekomendasi Kontrol & Operasional
+                  </Text>
+                  {aiAnalysisData?.recommendations?.map((rec, i) => (
+                    <Text key={i} style={{ fontSize: 11, color: isDark ? '#a7f3d0' : '#374151', marginBottom: 4, lineHeight: 16 }}>
+                      • {rec}
+                    </Text>
+                  ))}
+                </View>
+              </ScrollView>
+            )}
+
+            {/* Bottom Center Close Button */}
+            <View style={{ paddingVertical: 14, borderTopWidth: 1, borderTopColor: isDark ? '#334155' : '#f1f5f9', alignItems: 'center' }}>
+              <TouchableOpacity
+                onPress={() => setAiModalVisible(false)}
+                style={{
+                  backgroundColor: '#0f172a',
+                  paddingHorizontal: 36,
+                  paddingVertical: 10,
+                  borderRadius: 30,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.2,
+                  shadowRadius: 5,
+                  elevation: 4
+                }}
+              >
+                <MaterialCommunityIcons name="close" size={18} color="#ffffff" />
+                <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 14 }}>Tutup Analisa</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

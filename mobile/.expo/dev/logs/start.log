@@ -1155,3 +1155,13 @@
 {"_e":"metro:client_log","_t":1789804706996,"level":"warn","data":["Require cycle: App.js -> src/screens/DashboardScreen.js -> App.js\n\nRequire cycles are allowed, but can result in uninitialized values. Consider refactoring to remove the need for a cycle."]}
 {"_e":"metro:client_log","_t":1789804717724,"level":"error","data":["[TypeError: Cannot read property '$$typeof' of undefined]"]}
 {"_e":"metro:client_log","_t":1789804851137,"level":"warn","data":["DateTimePicker: `onChange` is deprecated. Use `onValueChange`, `onDismiss`, and `onNeutralButtonPress` instead."]}
+{"_e":"metro:bundling:started","_t":1789808172078,"id":"9","platform":"android","environment":null,"entry":"App.js"}
+{"_e":"metro:bundling:progress","_t":1789808172079,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172082,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172183,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172345,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172445,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172545,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172645,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1789808172745,"id":"9","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1789808172901,"id":"9","total":1,"ms":822.8343}

@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard IoT</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Paho MQTT & Chart.js & Axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="d-flex flex-column">
+            <div class="sidebar-heading">Monitoring IoT Based</div>
+            <div class="list-group list-group-flush">
+                <a href="index.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="sensor-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                </a>
+                <a href="actuator-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                </a>
+                <a href="devices.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-microchip me-2"></i> Perangkat
+                </a>
+                <a href="ai-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                </a>
+                <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
+                    <i class="fas fa-users me-2"></i> Pengguna
+                </a>
+            </div>
+            <div class="mt-auto p-3 text-center text-white-50"
+                style="font-size: 0.85rem; border-top: 1px solid #4b545c; background-color: rgba(0,0,0,0.1);">
+                &copy; 2026 Kelompok 4 AB1
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <!-- Top Navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light top-navbar py-2 px-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bars fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                    <h4 class="m-0 fw-bold">Dashboard</h4>
+                </div>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="me-4 text-muted">
+                        <i class="fas fa-circle text-danger" id="mqtt-icon"></i> <span id="mqtt-status"
+                            class="fw-bold text-danger">Koneksi Terputus</span>
+                    </div>
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i>
+                                    Ubah Kata Sandi</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
+                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid p-2 d-flex flex-column flex-grow-1" style="min-height: 0;">
+
+                <!-- Info Bar -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="fw-bold m-0 text-secondary" style="font-size: 1rem;">Realtime Monitoring</h5>
+                    <span class="badge bg-primary fs-6"><i class="far fa-clock"></i> Update: <span
+                            id="last-update">--:--:--</span></span>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="row g-2 mb-2">
+                    <!-- Suhu -->
+                    <div class="col-md-4">
+                        <div
+                            class="card stat-card bg-warning text-white h-100 d-flex flex-column justify-content-center">
+                            <div class="inner">
+                                <h3><span id="val-suhu">--</span>°C</h3>
+                                <p class="m-0">Suhu Ruangan</p>
+                            </div>
+                            <div class="icon"><i class="fas fa-temperature-high"></i></div>
+                        </div>
+                    </div>
+                    <!-- Kelembaban -->
+                    <div class="col-md-4">
+                        <div class="card stat-card bg-info text-white h-100 d-flex flex-column justify-content-center">
+                            <div class="inner">
+                                <h3><span id="val-kelembaban">--</span>%</h3>
+                                <p class="m-0">Kelembaban Ruangan</p>
+                            </div>
+                            <div class="icon"><i class="fas fa-tint"></i></div>
+                        </div>
+                    </div>
+                    <!-- Kendali LED -->
+                    <div class="col-md-4">
+                        <div
+                            class="card stat-card bg-success text-white h-100 d-flex flex-column justify-content-center">
+                            <div class="inner" style="z-index: 1;">
+                                <h3 class="fw-bold mb-2" style="font-size: 1.6rem;">Kendali LED</h3>
+                                <div class="d-flex align-items-center gap-2">
+                                    <p class="m-0 fw-bold" id="led-status-text">Padam / OFF</p>
+                                    <div class="form-check form-switch m-0" style="font-size: 1.5rem;">
+                                        <input class="form-check-input cursor-pointer" type="checkbox" id="led-toggle"
+                                            onchange="toggleLED()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="icon"><i id="led-icon" class="fas fa-lightbulb text-white-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter -->
+                <div class="d-flex align-items-center mb-2 gap-2">
+                    <label for="chartFilterDate" class="fw-bold text-secondary">Filter:</label>
+                    <input type="date" id="chartFilterDate" onchange="applyFilter()"
+                        class="form-control w-auto d-inline-block form-control-sm">
+                    <button onclick="resetDateFilter()" class="btn btn-sm btn-outline-secondary"
+                        title="Reset ke Realtime">
+                        <i class="fas fa-sync-alt"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Content Row (Averages, Charts, Status) -->
+                <div class="row g-2 flex-grow-1 d-flex" style="min-height: 0;">
+                    <div class="col-lg-8 d-flex flex-column" style="min-height: 0;">
+                        <!-- Average Row -->
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <div
+                                    class="card p-2 border shadow-sm h-100 d-flex flex-row justify-content-between align-items-center">
+                                    <div>
+                                        <p class="text-warning fw-bold m-0" style="font-size: 0.9rem;">Rata-rata Suhu
+                                        </p>
+                                        <small class="text-muted fw-bold" id="avgTempLabel"
+                                            style="font-size: 0.75rem;">Realtime</small>
+                                    </div>
+                                    <h3 class="text-warning fw-bold m-0"><span id="avgTempText">-</span>°C</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div
+                                    class="card p-2 border shadow-sm h-100 d-flex flex-row justify-content-between align-items-center">
+                                    <div>
+                                        <p class="text-info fw-bold m-0" style="font-size: 0.9rem;">Rata-rata Kelembaban
+                                        </p>
+                                        <small class="text-muted fw-bold" id="avgHumLabel"
+                                            style="font-size: 0.75rem;">Realtime</small>
+                                    </div>
+                                    <h3 class="text-info fw-bold m-0"><span id="avgHumText">-</span>%</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Row -->
+                        <div class="d-flex flex-column flex-grow-1 gap-2" style="min-height: 0;">
+                            <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                                <div class="card-header py-1" style="font-size: 0.85rem;"><i
+                                        class="fas fa-chart-line text-warning me-2"></i> Tren Suhu</div>
+                                <div class="card-body p-1 flex-grow-1" style="position: relative;">
+                                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+                                        <canvas id="chartSuhu"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                                <div class="card-header py-1" style="font-size: 0.85rem;"><i
+                                        class="fas fa-chart-area text-info me-2"></i> Tren Kelembaban</div>
+                                <div class="card-body p-1 flex-grow-1" style="position: relative;">
+                                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+                                        <canvas id="chartKelembaban"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 d-flex flex-column" style="min-height: 0;">
+                        <div class="card card-custom flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div><i class="fas fa-server text-secondary me-2"></i> Status Perangkat</div>
+                                <span id="device-count-badge" class="badge bg-secondary">0 / 4 Online</span>
+                            </div>
+                            <div class="card-body p-0" style="overflow-y: auto; flex: 1;">
+                                <table class="table table-hover m-0 align-middle">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th class="ps-3">Perangkat</th>
+                                            <th>Ruangan</th>
+                                            <th class="text-center">Analisa AI</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="device-status-tbody">
+                                        <!-- Injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- AI Analysis Modal (Large Display & Motion Animations) -->
+    <div class="ai-modal-backdrop" id="aiModalBackdrop" onclick="closeAIModal()"></div>
+    <div class="ai-modal-wrapper" id="aiModalWrapper" onclick="handleBackdropClick(event)">
+        <div class="ai-modal-dialog" id="aiModalDialog" role="dialog" aria-modal="true"
+            aria-labelledby="ai-modal-title">
+            <!-- AI Modal Body -->
+            <div class="modal-body bg-white">
+
+                <!-- State 1: Pilihan AI Lokal atau Cloud -->
+                <div id="ai-engine-select-view" class="py-1">
+                    <div class="text-center mb-3">
+                        <div class="ai-modal-top-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1" style="letter-spacing: -0.01em;">Pilih Arsitektur Inferensi AI</h5>
+                        <p class="text-muted small mb-2" style="font-size: 0.8rem;">Evaluasi data deret waktu telemetri 24 jam untuk perangkat:</p>
+                        <div class="ai-device-context-pill">
+                            <span class="device-pill-name"><i class="fas fa-microchip me-1 text-primary"></i><span id="ai-modal-dev-name">ESP32 Main Controller</span></span>
+                            <span class="device-pill-dot">•</span>
+                            <span class="device-pill-room"><i class="fas fa-door-open me-1 text-info"></i><span id="ai-modal-dev-room">Ruang Tamu</span></span>
+                            <span class="device-pill-dot">•</span>
+                            <span class="device-pill-sn font-monospace" id="ai-modal-dev-sn">SN-ESP32-001</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 justify-content-center ai-engine-cards-grid">
+                        <!-- Card Pilihan 1: AI Lokal (Qwen 2.5) -->
+                        <div class="col-12 col-md-6">
+                            <div class="ai-engine-card card-local" onclick="chooseAIEngine('local')"
+                                tabindex="0" role="button" aria-label="Gunakan AI Lokal Qwen 2.5">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="ai-engine-icon-box icon-local">
+                                            <i class="fas fa-microchip"></i>
+                                        </div>
+                                        <span class="ai-card-pill pill-local">
+                                            <i class="fas fa-shield-halved me-1"></i> 100% Privat & Offline
+                                        </span>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 1.02rem;">AI Lokal (Qwen 2.5)</h6>
+                                    <div class="text-muted small mb-2 fw-medium" style="font-size: 0.72rem;">Ollama LLM • Server Internal</div>
+                                    <p class="text-secondary small mb-2.5" style="font-size: 0.78rem; line-height: 1.45;">
+                                        Inferensi model Qwen 2.5 (1.5B) cepat via Ollama lokal. Privasi data telemetri terjamin di server internal tanpa ketergantungan internet.
+                                    </p>
+                                    <ul class="ai-feature-checklist mb-3">
+                                        <li><i class="fas fa-circle-check text-sky"></i> Evaluasi kenyamanan termal mandiri</li>
+                                        <li><i class="fas fa-circle-check text-sky"></i> Privasi data sensor terjamin 100%</li>
+                                        <li><i class="fas fa-circle-check text-sky"></i> Bebas kuota API eksternal</li>
+                                    </ul>
+                                </div>
+                                <div class="mt-auto">
+                                    <button type="button" class="btn-ai-choose btn-choose-local">
+                                        <span>Pilih AI Lokal (Qwen 2.5)</span>
+                                        <i class="fas fa-arrow-right ms-1.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Pilihan 2: AI Cloud (Groq) -->
+                        <div class="col-12 col-md-6">
+                            <div class="ai-engine-card card-cloud" onclick="chooseAIEngine('cloud')"
+                                tabindex="0" role="button" aria-label="Gunakan AI Cloud Groq">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="ai-engine-icon-box icon-cloud">
+                                            <i class="fas fa-cloud"></i>
+                                        </div>
+                                        <span class="ai-card-pill pill-cloud">
+                                            <i class="fas fa-bolt me-1"></i> Groq LPU Super Cepat
+                                        </span>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 1.02rem;">AI Cloud (Groq)</h6>
+                                    <div class="text-muted small mb-2 fw-medium" style="font-size: 0.72rem;">Groq Cloud API • Standar SNI</div>
+                                    <p class="text-secondary small mb-2.5" style="font-size: 0.78rem; line-height: 1.45;">
+                                        Inferensi berkecepatan tinggi via Groq Cloud API. Menganalisis parameter kenyamanan termal komprehensif berstandar SNI & ASHRAE 55.
+                                    </p>
+                                    <ul class="ai-feature-checklist mb-3">
+                                        <li><i class="fas fa-circle-check text-indigo"></i> Komparasi standar SNI & ASHRAE 55</li>
+                                        <li><i class="fas fa-circle-check text-indigo"></i> Rekomendasi operasional ventilasi & suhu</li>
+                                        <li><i class="fas fa-circle-check text-indigo"></i> Akselerasi LPU respon sub-detik</li>
+                                    </ul>
+                                </div>
+                                <div class="mt-auto">
+                                    <button type="button" class="btn-ai-choose btn-choose-cloud">
+                                        <span>Pilih AI Cloud (Groq)</span>
+                                        <i class="fas fa-arrow-right ms-1.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State 2: Jeda 2 Detik dengan High-Tech Animated Loading -->
+                <div id="ai-loading-container" class="py-4 text-center d-none">
+                    <div class="ai-loader-visual">
+                        <div class="ai-loader-ring"></div>
+                        <div class="ai-loader-ring-inner"></div>
+                        <div class="ai-loader-core" id="ai-loader-core-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-1.5" id="ai-loading-engine-title">Memproses Analisa dengan AI...</h5>
+                    <p class="text-muted small mb-3" id="ai-loading-step-desc">Menginisialisasi parameter inferensi telemetri 24 jam...</p>
+
+                    <div class="w-75 mx-auto" style="max-width: 440px;">
+                        <div class="ai-progress-2s mb-2">
+                            <div class="ai-progress-2s-bar" id="ai-progress-bar"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.74rem;">
+                            <span id="ai-loading-status-left"><i class="fas fa-circle-notch fa-spin me-1"></i>Mengekstrak data sensor...</span>
+                            <span id="ai-loading-timer-text" class="fw-bold text-primary">Jeda 2.0s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State 3: Analysis Results Content (Impeccable Compact Dashboard) -->
+                <div id="ai-results-content" class="d-none">
+                    <!-- Results Header Bar -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom flex-wrap gap-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-0.5 flex-wrap">
+                                <h5 class="fw-bold text-dark m-0" id="ai-modal-title" style="letter-spacing: -0.01em;">Analisis Telemetri</h5>
+                                <span id="ai-modal-engine-badge"
+                                    class="badge rounded-pill px-2.5 py-0.5 text-white border border-light-subtle d-none"
+                                    style="font-size: 0.72rem;">
+                                    <i class="fas fa-microchip me-1"></i> AI Lokal
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.78rem;">
+                                <span id="ai-result-dev-name" class="fw-semibold text-dark">ESP32 Main Controller</span>
+                                <span>•</span>
+                                <span id="ai-result-dev-room" class="badge bg-light text-secondary border px-2 py-0.5" style="font-size: 0.72rem;">Ruang Tamu</span>
+                                <span>•</span>
+                                <span id="ai-result-dev-sn" class="font-monospace text-muted" style="font-size: 0.72rem;">SN-ESP32-001</span>
+                            </div>
+                        </div>
+                        <button type="button"
+                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 shadow-sm fw-semibold"
+                            style="font-size: 0.78rem;"
+                            onclick="showEngineSelector()">
+                            <i class="fas fa-rotate me-1"></i> Ganti Model AI
+                        </button>
+                    </div>
+
+                    <!-- Row 1: Comfort Score & 4 Mini Metrics -->
+                    <div class="row g-2 mb-2">
+                        <!-- Comfort Score Card -->
+                        <div class="col-lg-4 col-md-5">
+                            <div class="ai-score-card h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-secondary fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.05em;">Indeks Kenyamanan</span>
+                                        <span id="ai-score-badge" class="badge-soft-status badge-soft-optimal">
+                                            <i class="fas fa-circle-check"></i> Optimal
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1 mt-1">
+                                        <h2 class="display-score" id="ai-score-number">88</h2>
+                                        <span class="score-max">/ 100</span>
+                                    </div>
+                                    <p class="text-muted small mt-1 mb-0" id="ai-score-desc" style="font-size: 0.76rem; line-height: 1.35;">
+                                        Kombinasi temperatur dan kelembaban udara berada pada zona nyaman termal standar.
+                                    </p>
+                                </div>
+                                <div class="mt-2 pt-1.5 border-top">
+                                    <div class="d-flex justify-content-between text-muted small mb-1" style="font-size: 0.72rem;">
+                                        <span>Stabilitas Lingkungan</span>
+                                        <span class="fw-bold text-dark" id="ai-stability-pct">94%</span>
+                                    </div>
+                                    <div class="progress" style="height: 5px; border-radius: 9999px;">
+                                        <div class="progress-bar bg-primary" id="ai-stability-bar" style="width: 94%; border-radius: 9999px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Metric Mini Cards -->
+                        <div class="col-lg-8 col-md-7">
+                            <div class="row g-2 h-100">
+                                <!-- Rata-rata Suhu -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted" style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Suhu Rata-rata</span>
+                                            <div class="metric-icon-pill metric-icon-amber">
+                                                <i class="fas fa-temperature-half"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mb-1">
+                                            <span class="metric-val" id="ai-avg-temp">26.5</span><span class="metric-unit">°C</span>
+                                        </div>
+                                        <div class="d-flex gap-1.5 flex-wrap">
+                                            <span class="metric-chip chip-min"><i class="fas fa-arrow-down-long"></i> Min: <b id="ai-min-temp">23.2°C</b></span>
+                                            <span class="metric-chip chip-max"><i class="fas fa-arrow-up-long"></i> Max: <b id="ai-max-temp">30.8°C</b></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Rata-rata Kelembaban -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted" style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Kelembaban Rata-rata</span>
+                                            <div class="metric-icon-pill metric-icon-cyan">
+                                                <i class="fas fa-droplet"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mb-1">
+                                            <span class="metric-val" id="ai-avg-hum">63.2</span><span class="metric-unit">%</span>
+                                        </div>
+                                        <div class="d-flex gap-1.5 flex-wrap">
+                                            <span class="metric-chip chip-min"><i class="fas fa-arrow-down-long"></i> Min: <b id="ai-min-hum">52.0%</b></span>
+                                            <span class="metric-chip chip-max"><i class="fas fa-arrow-up-long"></i> Max: <b id="ai-max-hum">77.5%</b></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Puncak Fluktuasi -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted" style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Jam Puncak Panas</span>
+                                            <div class="metric-icon-pill metric-icon-rose">
+                                                <i class="fas fa-fire-flame-curved"></i>
+                                            </div>
+                                        </div>
+                                        <div class="fw-bold text-danger mb-0.5" id="ai-peak-hours" style="font-size: 1.05rem; letter-spacing: -0.01em;">12:30 - 14:30</div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.72rem;" id="ai-peak-desc">
+                                            Deviasi suhu mencapai +4.1°C dari rata-rata.
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Status Sensor (Dinamis dari backend) -->
+                                <div class="col-sm-6">
+                                    <div class="ai-metric-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-bold text-muted" style="font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;">Integritas Sensor IoT</span>
+                                            <div class="metric-icon-pill metric-icon-emerald" id="ai-integrity-icon-wrap">
+                                                <i class="fas fa-shield-check" id="ai-integrity-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div class="fw-bold text-success mb-0.5" id="ai-integrity-status" style="font-size: 1.05rem; letter-spacing: -0.01em;">Normal & Stabil</div>
+                                        <div class="text-muted text-truncate" style="font-size: 0.72rem;" id="ai-integrity-desc">
+                                            Transmisi sensor stabil tanpa anomali hardware.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: 24-Hour Visual Chart (Sleek Compact Container) -->
+                    <div class="ai-chart-card">
+                        <div class="ai-chart-header">
+                            <div class="fw-bold text-dark d-flex align-items-center" style="font-size: 0.78rem;">
+                                <i class="fas fa-chart-line text-primary me-1.5"></i> Kurva Dinamika Suhu & Kelembaban (24 Jam)
+                            </div>
+                            <div class="d-flex gap-3">
+                                <span class="chart-legend-pill text-warning"><span class="legend-indicator" style="background:#f59e0b;"></span> Suhu (°C)</span>
+                                <span class="chart-legend-pill text-info"><span class="legend-indicator" style="background:#06b6d4;"></span> Kelembaban (%)</span>
+                            </div>
+                        </div>
+                        <div class="p-1 px-2" style="height: 190px; position: relative;">
+                            <canvas id="ai24hChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Engineering Diagnosis & Actionable Recommendations -->
+                    <div class="row g-2 mb-1">
+                        <div class="col-md-6">
+                            <div class="ai-insight-box h-100">
+                                <h6 class="fw-bold mb-1 d-flex align-items-center" style="color: #0369a1; font-size: 0.78rem;">
+                                    <i class="fas fa-microchip me-1.5" style="color: #0284c7;"></i> Diagnosa Kondisi Termal & Udara
+                                </h6>
+                                <p class="small text-secondary mb-0" id="ai-diagnosis-text" style="font-size: 0.75rem; line-height: 1.45;">
+                                    Analisis telemetri menunjukkan siklus termal normal untuk ruangan.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="ai-rec-box h-100">
+                                <h6 class="fw-bold mb-1 d-flex align-items-center" style="color: #15803d; font-size: 0.78rem;">
+                                    <i class="fas fa-clipboard-check me-1.5 text-success"></i> Rekomendasi Kontrol Operasional
+                                </h6>
+                                <ul class="list-unstyled small text-secondary mb-0" id="ai-recommendations-list" style="font-size: 0.74rem; line-height: 1.4;">
+                                    <li class="mb-0.5"><i class="fas fa-check-circle text-success me-1"></i> Aktifkan ventilasi atau sirkulasi udara pada periode puncak untuk meredam akumulasi panas.</li>
+                                    <li><i class="fas fa-check-circle text-success me-1"></i> Integritas transmisi data via MQTT tercatat stabil tanpa anomali hardware.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State 4: Error State (Jika AI Tidak Dapat Dipakai / Gagal) -->
+                <div id="ai-error-container" class="py-4 text-center d-none">
+                    <div class="bg-danger bg-opacity-10 d-inline-flex p-3 rounded-circle mb-2 text-danger shadow-sm">
+                        <i class="fas fa-triangle-exclamation fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold text-danger mb-1.5">Gagal Melakukan Analisis AI</h5>
+                    <p class="text-secondary small mb-3 mx-auto" id="ai-error-message"
+                        style="max-width: 500px; line-height: 1.5; font-size: 0.82rem;">
+                        Terjadi kesalahan saat menghubungkan ke model AI atau server telemetri.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3.5 py-1.5 fw-semibold shadow-sm"
+                            onclick="showEngineSelector()">
+                            <i class="fas fa-rotate-left me-1"></i> Coba Lagi / Ganti Engine
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3.5 py-1.5 fw-semibold shadow-sm"
+                            onclick="closeAIModal()">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Modal Footer: Light Blue Circle X Button -->
+            <div class="ai-modal-footer">
+                <button type="button" class="btn-ai-circle-close" onclick="closeAIModal()" title="Tutup (ESC)" aria-label="Tutup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Ubah Kata Sandi Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Ubah Kata Sandi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <div id="err_cp_current" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_current" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_new" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_new" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_confirm" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_confirm" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm fw-bold">Simpan Kata
+                            Sandi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- App Logic -->
+    <script src="js/app.js"></script>
+    <script>
+        var token = checkAuth();
+
+        // Menu Toggle
+        document.getElementById("menu-toggle").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("wrapper").classList.toggle("toggled");
+            var sidebar = document.getElementById("sidebar-wrapper");
+            if (sidebar.style.marginLeft === "-250px") sidebar.style.marginLeft = "0";
+            else sidebar.style.marginLeft = "-250px";
+        });
+
+
+        // === DEVICE STATUS LOGIC (DINAMIS DARI DATABASE) ===
+        var selectedDeviceSN = localStorage.getItem('lastSelectedDeviceSN') || null;
+        var deviceLastSeen = {};
+        var deviceTimeoutMs = 5000;
+        var dashboardDevices = []; // Dimuat dinamis dari database (/api/devices), BUKAN hardcoded
+        var isDevicesLoading = true;
+
+        async function fetchDashboardDevices() {
+            try {
+                var res = await axios.get('/api/devices', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                isDevicesLoading = false;
+                if (res.data && res.data.success && Array.isArray(res.data.data)) {
+                    var now = Date.now();
+                    dashboardDevices = res.data.data.map(d => {
+                        var lastSeen = deviceLastSeen[d.sn] || 0;
+                        var isOnline = (now - lastSeen <= deviceTimeoutMs) && lastSeen > 0;
+                        return {
+                            id: d.id,
+                            name: d.name,
+                            sn: d.sn,
+                            room: d.room,
+                            type: d.type,
+                            status: isOnline ? 'Online' : 'Offline'
+                        };
+                    });
+
+                    // Pastikan selectedDeviceSN valid. Jika belum dipilih atau device lama sudah dihapus, pilih device pertama
+                    if (dashboardDevices.length > 0) {
+                        var isCurrentValid = dashboardDevices.some(d => d.sn === selectedDeviceSN);
+                        if (!selectedDeviceSN || !isCurrentValid) {
+                            selectedDeviceSN = dashboardDevices[0].sn;
+                            localStorage.setItem('lastSelectedDeviceSN', selectedDeviceSN);
+                            if (isFilterActive) {
+                                applyFilter();
+                            } else {
+                                fetchInitialData();
+                            }
+                        }
+                    } else {
+                        selectedDeviceSN = null;
+                    }
+
+                    renderDeviceTable();
+                }
+            } catch (err) {
+                isDevicesLoading = false;
+                console.error("Gagal memuat perangkat dari database:", err);
+                renderDeviceTable();
+            }
+        }
+
+        function renderDeviceTable() {
+            var tbody = document.getElementById('device-status-tbody');
+            if (!tbody) return;
+
+            // Tampilkan status memuat jika belum ada data dan sedang proses fetch
+            if (isDevicesLoading && dashboardDevices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Memuat daftar perangkat...</td></tr>';
+                return;
+            }
+
+            // Tampilkan pesan jika database kosong
+            if (dashboardDevices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3 small"><i class="fas fa-info-circle me-1"></i>Belum ada perangkat terdaftar. Silakan tambahkan di menu <a href="devices.html" class="fw-bold text-decoration-none">Perangkat</a>.</td></tr>';
+                var emptyBadge = document.getElementById('device-count-badge');
+                if (emptyBadge) {
+                    emptyBadge.textContent = '0 / 0 Online';
+                    emptyBadge.className = 'badge bg-secondary';
+                }
+                return;
+            }
+
+            var html = '';
+            var onlineCount = 0;
+            var now = Date.now();
+            dashboardDevices.forEach(dev => {
+                var lastSeen = deviceLastSeen[dev.sn] || 0;
+                var isOnline = (now - lastSeen <= deviceTimeoutMs) && lastSeen > 0;
+                dev.status = isOnline ? 'Online' : 'Offline';
+                if (isOnline) onlineCount++;
+                var isSelected = dev.sn === selectedDeviceSN;
+                var dot = isOnline
+                    ? '<span class="badge rounded-pill bg-success"><i class="fas fa-circle me-1" style="font-size:7px"></i>Online</span>'
+                    : '<span class="badge rounded-pill bg-danger"><i class="fas fa-circle me-1" style="font-size:7px"></i>Offline</span>';
+                var aiBtn = '<button type="button" class="btn btn-ai-analyze" onclick="event.stopPropagation(); openAIAnalysis(\'' + dev.sn + '\', \'' + dev.name + '\', \'' + dev.room + '\')" title="Analisa AI 24 Jam"><i class="fas fa-chart-line me-1"></i> Analisa</button>';
+                html += '<tr onclick="selectDevice(\'' + dev.sn + '\')" style="cursor:pointer;" class="' + (isSelected ? 'table-primary fw-bold' : '') + '"><td class="ps-3"><div style="font-size:0.85rem">' + dev.name + '</div><small class="text-muted">' + dev.sn + '</small></td><td class="align-middle"><span style="font-size:0.85rem">' + dev.room + '</span></td><td class="text-center align-middle">' + aiBtn + '</td><td class="text-center align-middle">' + dot + '</td></tr>';
+            });
+            tbody.innerHTML = html;
+            var badge = document.getElementById('device-count-badge');
+            if (badge) {
+                badge.textContent = onlineCount + ' / ' + dashboardDevices.length + ' Online';
+                badge.className = onlineCount > 0 ? 'badge bg-success' : 'badge bg-secondary';
+            }
+        }
+
+        window.selectDevice = function (sn) {
+            selectedDeviceSN = sn;
+            localStorage.setItem('lastSelectedDeviceSN', sn);
+            renderDeviceTable();
+            if (isFilterActive) {
+                applyFilter();
+            } else {
+                fetchInitialData();
+            }
+        };
+
+        renderDeviceTable();
+        fetchDashboardDevices();
+
+        // Heartbeat status online/offline setiap 1 detik
+        setInterval(() => {
+            renderDeviceTable();
+        }, 1000);
+
+        // Sinkronisasi otomatis daftar perangkat terbaru dari database setiap 10 detik
+        setInterval(() => {
+            fetchDashboardDevices();
+        }, 10000);
+
+        // === INISIALISASI CHART.JS ===
+        var initialLabels = Array(10).fill('');
+        var initialData = Array(10).fill(null);
+        var isFilterActive = false;
+
+        // Set tanggal hari ini sebagai default di filter kalender
+        window.addEventListener('DOMContentLoaded', () => {
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('chartFilterDate').value = `${yyyy}-${mm}-${dd}`;
+        });
+
+        function createChartConfig(color, bgColor, labelText, yUnit) {
+            return {
+                type: 'line',
+                data: {
+                    labels: [...initialLabels],
+                    datasets: [{
+                        label: labelText,
+                        data: [...initialData],
+                        borderColor: color,
+                        backgroundColor: bgColor,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 3,
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    spanGaps: true,
+                    scales: {
+                        x: { ticks: { maxTicksLimit: 12, maxRotation: 45, minRotation: 0 } },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: { display: true, text: yUnit, align: 'end', color: color, font: { weight: 'bold' } }
+                        }
+                    },
+                    plugins: { legend: { display: false } },
+                    animation: false,
+                    layout: { padding: 0 }
+                }
+            };
+        }
+
+        var chartSuhu = new Chart(document.getElementById('chartSuhu').getContext('2d'), createChartConfig('#ffc107', 'rgba(255, 193, 7, 0.2)', 'Suhu', '°C'));
+        var chartKelembaban = new Chart(document.getElementById('chartKelembaban').getContext('2d'), createChartConfig('#0dcaf0', 'rgba(13, 202, 240, 0.2)', 'Kelembaban', '%'));
+
+        function updateChartData(chart, label, data) {
+            chart.data.labels.push(label);
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.push(data);
+            chart.data.datasets[0].data.shift();
+            chart.update('none'); // No animation for realtime
+        }
+
+        function renderChartsRaw(chart, labels, data) {
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        function fetchInitialData() {
+            if (!selectedDeviceSN) return;
+            axios.get(`/api/history?limit=10&sn=${selectedDeviceSN}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => {
+                    if (!res.data.data || res.data.data.length === 0) return;
+                    var dataChronological = [...res.data.data].reverse();
+
+                    var labels = [];
+                    var suhuData = [];
+                    var kelembabanData = [];
+
+                    dataChronological.forEach(item => {
+                        labels.push(new Date(item.waktu).toLocaleTimeString('id-ID'));
+                        suhuData.push(item.suhu);
+                        kelembabanData.push(item.kelembaban);
+                    });
+
+                    while (labels.length < 10) { labels.unshift(''); suhuData.unshift(null); kelembabanData.unshift(null); }
+
+                    chartSuhu.data.labels = labels; chartSuhu.data.datasets[0].data = suhuData; chartSuhu.update();
+                    chartKelembaban.data.labels = labels; chartKelembaban.data.datasets[0].data = kelembabanData; chartKelembaban.update();
+
+                    var latest = res.data.data[0];
+                    document.getElementById('val-suhu').innerText = latest.suhu;
+                    document.getElementById('val-kelembaban').innerText = latest.kelembaban;
+                    document.getElementById('last-update').innerText = new Date(latest.waktu).toLocaleTimeString('id-ID');
+                    updateLedUI(latest.status_led === 1 ? 'ON' : 'OFF');
+
+                    // Hitung rata-rata awal
+                    var sumSuhu = 0, sumHum = 0;
+                    res.data.data.forEach(d => { sumSuhu += d.suhu; sumHum += d.kelembaban; });
+                    document.getElementById('avgTempText').innerText = (sumSuhu / res.data.data.length).toFixed(1);
+                    document.getElementById('avgHumText').innerText = (sumHum / res.data.data.length).toFixed(1);
+                }).catch(err => console.error(err));
+        }
+
+        // Panggil saat pertama kali
+        fetchInitialData();
+
+        // === FILTER LOGIC ===
+        function applyFilter() {
+            var dateInput = document.getElementById('chartFilterDate').value;
+            if (!dateInput) return;
+            isFilterActive = true;
+
+            axios.get(`/api/history/filter?date=${dateInput}&sn=${selectedDeviceSN}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => {
+                    var result = res.data;
+                    var labels = result.data.map(d => d.time_label);
+                    var temps = result.data.map(d => d.avg_suhu);
+                    var hums = result.data.map(d => d.avg_hum);
+
+                    renderChartsRaw(chartSuhu, labels, temps);
+                    renderChartsRaw(chartKelembaban, labels, hums);
+
+                    document.getElementById('avgTempText').innerText = result.avgTemp;
+                    document.getElementById('avgHumText').innerText = result.avgHum;
+                    document.getElementById('avgTempLabel').innerText = `Tanggal: ${result.targetDate}`;
+                    document.getElementById('avgHumLabel').innerText = `Tanggal: ${result.targetDate}`;
+                }).catch(err => console.error(err));
+        }
+
+        function resetDateFilter() {
+            isFilterActive = false;
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('chartFilterDate').value = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('avgTempLabel').innerText = 'Realtime';
+            document.getElementById('avgHumLabel').innerText = 'Realtime';
+
+            // Panggil kembali data 10 terakhir tanpa reload web
+            fetchInitialData();
+        }
+
+        // === MQTT LOGIC ===
+        var MQTT_HOST = 'broker.emqx.io';
+        var MQTT_PORT = 8083;
+        var clientID = "WebClient_" + parseInt(Math.random() * 1000, 10);
+        var mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "/mqtt", clientID);
+
+        mqttClient.onConnectionLost = () => {
+            document.getElementById('mqtt-status').innerText = 'Koneksi Terputus';
+            document.getElementById('mqtt-status').className = 'fw-bold text-danger';
+            document.getElementById('mqtt-icon').className = 'fas fa-circle text-danger';
+        };
+
+        mqttClient.onMessageArrived = (msg) => {
+            if (msg.destinationName === 'tugasiot/sensor') {
+                var data = JSON.parse(msg.payloadString);
+                var sn = data.sn || 'SN-ESP32-001';
+                deviceLastSeen[sn] = Date.now();
+
+                var statusChanged = false;
+                dashboardDevices.forEach(dev => {
+                    if (dev.sn === sn && dev.status !== 'Online') {
+                        dev.status = 'Online';
+                        statusChanged = true;
+                    }
+                });
+                if (statusChanged) renderDeviceTable();
+
+                if (sn === selectedDeviceSN) {
+                    document.getElementById('val-suhu').innerText = data.suhu;
+                    document.getElementById('val-kelembaban').innerText = data.kelembaban;
+
+                    var timeStr = new Date().toLocaleTimeString('id-ID');
+                    document.getElementById('last-update').innerText = timeStr;
+
+                    if (!isFilterActive) {
+                        updateChartData(chartSuhu, timeStr, data.suhu);
+                        updateChartData(chartKelembaban, timeStr, data.kelembaban);
+                    }
+
+                    // Perbarui status LED sesuai data dari sensor perangkat ini
+                    if (!ledCooldown) {
+                        var ledStatus = (data.status_led == 1 || data.status_led == 'ON') ? 'ON' : 'OFF';
+                        updateLedUI(ledStatus);
+                    }
+                }
+            }
+        };
+
+        mqttClient.connect({
+            onSuccess: () => {
+                console.log("MQTT Terhubung");
+                document.getElementById('mqtt-status').innerText = 'MQTT Terhubung';
+                document.getElementById('mqtt-status').classList.remove('text-danger');
+                document.getElementById('mqtt-status').classList.add('text-success');
+                document.getElementById('mqtt-icon').className = 'fas fa-circle text-success';
+
+                mqttClient.subscribe('tugasiot/sensor');
+            }
+        });
+
+        // === REALTIME STATUS VIA HTTP PING ===
+        var pingStatus = async () => {
+            try {
+                await axios.post('/api/auth/ping', {}, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (e) {
+                if (e.response && (e.response.status === 401 || e.response.status === 403)) {
+                    logout(); // Logout and redirect to login
+                }
+                console.error("Gagal ping status online", e);
+            }
+        };
+        pingStatus();
+        setInterval(pingStatus, 2000);
+
+        let ledCooldown = false;
+        let ledCooldownTimer = null;
+
+        // === KENDALI LED ===
+        function toggleLED() {
+            var isChecked = document.getElementById('led-toggle').checked;
+            var perintah = isChecked ? 'ON' : 'OFF';
+            updateLedUI(perintah);
+
+            // Set cooldown agar UI tidak glitch bolak-balik karena MQTT delay
+            ledCooldown = true;
+            if (ledCooldownTimer) clearTimeout(ledCooldownTimer);
+            ledCooldownTimer = setTimeout(() => { ledCooldown = false; }, 3000);
+
+            axios.post('/api/led', { status: perintah, sn: selectedDeviceSN }, { headers: { 'Authorization': `Bearer ${token}` } })
+                .catch(err => console.error("Gagal mengirim perintah via API:", err));
+        }
+
+        function updateLedUI(status) {
+            var toggle = document.getElementById('led-toggle');
+            var icon = document.getElementById('led-icon');
+            var text = document.getElementById('led-status-text');
+
+            if (status === 'ON') {
+                toggle.checked = true;
+                icon.className = "fas fa-lightbulb text-warning";
+                text.innerText = "Menyala / ON";
+                text.className = "m-0 text-white fw-bold";
+            } else {
+                toggle.checked = false;
+                icon.className = "fas fa-lightbulb text-white-50";
+                text.innerText = "Padam / OFF";
+                text.className = "m-0 text-white fw-bold";
+            }
+        }
+
+        // ==========================================
+        // === AI ANALYSIS LOGIC (24-HOUR REPORT) ===
+        // ==========================================
+        var ai24hChartInstance = null;
+        var currentAIDevice = null;
+        var selectedEngineType = 'local';
+        var aiAnalysisTimer = null;
+
+        function getCurrentUserKey() {
+            try {
+                var u = JSON.parse(localStorage.getItem('user'));
+                if (u && u.username) return u.username;
+            } catch (e) { }
+            return 'default';
+        }
+
+        function getAIHistoryStorageKey() {
+            return 'iot_ai_analysis_history_' + getCurrentUserKey();
+        }
+
+        function openAIAnalysis(sn, name, room) {
+            currentAIDevice = { sn: sn, name: name, room: room };
+
+            var dialog = document.getElementById('aiModalDialog');
+            var wrapper = document.getElementById('aiModalWrapper');
+            var backdrop = document.getElementById('aiModalBackdrop');
+            if (!dialog || !wrapper || !backdrop) return;
+
+            // Motion animation entrance
+            dialog.classList.remove('ai-modal-animate-out');
+            dialog.classList.add('ai-modal-animate-in');
+
+            wrapper.classList.add('show');
+            backdrop.classList.add('show');
+
+            // Device details
+            if (document.getElementById('ai-modal-dev-name')) document.getElementById('ai-modal-dev-name').innerText = name || 'Perangkat IoT';
+            if (document.getElementById('ai-modal-dev-room')) document.getElementById('ai-modal-dev-room').innerText = room || 'Ruangan';
+            if (document.getElementById('ai-modal-dev-sn')) document.getElementById('ai-modal-dev-sn').innerText = sn || 'SN-UNKNOWN';
+
+            if (document.getElementById('ai-result-dev-name')) document.getElementById('ai-result-dev-name').innerText = name || 'Perangkat IoT';
+            if (document.getElementById('ai-result-dev-room')) document.getElementById('ai-result-dev-room').innerText = room || 'Ruangan';
+            if (document.getElementById('ai-result-dev-sn')) document.getElementById('ai-result-dev-sn').innerText = sn || 'SN-UNKNOWN';
+
+            // Selalu mulai dari tampilan Pilihan Engine (Lokal vs Cloud)
+            showEngineSelector();
+        }
+
+        function showEngineSelector() {
+            var selectView = document.getElementById('ai-engine-select-view');
+            var loadingContainer = document.getElementById('ai-loading-container');
+            var resultsContent = document.getElementById('ai-results-content');
+            var errorContainer = document.getElementById('ai-error-container');
+            var engineBadge = document.getElementById('ai-modal-engine-badge');
+
+            if (selectView) selectView.classList.remove('d-none');
+            if (loadingContainer) loadingContainer.classList.add('d-none');
+            if (resultsContent) resultsContent.classList.add('d-none');
+            if (errorContainer) errorContainer.classList.add('d-none');
+            if (engineBadge) engineBadge.classList.add('d-none');
+        }
+
+        var aiLoadingInterval = null;
+
+        async function chooseAIEngine(engineType) {
+            selectedEngineType = engineType;
+            var selectView = document.getElementById('ai-engine-select-view');
+            var loadingContainer = document.getElementById('ai-loading-container');
+            var resultsContent = document.getElementById('ai-results-content');
+            var errorContainer = document.getElementById('ai-error-container');
+            var pBar = document.getElementById('ai-progress-bar');
+            var engineTitle = document.getElementById('ai-loading-engine-title');
+            var stepDesc = document.getElementById('ai-loading-step-desc');
+            var coreIcon = document.getElementById('ai-loader-core-icon');
+            var statusLeft = document.getElementById('ai-loading-status-left');
+            var timerText = document.getElementById('ai-loading-timer-text');
+
+            if (selectView) selectView.classList.add('d-none');
+            if (resultsContent) resultsContent.classList.add('d-none');
+            if (errorContainer) errorContainer.classList.add('d-none');
+            if (loadingContainer) loadingContainer.classList.remove('d-none');
+
+            if (aiLoadingInterval) {
+                clearInterval(aiLoadingInterval);
+                aiLoadingInterval = null;
+            }
+
+            var startInferTime = Date.now();
+
+            if (engineType === 'local') {
+                engineTitle.innerHTML = '<i class="fas fa-microchip text-info me-2"></i>Menganalisa dengan <strong>AI Lokal (Qwen 2.5)</strong>...';
+                coreIcon.innerHTML = '<i class="fas fa-microchip"></i>';
+                coreIcon.style.background = '#0284c7';
+                stepDesc.innerText = 'Menghubungkan ke Ollama lokal (model Qwen 2.5 1.5B)...';
+                if (statusLeft) statusLeft.innerHTML = '<i class="fas fa-microchip fa-spin me-1"></i>Inferensi aktif di perangkat...';
+                if (timerText) timerText.innerText = '0s';
+
+                if (pBar) {
+                    pBar.style.transition = 'width 0.8s ease-in-out';
+                    pBar.style.width = '15%';
+                }
+
+                aiLoadingInterval = setInterval(function () {
+                    var elapsedSec = Math.floor((Date.now() - startInferTime) / 1000);
+                    if (timerText) timerText.innerText = elapsedSec + 's';
+
+                    if (elapsedSec < 3) {
+                        stepDesc.innerText = 'Mengekstrak data telemetri 24 jam & kalkulasi metrik...';
+                        if (pBar) pBar.style.width = '35%';
+                    } else if (elapsedSec < 8) {
+                        stepDesc.innerText = 'Model Qwen 2.5 (1.5B) lokal sedang menganalisis kondisi termal...';
+                        if (pBar) pBar.style.width = '70%';
+                    } else {
+                        stepDesc.innerText = 'Menyusun diagnosa teknis dan rekomendasi operasional...';
+                        if (pBar) pBar.style.width = '90%';
+                    }
+                }, 1000);
+            } else {
+                engineTitle.innerHTML = '<i class="fas fa-cloud text-primary me-2"></i>Menganalisa dengan <strong>AI Cloud (Groq)</strong>...';
+                coreIcon.innerHTML = '<i class="fas fa-cloud"></i>';
+                coreIcon.style.background = '#1e40af';
+                stepDesc.innerText = 'Menghubungkan ke Groq Cloud Inference API...';
+                if (statusLeft) statusLeft.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>Ekstraksi data sensor 24 jam...';
+                if (timerText) timerText.innerText = '2.0s';
+
+                if (pBar) {
+                    pBar.style.transition = 'none';
+                    pBar.style.width = '0%';
+                    void pBar.offsetWidth; // Force reflow
+                    pBar.style.transition = 'width 2s cubic-bezier(0.2, 0, 0.2, 1)';
+                    pBar.style.width = '100%';
+                }
+
+                setTimeout(function () {
+                    if (stepDesc) stepDesc.innerText = 'Menganalisis fluktuasi via Groq LPU Engine...';
+                    if (statusLeft) statusLeft.innerHTML = '<i class="fas fa-chart-line text-info me-1"></i>Evaluasi standar kenyamanan termal...';
+                    if (timerText) timerText.innerText = '1.3s';
+                }, 700);
+
+                setTimeout(function () {
+                    if (stepDesc) stepDesc.innerText = 'Menyusun diagnosa teknis dan rekomendasi operasional...';
+                    if (statusLeft) statusLeft.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Memvalidasi respons model AI...';
+                    if (timerText) timerText.innerText = '0.6s';
+                }, 1400);
+            }
+
+            if (currentAIDevice) {
+                await performAIAnalysis(currentAIDevice.sn, currentAIDevice.name, currentAIDevice.room, engineType);
+            }
+        }
+
+        function closeAIModal() {
+            if (aiLoadingInterval) {
+                clearInterval(aiLoadingInterval);
+                aiLoadingInterval = null;
+            }
+
+            var dialog = document.getElementById('aiModalDialog');
+            var wrapper = document.getElementById('aiModalWrapper');
+            var backdrop = document.getElementById('aiModalBackdrop');
+            if (!dialog || !wrapper || !backdrop) return;
+
+            // Trigger exit motion
+            dialog.classList.remove('ai-modal-animate-in');
+            dialog.classList.add('ai-modal-animate-out');
+            backdrop.style.opacity = '0';
+
+            setTimeout(function () {
+                dialog.classList.remove('ai-modal-animate-out');
+                wrapper.classList.remove('show');
+                backdrop.classList.remove('show');
+                backdrop.style.opacity = '';
+            }, 260);
+        }
+
+        function handleBackdropClick(event) {
+            if (event.target === document.getElementById('aiModalWrapper')) {
+                closeAIModal();
+            }
+        }
+
+        async function performAIAnalysis(sn, name, room, engineType) {
+            engineType = engineType || selectedEngineType || 'cloud';
+
+            var errorContainer = document.getElementById('ai-error-container');
+            var errorMsgEl = document.getElementById('ai-error-message');
+            var loadingContainer = document.getElementById('ai-loading-container');
+            var resultsContent = document.getElementById('ai-results-content');
+            var headerBadge = document.getElementById('ai-modal-engine-badge');
+            var resultPill = document.getElementById('ai-result-engine-pill');
+
+            if (errorContainer) errorContainer.classList.add('d-none');
+
+            var startTime = Date.now();
+
+            try {
+                // Panggilan API AI riil ke backend
+                var response = await axios.post('/api/ai/analyze', {
+                    sn: sn,
+                    name: name,
+                    room: room,
+                    engine: engineType
+                }, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                // Pastikan minimal jeda 2000 ms agar animasi transisi selesai halus
+                var elapsed = Date.now() - startTime;
+                if (elapsed < 2000) {
+                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+                }
+
+                if (!response.data || !response.data.success || !response.data.data) {
+                    throw new Error(response.data && response.data.message ? response.data.message : 'Server tidak mengembalikan data analisa.');
+                }
+
+                var resData = response.data.data;
+                var engineLabel = response.data.engine || (engineType === 'cloud' ? 'AI Cloud (Groq)' : 'AI Lokal (Qwen 2.5)');
+
+                // Update Header Badges
+                if (headerBadge) {
+                    headerBadge.classList.remove('d-none');
+                    headerBadge.className = 'badge rounded-pill px-2 py-1 text-white border border-light-subtle';
+                    if (engineType === 'cloud') {
+                        headerBadge.style.backgroundColor = '#1e40af';
+                        headerBadge.innerHTML = '<i class="fas fa-cloud me-1"></i> ' + engineLabel;
+                    } else {
+                        headerBadge.style.backgroundColor = '#0284c7';
+                        headerBadge.innerHTML = '<i class="fas fa-microchip me-1"></i> ' + engineLabel;
+                    }
+                }
+
+                if (resultPill) {
+                    resultPill.className = 'badge rounded-pill text-white px-3 py-1';
+                    resultPill.style.backgroundColor = (engineType === 'cloud') ? '#1e40af' : '#0284c7';
+                    resultPill.innerHTML = (engineType === 'cloud' ? '<i class="fas fa-cloud me-1"></i> ' : '<i class="fas fa-microchip me-1"></i> ') + engineLabel;
+                }
+
+                // Populate Score & Status (3 Kategori: Optimal, Perlu Penyesuaian, Anomali Termal)
+                var score = resData.score;
+                var statusText = resData.status || 'Optimal';
+
+                var scoreNumEl = document.getElementById('ai-score-number');
+                scoreNumEl.innerText = score;
+
+                // Color score number harmoniously
+                if (score >= 75) scoreNumEl.style.color = '#059669';
+                else if (score >= 50) scoreNumEl.style.color = '#d97706';
+                else scoreNumEl.style.color = '#dc2626';
+
+                // Soft status badge styling (Optimal: Hijau, Perlu Penyesuaian: Kuning, Anomali Termal: Merah)
+                var sLower = statusText.toLowerCase();
+                var badgeClass = 'badge-soft-optimal';
+                var badgeIcon = 'fa-circle-check';
+                var displayStatus = 'Optimal';
+                var historyBadgeClass = 'bg-success text-white';
+
+                if (sLower.includes('anomali') || (!sLower.includes('penyesuaian') && !sLower.includes('optimal') && score < 50)) {
+                    badgeClass = 'badge-soft-danger';
+                    badgeIcon = 'fa-triangle-exclamation';
+                    displayStatus = 'Anomali Termal';
+                    historyBadgeClass = 'bg-danger text-white';
+                } else if (sLower.includes('penyesuaian') || (!sLower.includes('optimal') && score < 75)) {
+                    badgeClass = 'badge-soft-warning';
+                    badgeIcon = 'fa-triangle-exclamation';
+                    displayStatus = 'Perlu Penyesuaian';
+                    historyBadgeClass = 'bg-warning text-dark';
+                } else {
+                    badgeClass = 'badge-soft-optimal';
+                    badgeIcon = 'fa-circle-check';
+                    displayStatus = 'Optimal';
+                    historyBadgeClass = 'bg-success text-white';
+                }
+
+                var scoreBadge = document.getElementById('ai-score-badge');
+                scoreBadge.className = 'badge-soft-status ' + badgeClass;
+                scoreBadge.innerHTML = `<i class="fas ${badgeIcon}"></i> ${displayStatus}`;
+
+                var scoreDesc = document.getElementById('ai-score-desc');
+                scoreDesc.innerText = resData.scoreDesc || `Analisis kenyamanan termal ruangan ${room} via ${engineLabel}.`;
+
+                document.getElementById('ai-stability-pct').innerText = (resData.stabilityPct || 90) + '%';
+                document.getElementById('ai-stability-bar').style.width = (resData.stabilityPct || 90) + '%';
+
+                document.getElementById('ai-avg-temp').innerText = resData.avgTemp;
+                document.getElementById('ai-min-temp').innerText = resData.minTemp + '°C';
+                document.getElementById('ai-max-temp').innerText = resData.maxTemp + '°C';
+
+                document.getElementById('ai-avg-hum').innerText = resData.avgHum;
+                document.getElementById('ai-min-hum').innerText = resData.minHum + '%';
+                document.getElementById('ai-max-hum').innerText = resData.maxHum + '%';
+
+                document.getElementById('ai-peak-hours').innerText = resData.peakHours || '--:--';
+                document.getElementById('ai-peak-desc').innerText = resData.peakDesc || `Suhu tertinggi mencapai ${resData.maxTemp}°C pada periode beban puncak.`;
+
+                // Update Integritas Sensor dari backend (dinamis, bukan hardcoded)
+                var integrityEl = document.getElementById('ai-integrity-status');
+                var integrityIcon = document.getElementById('ai-integrity-icon');
+                var integrityWrap = document.getElementById('ai-integrity-icon-wrap');
+                var integrityDesc = document.getElementById('ai-integrity-desc');
+                if (resData.sensorIntegrity) {
+                    var si = resData.sensorIntegrity;
+                    if (integrityEl) {
+                        integrityEl.innerText = si.status;
+                        integrityEl.className = 'fw-bold mb-0.5 text-' + si.color;
+                    }
+                    if (integrityWrap) {
+                        integrityWrap.className = 'metric-icon-pill ' + (si.color === 'success' ? 'metric-icon-emerald' : (si.color === 'warning' ? 'metric-icon-amber' : 'metric-icon-rose'));
+                    }
+                    if (integrityIcon) {
+                        integrityIcon.className = 'fas ' + (si.color === 'success' ? 'fa-shield-check' : (si.color === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-xmark'));
+                    }
+                    if (integrityDesc) {
+                        if (si.issues && si.issues.length > 0) {
+                            integrityDesc.innerText = si.issues.join('. ') + '.';
+                        } else {
+                            integrityDesc.innerText = 'Transmisi sensor stabil tanpa anomali hardware. Skor: ' + si.score + '/100.';
+                        }
+                    }
+                }
+
+                document.getElementById('ai-diagnosis-text').innerHTML = resData.diagnosis;
+
+                var recsList = document.getElementById('ai-recommendations-list');
+                var recsHtml = '';
+                if (Array.isArray(resData.recommendations)) {
+                    resData.recommendations.forEach(r => {
+                        recsHtml += `<li class="mb-0.5"><i class="fas fa-check-circle text-success me-1"></i> ${r}</li>`;
+                    });
+                }
+                recsList.innerHTML = recsHtml;
+
+                // Render Chart with real hourly data from AI backend
+                var hourly = resData.hourlyData || {};
+                renderAI24hChart(hourly.labels || [], hourly.tempData || [], hourly.humData || []);
+
+                // Save real record to localStorage
+                var today = new Date();
+                var yyyy = today.getFullYear();
+                var mm = String(today.getMonth() + 1).padStart(2, '0');
+                var dd = String(today.getDate()).padStart(2, '0');
+                var dateStr = `${yyyy}-${mm}-${dd}`;
+
+                var record = {
+                    id: 'AI-' + Date.now(),
+                    timestamp: new Date().toLocaleString('id-ID'),
+                    date: dateStr,
+                    sn: sn,
+                    deviceName: name,
+                    room: room,
+                    engine: engineLabel,
+                    user: getCurrentUserKey(),
+                    score: score,
+                    status: displayStatus,
+                    badgeClass: historyBadgeClass,
+                    avgTemp: resData.avgTemp,
+                    minTemp: resData.minTemp,
+                    maxTemp: resData.maxTemp,
+                    avgHum: resData.avgHum,
+                    minHum: resData.minHum,
+                    maxHum: resData.maxHum,
+                    peakHours: resData.peakHours,
+                    labels: hourly.labels || [],
+                    tempData: hourly.tempData || [],
+                    humData: hourly.humData || [],
+                    diagnosis: resData.diagnosis,
+                    recommendations: resData.recommendations || []
+                };
+
+                saveAIAnalysisRecord(record);
+
+                // Sembunyikan loading, tampilkan hasil asli AI
+                if (loadingContainer) loadingContainer.classList.add('d-none');
+                if (resultsContent) resultsContent.classList.remove('d-none');
+
+            } catch (err) {
+                console.error("AI Analysis Failed:", err);
+                // JANGAN TAMPILKAN HASIL FAKE!
+                if (loadingContainer) loadingContainer.classList.add('d-none');
+                if (resultsContent) resultsContent.classList.add('d-none');
+
+                var msg = 'Gagal melakukan analisis AI.';
+                if (err.response && err.response.data && err.response.data.message) {
+                    msg = err.response.data.message;
+                } else if (err.message) {
+                    msg = err.message;
+                }
+
+                if (errorMsgEl) errorMsgEl.innerText = msg;
+                if (errorContainer) errorContainer.classList.remove('d-none');
+            } finally {
+                if (aiLoadingInterval) {
+                    clearInterval(aiLoadingInterval);
+                    aiLoadingInterval = null;
+                }
+            }
+        }
+
+        function renderAI24hChart(labels, temps, hums) {
+            var canvas = document.getElementById('ai24hChart');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+
+            if (ai24hChartInstance) {
+                ai24hChartInstance.destroy();
+            }
+
+            var tempGradient = ctx.createLinearGradient(0, 0, 0, 140);
+            tempGradient.addColorStop(0, 'rgba(245, 158, 11, 0.22)');
+            tempGradient.addColorStop(1, 'rgba(245, 158, 11, 0.01)');
+
+            var humGradient = ctx.createLinearGradient(0, 0, 0, 140);
+            humGradient.addColorStop(0, 'rgba(6, 182, 212, 0.22)');
+            humGradient.addColorStop(1, 'rgba(6, 182, 212, 0.01)');
+
+            ai24hChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Suhu (°C)',
+                            data: temps,
+                            borderColor: '#f59e0b',
+                            backgroundColor: tempGradient,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 2.5,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#f59e0b',
+                            pointBorderWidth: 1.5,
+                            pointHoverRadius: 5,
+                            spanGaps: true,
+                            yAxisID: 'yTemp'
+                        },
+                        {
+                            label: 'Kelembaban (%)',
+                            data: hums,
+                            borderColor: '#06b6d4',
+                            backgroundColor: humGradient,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 2.5,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#06b6d4',
+                            pointBorderWidth: 1.5,
+                            pointHoverRadius: 5,
+                            spanGaps: true,
+                            yAxisID: 'yHum'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 12, font: { size: 9 }, color: '#94a3b8' }
+                        },
+                        yTemp: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            suggestedMin: 18,
+                            suggestedMax: 38,
+                            ticks: { font: { size: 9 }, color: '#f59e0b', maxTicksLimit: 5 },
+                            grid: { color: 'rgba(241, 245, 249, 0.8)' }
+                        },
+                        yHum: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            suggestedMin: 35,
+                            suggestedMax: 95,
+                            ticks: { font: { size: 9 }, color: '#06b6d4', maxTicksLimit: 5 },
+                            grid: { drawOnChartArea: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                            padding: 8,
+                            cornerRadius: 6,
+                            titleFont: { size: 11, weight: 'bold' },
+                        }
+                    }
+                }
+            });
+        }
+
+        function saveAIAnalysisRecord(record) {
+            try {
+                var storageKey = getAIHistoryStorageKey();
+                var existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                existing.unshift(record);
+                if (existing.length > 50) existing.pop();
+                localStorage.setItem(storageKey, JSON.stringify(existing));
+            } catch (e) {
+                console.error('Gagal menyimpan riwayat analisa ke localStorage:', e);
+            }
+        }
+
+        // Accessibility: Menutup AI modal saat tombol Escape ditekan
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                var wrapper = document.getElementById('aiModalWrapper');
+                if (wrapper && wrapper.classList.contains('show')) {
+                    closeAIModal();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

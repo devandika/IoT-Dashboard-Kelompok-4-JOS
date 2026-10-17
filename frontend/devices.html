@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Perangkat - IoT Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="d-flex flex-column">
+            <div class="sidebar-heading">Monitoring IoT Based</div>
+            <div class="list-group list-group-flush">
+                <a href="index.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="sensor-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-thermometer-half me-2"></i> Data Sensor
+                </a>
+                <a href="actuator-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cogs me-2"></i> Data Aktuator
+                </a>
+                <a href="devices.html" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-microchip me-2"></i> Perangkat
+                </a>
+                <a href="ai-history.html" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i> Riwayat Analisa
+                </a>
+                <a href="users.html" class="list-group-item list-group-item-action" id="menu-pengguna">
+                    <i class="fas fa-users me-2"></i> Pengguna
+                </a>
+            </div>
+            <div class="mt-auto p-3 text-center text-white-50"
+                style="font-size: 0.85rem; border-top: 1px solid #4b545c; background-color: rgba(0,0,0,0.1);">
+                &copy; 2026 Kelompok 4 AB1
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <!-- Top Navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light top-navbar py-3 px-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bars fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                    <h4 class="m-0 fw-bold">Manajemen Perangkat</h4>
+                </div>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fs-5 me-1"></i> <span id="username-display">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    data-bs-target="#changePasswordModal"><i class="fas fa-key me-2 text-secondary"></i>
+                                    Ubah Kata Sandi</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i
+                                        class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid p-4">
+
+                <!-- Alert Feedback -->
+                <div id="alertFeedback" class="alert d-none shadow-sm rounded-3 mb-4 alert-dismissible fade show"
+                    role="alert">
+                    <span id="alertFeedbackText"></span>
+                    <button type="button" class="btn-close" onclick="hideAlert()"></button>
+                </div>
+
+                <!-- Device Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Total Perangkat</h6>
+                                    <h3 class="fw-bold mb-0" id="stat-total-devices">0</h3>
+                                    <small class="text-muted">Tersimpan di Database</small>
+                                </div>
+                                <div class="p-3 bg-primary bg-opacity-10 rounded-3">
+                                    <i class="fas fa-microchip text-primary fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Perangkat Online</h6>
+                                    <h3 class="fw-bold mb-0 text-success" id="stat-online-devices">0</h3>
+                                    <small class="text-muted">Aktif & Kirim Telemetri</small>
+                                </div>
+                                <div class="p-3 bg-success bg-opacity-10 rounded-3">
+                                    <i class="fas fa-wifi text-success fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted fw-bold mb-1">Perangkat Offline</h6>
+                                    <h3 class="fw-bold mb-0 text-danger" id="stat-offline-devices">0</h3>
+                                    <small class="text-muted">Tidak Ada Sinyal &gt;5s</small>
+                                </div>
+                                <div class="p-3 bg-danger bg-opacity-10 rounded-3">
+                                    <i class="fas fa-plug-circle-xmark text-danger fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Card -->
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                            <div>
+                                <h5 class="fw-bold m-0 text-dark"><i
+                                        class="fas fa-microchip text-primary me-2"></i>Daftar Perangkat Terdaftar</h5>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
+                                <div class="d-flex align-items-center gap-2 me-1">
+                                    <select id="deviceLimit"
+                                        class="form-select w-auto bg-light border-0 shadow-sm rounded-3"
+                                        onchange="currentDevicePage=1; renderDevices()">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                    <span class="text-muted small">entries</span>
+                                </div>
+                                <div class="input-group" style="max-width: 260px;">
+                                    <span class="input-group-text bg-light border-0"><i
+                                            class="fas fa-search text-muted"></i></span>
+                                    <input type="text" id="searchDeviceInput"
+                                        class="form-control bg-light border-0 shadow-sm"
+                                        placeholder="Cari nama, SN, ruangan..."
+                                        oninput="currentDevicePage=1; filterDevices()">
+                                </div>
+                                <button class="btn btn-primary rounded-3 fw-bold shadow-sm"
+                                    onclick="openAddDeviceModal()">
+                                    <i class="fas fa-plus me-1"></i> Tambah Perangkat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle m-0" style="border-top: 1px solid #f1f5f9;">
+                                <thead class="bg-light text-secondary" style="font-size: 13px;">
+                                    <tr>
+                                        <th class="ps-4 py-3">#</th>
+                                        <th class="py-3">NAMA PERANGKAT</th>
+                                        <th class="py-3">TIPE BOARD</th>
+                                        <th class="py-3">SERIAL NUMBER</th>
+                                        <th class="py-3">ALAMAT IP</th>
+                                        <th class="py-3">RUANGAN</th>
+                                        <th class="py-3 text-center">STATUS</th>
+                                        <th class="py-3 text-center" style="width: 85px;">EDIT</th>
+                                        <th class="py-3 text-center pe-4" style="width: 85px;">HAPUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="devices-tbody">
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4 text-muted">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                            Memuat data perangkat dari database...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div
+                        class="card-footer bg-white border-top-0 p-3 px-4 d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="device-count-text">Showing 0 to 0 of 0 entries</small>
+                        <nav>
+                            <ul class="pagination pagination-sm m-0" id="device-pagination-ul">
+                                <!-- Di-render oleh JavaScript -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit Device -->
+    <div class="modal fade" id="deviceModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="deviceModalTitle"><i
+                            class="fas fa-microchip text-primary me-2"></i>Tambah Perangkat Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pt-3 pb-4">
+                    <div id="modalError" class="alert alert-danger d-none py-2 px-3 small rounded-3 mb-3"></div>
+                    <form id="deviceForm" onsubmit="handleDeviceFormSubmit(event)">
+                        <input type="hidden" id="devId" value="">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">Nama Perangkat <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control bg-light border-0 shadow-sm rounded-3" id="devName"
+                                placeholder="Contoh: ESP32 Laboratorium" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">Tipe Board</label>
+                            <input type="text" class="form-control bg-light border-0 shadow-sm rounded-3" id="devType"
+                                list="boardOptions" placeholder="Contoh: NodeMCU ESP32, Arduino Uno" required>
+                            <datalist id="boardOptions">
+                                <option value="NodeMCU ESP32">
+                                <option value="Arduino Uno R3">
+                                <option value="Wemos D1 Mini (ESP8266)">
+                                <option value="Raspberry Pi 4">
+                                <option value="ESP32 DevKit V1">
+                                <option value="ESP32-CAM">
+                                <option value="STM32 BluePill">
+                            </datalist>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">Serial Number (SN Unik) <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control bg-light border-0 shadow-sm rounded-3 font-monospace"
+                                id="devSN" placeholder="Contoh: SN-ESP32-005" required>
+                            <small class="text-muted" style="font-size: 11px;">Gunakan Serial Number yang sama dengan
+                                pengirim payload MQTT (misal: "sn": "SN-ESP32-005").</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">Lokasi Ruangan <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control bg-light border-0 shadow-sm rounded-3" id="devRoom"
+                                placeholder="Contoh: Ruang Tamu, Gudang, Laboratorium" required>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                            <button type="button" class="btn btn-light shadow-sm rounded-3 fw-bold text-secondary px-3"
+                                data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" id="btnSaveDevice"
+                                class="btn btn-primary shadow-sm rounded-3 fw-bold px-4">
+                                <i class="fas fa-save me-1"></i> Simpan ke Database
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Delete Device Confirmation (Red Nuance, Centered, Large Warning) -->
+    <div class="modal fade" id="deleteDeviceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Header with red accent -->
+                <div class="p-4 pb-0 d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger"
+                            style="width: 56px; height: 56px; min-width: 56px;">
+                            <i class="fas fa-trash-alt fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="modal-title fw-bold text-dark m-0" style="font-size: 1.35rem;">Hapus Perangkat
+                            </h4>
+                            <span
+                                class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 fw-bold px-2 py-1 rounded-pill mt-1"
+                                style="font-size: 0.8rem;">
+                                <i class="fas fa-triangle-exclamation me-1"></i>TINDAKAN PERMANEN
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 pt-3 pb-3">
+                    <!-- Prominent Red Alert Warning Box -->
+                    <div
+                        class="alert alert-danger border-danger border-opacity-50 bg-danger bg-opacity-10 p-3 rounded-3 mb-3 d-flex align-items-start gap-2.5">
+                        <i class="fas fa-triangle-exclamation fs-4 text-danger flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <strong class="d-block text-danger mb-1" style="font-size: 1.05rem;">PERINGATAN HAPUS
+                                DATA</strong>
+                            <p class="text-danger-emphasis mb-0" style="font-size: 0.96rem; line-height: 1.45;">
+                                Apakah Anda yakin ingin menghapus data perangkat ini dari sistem dan database? Tindakan
+                                ini <strong>tidak dapat dibatalkan</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Detail Data Card -->
+                    <div class="p-3 rounded-3 border border-secondary border-opacity-25 bg-light mb-3">
+                        <div
+                            class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-light-subtle">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Nama Perangkat:</span>
+                            <span class="fw-bold text-dark" style="font-size: 1.05rem;" id="deleteDevName">-</span>
+                        </div>
+                        <div
+                            class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-light-subtle">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Serial Number:</span>
+                            <span class="font-monospace fw-bold text-danger" style="font-size: 1.05rem;"
+                                id="deleteDevSN">-</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-secondary fw-semibold" style="font-size: 0.95rem;">Lokasi Ruangan:</span>
+                            <span class="fw-semibold text-dark" style="font-size: 1.0rem;" id="deleteDevRoom">-</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 text-danger fw-semibold px-1"
+                        style="font-size: 0.88rem;">
+                        <i class="fas fa-circle-info fs-6"></i>
+                        <span>Perangkat yang dihapus tidak akan lagi sinkron dengan sistem monitoring.</span>
+                    </div>
+                    <input type="hidden" id="deleteDevId" value="">
+                </div>
+
+                <div
+                    class="modal-footer border-top-0 px-4 pb-4 pt-2 d-flex gap-2 justify-content-end bg-light bg-opacity-50">
+                    <button type="button" class="btn btn-light shadow-sm rounded-3 fw-bold text-secondary px-3 py-2"
+                        style="font-size: 0.95rem;" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="button" id="btnConfirmDeleteDevice"
+                        class="btn btn-danger shadow-sm rounded-3 fw-bold px-4 py-2" style="font-size: 0.98rem;"
+                        onclick="executeDeleteDevice()">
+                        <i class="fas fa-trash-alt me-1.5"></i> Ya, Hapus Perangkat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ubah Kata Sandi Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title"><i class="fas fa-key me-2"></i>Ubah Kata Sandi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <div id="err_cp_current" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Saat Ini</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_current" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_new" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_new" required>
+                        </div>
+                        <div class="mb-3">
+                            <div id="err_cp_confirm" class="text-danger small fw-bold d-none mb-1"></div>
+                            <label class="form-label fw-bold text-secondary">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" class="form-control bg-light border-0 shadow-sm rounded-3"
+                                id="cp_confirm" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm fw-bold">Simpan Kata
+                            Sandi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <!-- App Logic -->
+    <script src="js/app.js"></script>
+    <script>
+        var token = checkAuth();
+
+        document.getElementById("menu-toggle").addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementById("wrapper").classList.toggle("toggled");
+            var sidebar = document.getElementById("sidebar-wrapper");
+            if (sidebar.style.marginLeft === "-250px") sidebar.style.marginLeft = "0";
+            else sidebar.style.marginLeft = "-250px";
+        });
+
+        // State Perangkat
+        var allDevices = [];
+        var deviceLastSeen = {};
+        var deviceTimeoutMs = 5000;
+        var devModal = null;
+
+        function showAlert(msg, isError = false) {
+            var el = document.getElementById('alertFeedback');
+            var txt = document.getElementById('alertFeedbackText');
+            if (!el || !txt) return;
+            el.className = 'alert shadow-sm rounded-3 mb-4 alert-dismissible fade show ' + (isError ? 'alert-danger' : 'alert-success');
+            txt.innerHTML = (isError ? '<i class="fas fa-exclamation-circle me-2"></i>' : '<i class="fas fa-check-circle me-2"></i>') + msg;
+            el.classList.remove('d-none');
+            setTimeout(() => { hideAlert(); }, 4000);
+        }
+
+        function hideAlert() {
+            var el = document.getElementById('alertFeedback');
+            if (el) el.classList.add('d-none');
+        }
+
+        // Ambil data perangkat dari REST API backend (MySQL)
+        async function fetchDevices() {
+            try {
+                var response = await axios.get('/api/devices', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.data && response.data.success) {
+                    allDevices = response.data.data || [];
+                    renderDevices();
+                } else {
+                    throw new Error(response.data.message || 'Gagal mengambil data perangkat');
+                }
+            } catch (err) {
+                console.error("Error fetch devices:", err);
+                var msg = err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message;
+                var tbody = document.getElementById('devices-tbody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger fw-bold"><i class="fas fa-triangle-exclamation me-2"></i>Gagal memuat perangkat dari database: ${msg}</td></tr>`;
+                }
+            }
+        }
+
+        var currentDevicePage = 1;
+
+        function changeDevicePage(page) {
+            currentDevicePage = page;
+            renderDevices();
+        }
+
+        function renderDevicePagination(totalPages) {
+            var ul = document.getElementById('device-pagination-ul');
+            if (!ul) return;
+
+            var html = '';
+
+            // Prev button
+            if (currentDevicePage === 1) {
+                html += `<li class="page-item disabled"><a class="page-link border-0 shadow-sm rounded-3 me-1" href="#"><i class="fas fa-chevron-left"></i></a></li>`;
+            } else {
+                html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 me-1 text-secondary" href="#" onclick="event.preventDefault(); changeDevicePage(${currentDevicePage - 1})"><i class="fas fa-chevron-left"></i></a></li>`;
+            }
+
+            // Page numbers
+            for (var i = 1; i <= totalPages; i++) {
+                if (i === currentDevicePage) {
+                    html += `<li class="page-item active"><a class="page-link border-0 shadow-sm rounded-3 me-1 bg-primary text-white" href="#" onclick="event.preventDefault()">${i}</a></li>`;
+                } else {
+                    html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 me-1 text-secondary" href="#" onclick="event.preventDefault(); changeDevicePage(${i})">${i}</a></li>`;
+                }
+            }
+
+            // Next button
+            if (currentDevicePage === totalPages || totalPages === 0) {
+                html += `<li class="page-item disabled"><a class="page-link border-0 shadow-sm rounded-3 text-secondary" href="#"><i class="fas fa-chevron-right"></i></a></li>`;
+            } else {
+                html += `<li class="page-item"><a class="page-link border-0 shadow-sm rounded-3 text-secondary" href="#" onclick="event.preventDefault(); changeDevicePage(${currentDevicePage + 1})"><i class="fas fa-chevron-right"></i></a></li>`;
+            }
+
+            ul.innerHTML = html;
+        }
+
+        function filterDevices(resetPage = true) {
+            if (resetPage) currentDevicePage = 1;
+            renderDevices();
+        }
+
+        function renderDevices() {
+            var tbody = document.getElementById('devices-tbody');
+            if (!tbody) return;
+
+            var q = (document.getElementById('searchDeviceInput') ? document.getElementById('searchDeviceInput').value : '').toLowerCase().trim();
+            var filtered = allDevices.filter(dev => {
+                if (!q) return true;
+                return (dev.name && dev.name.toLowerCase().includes(q)) ||
+                    (dev.sn && dev.sn.toLowerCase().includes(q)) ||
+                    (dev.room && dev.room.toLowerCase().includes(q)) ||
+                    (dev.type && dev.type.toLowerCase().includes(q)) ||
+                    (dev.ip && dev.ip.toLowerCase().includes(q));
+            });
+
+            var now = Date.now();
+            var onlineCount = 0;
+
+            allDevices.forEach(dev => {
+                var lastSeen = deviceLastSeen[dev.sn] || 0;
+                var isDevOnline = (now - lastSeen <= deviceTimeoutMs) && lastSeen > 0;
+                if (isDevOnline) onlineCount++;
+            });
+
+            var statTotal = document.getElementById('stat-total-devices');
+            var statOnline = document.getElementById('stat-online-devices');
+            var statOffline = document.getElementById('stat-offline-devices');
+
+            if (statTotal) statTotal.innerText = allDevices.length;
+            if (statOnline) statOnline.innerText = onlineCount;
+            if (statOffline) statOffline.innerText = Math.max(0, allDevices.length - onlineCount);
+
+            var countTextEl = document.getElementById('device-count-text');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted"><i class="fas fa-inbox fs-4 d-block mb-2"></i>Tidak ada perangkat yang cocok</td></tr>`;
+                if (countTextEl) countTextEl.innerText = 'Showing 0 to 0 of 0 entries';
+                renderDevicePagination(1);
+                return;
+            }
+
+            // Limit and Pagination logic
+            var limitSelect = document.getElementById('deviceLimit') ? document.getElementById('deviceLimit').value : '10';
+            var limit = filtered.length;
+            if (limitSelect !== 'all') {
+                limit = parseInt(limitSelect) || 10;
+            }
+
+            var totalPages = Math.ceil(filtered.length / limit) || 1;
+            if (currentDevicePage > totalPages) currentDevicePage = totalPages;
+
+            var startIndex = (currentDevicePage - 1) * limit;
+            var endIndex = startIndex + limit;
+            var displayData = filtered.slice(startIndex, endIndex);
+
+            renderDevicePagination(totalPages);
+            if (countTextEl) {
+                countTextEl.innerText = `Showing ${startIndex + 1} to ${Math.min(endIndex, filtered.length)} of ${filtered.length} entries`;
+            }
+
+            var html = '';
+            displayData.forEach((dev, index) => {
+                var actualIndex = startIndex + index + 1;
+                var lastSeen = deviceLastSeen[dev.sn] || 0;
+                var isOnline = (now - lastSeen <= deviceTimeoutMs) && lastSeen > 0;
+                var badge = isOnline
+                    ? '<span class="badge rounded-pill bg-success px-3 py-2"><i class="fas fa-circle me-1" style="font-size:7px"></i> Online</span>'
+                    : '<span class="badge rounded-pill bg-danger px-3 py-2"><i class="fas fa-circle me-1" style="font-size:7px"></i> Offline</span>';
+
+                html += `
+                <tr>
+                    <td class="ps-4 fw-bold text-muted">${actualIndex}</td>
+                    <td>
+                        <div class="fw-bold text-dark">${dev.name}</div>
+                        <small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>${dev.created_at ? new Date(dev.created_at).toLocaleDateString('id-ID') : '-'}</small>
+                    </td>
+                    <td><span class="badge bg-light text-secondary border">${dev.type || '-'}</span></td>
+                    <td><code class="fw-bold text-primary">${dev.sn}</code></td>
+                    <td><span class="font-monospace text-muted">${dev.ip || '-'}</span></td>
+                    <td><i class="fas fa-location-dot text-danger me-1"></i> ${dev.room}</td>
+                    <td class="text-center">${badge}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary shadow-sm rounded-3 px-2.5 py-1" onclick="openEditDeviceModal(${dev.id})" title="Edit Data Perangkat">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                    <td class="text-center pe-4">
+                        <button class="btn btn-sm btn-outline-danger shadow-sm rounded-3 px-2.5 py-1" onclick="openDeleteDeviceModal(${dev.id})" title="Hapus Perangkat">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        var deleteDevModal;
+        document.addEventListener('DOMContentLoaded', () => {
+            devModal = new bootstrap.Modal(document.getElementById('deviceModal'));
+            deleteDevModal = new bootstrap.Modal(document.getElementById('deleteDeviceModal'));
+            fetchDevices();
+        });
+
+        function openAddDeviceModal() {
+            document.getElementById('deviceForm').reset();
+            document.getElementById('devId').value = '';
+            document.getElementById('deviceModalTitle').innerHTML = '<i class="fas fa-microchip text-primary me-2"></i>Tambah Perangkat Baru';
+            document.getElementById('devSN').removeAttribute('readonly');
+            document.getElementById('modalError').classList.add('d-none');
+            document.getElementById('btnSaveDevice').innerHTML = '<i class="fas fa-save me-1"></i> Simpan ke Database';
+            devModal.show();
+        }
+
+        function openEditDeviceModal(id) {
+            var dev = allDevices.find(d => d.id === id);
+            if (!dev) return;
+
+            document.getElementById('devId').value = dev.id;
+            document.getElementById('devName').value = dev.name;
+            document.getElementById('devType').value = dev.type || '';
+            document.getElementById('devSN').value = dev.sn;
+            document.getElementById('devSN').setAttribute('readonly', true);
+            document.getElementById('devRoom').value = dev.room;
+
+            document.getElementById('deviceModalTitle').innerHTML = '<i class="fas fa-edit text-primary me-2"></i>Edit Data Perangkat';
+            document.getElementById('modalError').classList.add('d-none');
+            document.getElementById('btnSaveDevice').innerHTML = '<i class="fas fa-save me-1"></i> Perbarui Perangkat';
+            devModal.show();
+        }
+
+        async function handleDeviceFormSubmit(e) {
+            e.preventDefault();
+            var id = document.getElementById('devId').value;
+            var name = document.getElementById('devName').value.trim();
+            var type = document.getElementById('devType').value.trim();
+            var sn = document.getElementById('devSN').value.trim();
+            var room = document.getElementById('devRoom').value.trim();
+            var errEl = document.getElementById('modalError');
+
+            if (!name || !sn || !room) {
+                errEl.innerText = 'Nama perangkat, Serial Number, dan Ruangan wajib diisi!';
+                errEl.classList.remove('d-none');
+                return;
+            }
+
+            var btn = document.getElementById('btnSaveDevice');
+            var originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+            errEl.classList.add('d-none');
+
+            try {
+                if (id) {
+                    // Update existing device
+                    var res = await axios.put('/api/devices/' + id, { name, type, sn, room }, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    showAlert(res.data.message || 'Perangkat berhasil diperbarui!');
+                } else {
+                    // Create new device in database
+                    var res = await axios.post('/api/devices', { name, type, sn, room }, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    showAlert(res.data.message || 'Perangkat berhasil ditambahkan ke database!');
+                }
+
+                devModal.hide();
+                await fetchDevices();
+            } catch (err) {
+                console.error("Gagal simpan perangkat:", err);
+                var errMsg = (err.response && err.response.data && err.response.data.message) ? err.response.data.message : err.message;
+                errEl.innerText = errMsg;
+                errEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
+        }
+
+        function openDeleteDeviceModal(id) {
+            var dev = allDevices.find(d => d.id === id);
+            if (!dev) return;
+            document.getElementById('deleteDevId').value = dev.id;
+            document.getElementById('deleteDevName').innerText = dev.name;
+            document.getElementById('deleteDevSN').innerText = dev.sn;
+            document.getElementById('deleteDevRoom').innerText = dev.room;
+            deleteDevModal.show();
+        }
+
+        async function executeDeleteDevice() {
+            var id = document.getElementById('deleteDevId').value;
+            if (!id) return;
+            var btn = document.getElementById('btnConfirmDeleteDevice');
+            var originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menghapus...';
+
+            try {
+                var res = await axios.delete('/api/devices/' + id, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                deleteDevModal.hide();
+                showAlert(res.data.message || 'Perangkat berhasil dihapus dari database!');
+                await fetchDevices();
+            } catch (err) {
+                console.error("Gagal menghapus perangkat:", err);
+                var errMsg = (err.response && err.response.data && err.response.data.message) ? err.response.data.message : err.message;
+                showAlert('Gagal menghapus perangkat: ' + errMsg, true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        // === MQTT LOGIC ===
+        var MQTT_HOST = 'broker.emqx.io';
+        var MQTT_PORT = 8083;
+        var clientID = "WebClient_Dev_" + parseInt(Math.random() * 1000, 10);
+        var mqttClient = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "/mqtt", clientID);
+
+        mqttClient.onMessageArrived = (msg) => {
+            if (msg.destinationName === 'tugasiot/sensor') {
+                try {
+                    var data = JSON.parse(msg.payloadString);
+                    var sn = data.sn || 'SN-ESP32-001';
+                    deviceLastSeen[sn] = Date.now();
+                    if (data.ip && typeof data.ip === 'string' && data.ip.trim() !== '') {
+                        var dev = allDevices.find(d => d.sn === sn);
+                        if (dev && dev.ip !== data.ip.trim()) {
+                            dev.ip = data.ip.trim();
+                        }
+                    }
+                    renderDevices();
+                } catch (e) { }
+            }
+        };
+
+        mqttClient.connect({
+            onSuccess: () => {
+                console.log("MQTT Terhubung di Menu Perangkat");
+                mqttClient.subscribe('tugasiot/sensor');
+            }
+        });
+
+        // Loop pemeriksaan timeout offline tiap 1 detik
+        setInterval(() => {
+            renderDevices();
+        }, 1000);
+    </script>
+
+</body>
+
+</html>

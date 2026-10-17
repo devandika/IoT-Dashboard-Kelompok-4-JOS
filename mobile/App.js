@@ -6,7 +6,7 @@ import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import React, { useState, useEffect, useRef, createContext, useContext, useMemo } from 'react';
 import { 
-  View, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar, ScrollView, Dimensions, Switch, Modal, TextInput, LogBox 
+  View, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar, Modal, TextInput, LogBox 
 } from 'react-native';
 
 LogBox.ignoreLogs([
@@ -20,10 +20,8 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, DefaultTheme, DarkTheme as NavDarkTheme } from '@react-navigation/native';
 import { registerRootComponent } from 'expo';
-import { LineChart } from 'react-native-chart-kit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import axios from 'axios';
-import Paho from 'paho-mqtt';
 
 import DashboardScreen from './src/screens/DashboardScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -31,16 +29,11 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import SensorHistoryScreen from './src/screens/SensorHistoryScreen';
 import ActuatorHistoryScreen from './src/screens/ActuatorHistoryScreen';
 import UsersScreen from './src/screens/UsersScreen';
+import AIHistoryScreen from './src/screens/AIHistoryScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const IP_KOMPUTER = '192.168.43.196'; 
-const API_URL = `http://${IP_KOMPUTER}:8080`;
-const MQTT_HOST = 'broker.emqx.io';
-const MQTT_WS_PORT = 8083; 
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
-const screenWidth = Dimensions.get("window").width;
 import { ThemeContext, getThemeStyles } from './src/theme';
 
 // --- HALAMAN DUMMY: DATA PERANGKAT ---
@@ -337,6 +330,7 @@ function DrawerNavigator({ navigation }) {
       <Drawer.Screen name="Data Sensor" component={SensorHistoryScreen} options={{ drawerIcon: ({color}) => <MaterialCommunityIcons name="thermometer" size={22} color={color} /> }} />
       <Drawer.Screen name="Data Aktuator" component={ActuatorHistoryScreen} options={{ drawerIcon: ({color}) => <MaterialCommunityIcons name="led-on" size={22} color={color} /> }} />
       <Drawer.Screen name="Perangkat (Dummy)" component={DevicesScreen} options={{ drawerIcon: ({color}) => <MaterialCommunityIcons name="cpu-64-bit" size={22} color={color} /> }} />
+      <Drawer.Screen name="Riwayat Analisa" component={AIHistoryScreen} options={{ drawerIcon: ({color}) => <MaterialCommunityIcons name="brain" size={22} color={color} /> }} />
       {role === 'Admin' && (
         <Drawer.Screen name="Pengguna" component={UsersScreen} options={{ drawerIcon: ({color}) => <MaterialCommunityIcons name="account-group" size={22} color={color} /> }} />
       )}
